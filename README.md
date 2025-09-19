@@ -24,7 +24,18 @@ Install the package via Composer:
 composer require keys/ui
 ```
 
-The package will automatically register its service provider and publish necessary assets.
+The package will automatically register its service provider and install all necessary dependencies, including Heroicons for icon support.
+
+### Dependencies
+
+Keys UI automatically installs the following dependencies:
+
+- **Blade Heroicons** (`blade-ui-kit/blade-heroicons`): Provides icon components for the UI library
+- **Laravel Support & View** packages for framework integration
+
+### Post-Installation
+
+After installation, Keys UI components will be immediately available with the `x-keys::` namespace. No additional configuration is required.
 
 ## Quick Start
 
@@ -378,6 +389,65 @@ Keys UI automatically detects these RTL languages:
 - Urdu (ur)
 - Pashto (ps)
 - And many more...
+
+## Icon Usage
+
+Keys UI components use Heroicons for consistent icon design. All icon props accept Heroicon names:
+
+```blade
+{{-- Standard Heroicon usage --}}
+<x-keys::button icon="heroicon-o-plus">Add Item</x-keys::button>
+<x-keys::input icon-left="heroicon-o-user" />
+<x-keys::badge icon="heroicon-o-check" />
+
+{{-- Multi-state icons --}}
+<x-keys::button
+    icon="heroicon-o-eye"
+    icon-toggle="heroicon-o-eye-slash"
+    icon-success="heroicon-o-check"
+>
+    Toggle Visibility
+</x-keys::button>
+```
+
+### Available Icon Types
+
+- **Outline icons**: `heroicon-o-*` (default)
+- **Solid icons**: `heroicon-s-*`
+- **Mini icons**: `heroicon-m-*`
+
+### Custom Icons
+
+You can also use custom SVG icons by placing them in `resources/icons/` and referencing without the `heroicon-` prefix:
+
+```blade
+{{-- Custom icon from resources/icons/custom-icon.svg --}}
+<x-keys::button icon="custom-icon">Custom</x-keys::button>
+```
+
+## Troubleshooting
+
+### "Unable to locate a class or view for component [heroicon-o-*]"
+
+This error occurs when Heroicons aren't properly installed. Keys UI requires Blade Heroicons for icon components:
+
+```bash
+# This should be automatically installed with Keys UI
+composer require blade-ui-kit/blade-heroicons
+```
+
+If you're still seeing icon errors, ensure your Laravel application is properly caching views:
+
+```bash
+php artisan view:clear
+php artisan config:clear
+```
+
+### Icon Not Displaying
+
+1. **Check icon name**: Ensure you're using the correct Heroicon name (e.g., `heroicon-o-check`)
+2. **Verify dependencies**: Run `composer show blade-ui-kit/blade-heroicons` to confirm installation
+3. **Clear caches**: Run `php artisan view:clear` and `php artisan config:clear`
 
 ## Requirements
 
