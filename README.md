@@ -60,20 +60,37 @@ Start using components immediately with the `x-keys::` namespace:
 
 ### Asset Integration
 
-Add the Keys UI assets to your layout:
+#### CSS Setup
+Import Keys UI styles in your main CSS file (e.g., `resources/css/app.css`):
+
+```css
+@import "../../vendor/keys/ui/resources/css/keys-ui.css";
+
+/* Your custom styles can override Keys UI styles below */
+:root {
+    --brand: your-custom-brand-color;
+}
+```
+
+#### JavaScript Setup
+Add the Keys UI JavaScript to your layout:
 
 ```blade
 <!DOCTYPE html>
 <html>
 <head>
     <!-- Your existing head content -->
-    @keysAssets()
 </head>
 <body>
     <!-- Your content -->
+
+    <!-- Add Keys UI JavaScript (excludes CSS) -->
+    @keysAssets()
 </body>
 </html>
 ```
+
+> **Note**: `@keysAssets()` only includes JavaScript and translations. CSS must be imported manually to allow for easy customization.
 
 ## Component Overview
 
@@ -177,12 +194,66 @@ Many components support multiple visual states:
 
 ### Custom Styling
 
+#### Override Design Tokens
 Override component styles using CSS custom properties:
 
 ```css
-.my-custom-button {
+:root {
     --color-brand: #your-color;
     --radius-md: 0.75rem;
+}
+```
+
+#### Force Light Theme Only
+By default, Keys UI supports both light and dark themes. To force light theme only:
+
+```css
+@import "../../vendor/keys/ui/resources/css/keys-ui.css";
+
+/* Force light theme only */
+:root {
+    color-scheme: light;
+}
+
+/* Override dark mode variables to use light values */
+:root {
+    --surface: white;
+    --body: var(--color-neutral-50);
+    --foreground: var(--color-neutral-900);
+    --border: var(--color-neutral-200);
+    --input: var(--color-neutral-50);
+    --muted: var(--color-neutral-600);
+
+    /* Brand colors (light theme values) */
+    --brand: var(--color-brand-500);
+    --brand-hover: var(--color-brand-600);
+    --brand-active: var(--color-brand-700);
+}
+
+/* Disable dark mode custom variant */
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: light;
+    }
+}
+```
+
+#### Theme Customization
+Customize the entire color palette:
+
+```css
+@import "../../vendor/keys/ui/resources/css/keys-ui.css";
+
+:root {
+    /* Custom brand colors */
+    --color-brand-500: #3b82f6;
+    --color-brand-600: #2563eb;
+    --color-brand-700: #1d4ed8;
+
+    /* Apply to semantic tokens */
+    --brand: var(--color-brand-500);
+    --brand-hover: var(--color-brand-600);
+    --brand-active: var(--color-brand-700);
 }
 ```
 
@@ -215,6 +286,98 @@ Seamless Laravel validation integration:
     required
 />
 ```
+
+## RTL (Right-to-Left) Support
+
+Keys UI includes comprehensive RTL support for Arabic, Hebrew, and other right-to-left languages.
+
+### Automatic RTL Detection
+
+RTL support is automatically enabled based on:
+- HTML `dir` attribute
+- Document language (`lang` attribute)
+- Explicit CSS classes
+
+```html
+<!-- Automatic RTL detection -->
+<html lang="ar" dir="rtl">
+<html lang="he" dir="rtl">
+
+<!-- Manual RTL activation -->
+<html dir="rtl" class="rtl">
+```
+
+### RTL Features
+
+- **Automatic Layout Flipping**: Components automatically mirror their layout in RTL mode
+- **Smart Icon Positioning**: Icons and actions adjust position based on text direction
+- **Dropdown Positioning**: Menus and dropdowns position correctly for RTL layouts
+- **Text Alignment**: Text automatically aligns to the appropriate side
+- **Logical Properties**: Uses logical CSS properties (start/end) instead of physical (left/right)
+
+### JavaScript RTL Utilities
+
+```javascript
+import { RTLUtils } from 'keys-ui';
+
+// Check if current document is RTL
+const isRTL = RTLUtils.isRTL();
+
+// Transform CSS classes for RTL
+const rtlClasses = RTLUtils.transformDirectionalClasses('ml-4 text-left');
+
+// Get RTL-aware dropdown positioning
+const position = RTLUtils.getDropdownPosition('right', 'start');
+```
+
+### Component RTL Examples
+
+```blade
+{{-- These components automatically adapt to RTL --}}
+<x-keys::input
+    name="email"
+    placeholder="أدخل البريد الإلكتروني"
+    icon-left="heroicon-o-envelope"
+    label="البريد الإلكتروني"
+/>
+
+<x-keys::button icon="heroicon-o-arrow-right">
+    التالي {{-- Next in Arabic --}}
+</x-keys::button>
+
+<x-keys::dropdown position="left">
+    {{-- Automatically becomes position="right" in RTL --}}
+    <x-keys::dropdown.trigger>قائمة</x-keys::dropdown.trigger>
+    <x-keys::dropdown.panel>
+        <x-keys::menu.item>عنصر القائمة</x-keys::menu.item>
+    </x-keys::dropdown.panel>
+</x-keys::dropdown>
+```
+
+### CSS Custom Properties for RTL
+
+```css
+/* RTL-aware custom properties */
+:root {
+    --text-align-start: left;   /* Becomes 'right' in RTL */
+    --text-align-end: right;    /* Becomes 'left' in RTL */
+}
+
+[dir="rtl"] {
+    --text-align-start: right;
+    --text-align-end: left;
+}
+```
+
+### Supported RTL Languages
+
+Keys UI automatically detects these RTL languages:
+- Arabic (ar)
+- Hebrew (he)
+- Persian/Farsi (fa)
+- Urdu (ur)
+- Pashto (ps)
+- And many more...
 
 ## Requirements
 

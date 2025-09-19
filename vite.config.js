@@ -11,10 +11,12 @@ export default defineConfig({
         },
         rollupOptions: {
             // External dependencies that shouldn't be bundled
-            external: [],
+            external: ['quill', 'quill/dist/quill.snow.css'],
             output: {
                 // Global variables for UMD build
-                globals: {}
+                globals: {
+                    'quill': 'Quill'
+                }
             }
         },
         outDir: 'dist',

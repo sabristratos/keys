@@ -441,4 +441,310 @@
     }
 }
 
+/* ============================================
+   RTL (Right-to-Left) Support
+   ============================================ */
+
+/* RTL Detection and Global Styles */
+:root {
+    --direction-factor: 1;
+    --text-align-start: left;
+    --text-align-end: right;
+}
+
+[dir="rtl"], .rtl {
+    --direction-factor: -1;
+    --text-align-start: right;
+    --text-align-end: left;
+}
+
+/* RTL-aware custom variant */
+@custom-variant rtl ([dir="rtl"] &, .rtl &);
+
+/* ============================================
+   RTL Component Adjustments
+   ============================================ */
+
+/* Input Field RTL */
+[dir="rtl"] .input-field-container,
+.rtl .input-field-container {
+    direction: rtl;
+}
+
+[dir="rtl"] .input-field-container input,
+.rtl .input-field-container input {
+    text-align: right;
+}
+
+[dir="rtl"] .input-field-container .absolute.left-2,
+.rtl .input-field-container .absolute.left-2 {
+    left: auto;
+    right: 0.5rem;
+}
+
+[dir="rtl"] .input-field-container .absolute.right-2,
+.rtl .input-field-container .absolute.right-2 {
+    right: auto;
+    left: 0.5rem;
+}
+
+/* Button and Icon RTL */
+[dir="rtl"] .button-with-icon .icon-left,
+.rtl .button-with-icon .icon-left {
+    margin-left: 0.5rem;
+    margin-right: 0;
+}
+
+[dir="rtl"] .button-with-icon .icon-right,
+.rtl .button-with-icon .icon-right {
+    margin-right: 0.5rem;
+    margin-left: 0;
+}
+
+/* Dropdown and Menu RTL */
+[dir="rtl"] [data-dropdown-panel],
+.rtl [data-dropdown-panel] {
+    direction: rtl;
+}
+
+[dir="rtl"] [data-submenu-panel],
+.rtl [data-submenu-panel] {
+    direction: rtl;
+}
+
+/* Table RTL */
+[dir="rtl"] table,
+.rtl table {
+    direction: rtl;
+}
+
+[dir="rtl"] th,
+.rtl th {
+    text-align: right;
+}
+
+[dir="rtl"] td,
+.rtl td {
+    text-align: right;
+}
+
+/* Form Elements RTL */
+[dir="rtl"] .form-field,
+.rtl .form-field {
+    direction: rtl;
+}
+
+[dir="rtl"] .form-field input,
+.rtl .form-field input,
+[dir="rtl"] .form-field textarea,
+.rtl .form-field textarea,
+[dir="rtl"] .form-field select,
+.rtl .form-field select {
+    text-align: right;
+}
+
+/* Checkbox and Radio RTL */
+[dir="rtl"] .checkbox-container,
+.rtl .checkbox-container,
+[dir="rtl"] .radio-container,
+.rtl .radio-container {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .checkbox-container label,
+.rtl .checkbox-container label,
+[dir="rtl"] .radio-container label,
+.rtl .radio-container label {
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+/* Select Component RTL */
+[dir="rtl"] .select-container,
+.rtl .select-container {
+    direction: rtl;
+}
+
+[dir="rtl"] .select-dropdown,
+.rtl .select-dropdown {
+    text-align: right;
+}
+
+[dir="rtl"] .select-option,
+.rtl .select-option {
+    text-align: right;
+}
+
+/* Toast and Alert RTL */
+[dir="rtl"] .toast-container,
+.rtl .toast-container {
+    direction: rtl;
+}
+
+[dir="rtl"] .alert-container,
+.rtl .alert-container {
+    direction: rtl;
+}
+
+/* Modal RTL */
+[dir="rtl"] .modal-content,
+.rtl .modal-content {
+    direction: rtl;
+}
+
+/* Calendar RTL */
+[dir="rtl"] .calendar-container,
+.rtl .calendar-container {
+    direction: rtl;
+}
+
+[dir="rtl"] .calendar-grid,
+.rtl .calendar-grid {
+    direction: ltr; /* Keep calendar grid LTR for date consistency */
+}
+
+[dir="rtl"] .calendar-header,
+.rtl .calendar-header {
+    flex-direction: row-reverse;
+}
+
+/* Gallery RTL */
+[dir="rtl"] .gallery-container,
+.rtl .gallery-container {
+    direction: rtl;
+}
+
+[dir="rtl"] .gallery-grid,
+.rtl .gallery-grid {
+    direction: rtl;
+}
+
+/* File Upload RTL */
+[dir="rtl"] .file-upload-container,
+.rtl .file-upload-container {
+    direction: rtl;
+}
+
+[dir="rtl"] .file-preview-list,
+.rtl .file-preview-list {
+    direction: rtl;
+}
+
+/* Breadcrumb RTL */
+[dir="rtl"] .breadcrumb-container,
+.rtl .breadcrumb-container {
+    direction: rtl;
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .breadcrumb-separator,
+.rtl .breadcrumb-separator {
+    transform: scaleX(-1);
+}
+
+/* Tabs RTL */
+[dir="rtl"] .tabs-container,
+.rtl .tabs-container {
+    direction: rtl;
+}
+
+[dir="rtl"] .tab-list,
+.rtl .tab-list {
+    direction: rtl;
+}
+
+/* Progress RTL */
+[dir="rtl"] .progress-bar,
+.rtl .progress-bar {
+    direction: rtl;
+}
+
+[dir="rtl"] .progress-fill,
+.rtl .progress-fill {
+    transform-origin: right center;
+}
+
+/* ============================================
+   RTL Utility Classes
+   ============================================ */
+
+/* Directional spacing utilities */
+.rtl .ms-auto { margin-left: auto !important; margin-right: 0 !important; }
+.rtl .me-auto { margin-right: auto !important; margin-left: 0 !important; }
+.rtl .ps-auto { padding-left: auto !important; padding-right: 0 !important; }
+.rtl .pe-auto { padding-right: auto !important; padding-left: 0 !important; }
+
+/* Text alignment utilities */
+.rtl .text-start { text-align: right !important; }
+.rtl .text-end { text-align: left !important; }
+
+/* Float utilities */
+.rtl .float-start { float: right !important; }
+.rtl .float-end { float: left !important; }
+
+/* Transform utilities for icons that need flipping */
+.rtl .rtl-flip {
+    transform: scaleX(-1);
+}
+
+/* ============================================
+   RTL Responsive Helpers
+   ============================================ */
+
+/* Hide/show based on direction */
+.ltr-only {
+    display: block;
+}
+
+.rtl-only {
+    display: none;
+}
+
+[dir="rtl"] .ltr-only,
+.rtl .ltr-only {
+    display: none;
+}
+
+[dir="rtl"] .rtl-only,
+.rtl .rtl-only {
+    display: block;
+}
+
+/* ============================================
+   RTL Animation Adjustments
+   ============================================ */
+
+/* Slide animations for RTL */
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+[dir="rtl"] .slide-in-start,
+.rtl .slide-in-start {
+    animation: slideInFromRight 0.3s ease-out;
+}
+
+[dir="rtl"] .slide-in-end,
+.rtl .slide-in-end {
+    animation: slideInFromLeft 0.3s ease-out;
+}
+
 

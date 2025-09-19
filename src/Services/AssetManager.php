@@ -15,35 +15,23 @@ class AssetManager
     }
 
     /**
-     * Render both CSS and JS assets
+     * Render JS assets and translations (CSS should be imported manually)
      */
     public function renderAssets(): HtmlString
     {
         return new HtmlString(
-            $this->renderStyles()->toHtml() . "\n" .
             $this->renderTranslations()->toHtml() . "\n" .
             $this->renderScripts()->toHtml()
         );
     }
 
     /**
-     * Render CSS assets
+     * Render CSS assets (deprecated - CSS should be imported manually in app.css)
      */
     public function renderStyles(): HtmlString
     {
-        if (!$this->shouldInjectAssets()) {
-            return new HtmlString('');
-        }
-
-        $html = '';
-
-        if ($this->isDevelopmentMode() && $this->isViteDevServerRunning()) {
-            $html .= $this->renderViteDevStyles();
-        } else {
-            $html .= $this->renderProductionStyles();
-        }
-
-        return new HtmlString($html);
+        // CSS is no longer auto-injected. Import manually: @import "../../vendor/keys/ui/resources/css/keys-ui.css"
+        return new HtmlString('');
     }
 
     /**

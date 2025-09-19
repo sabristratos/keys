@@ -10,7 +10,7 @@
 
 
 @if($hasActions())
-    <div class="absolute {{ $computedIconPosition }} right-2 flex gap-1">
+    <div class="absolute {{ $computedIconPosition }} end-2 flex gap-1">
         @foreach($computedActionData as $action)
             <div
                 class="input-action"

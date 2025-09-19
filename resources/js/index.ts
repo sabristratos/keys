@@ -30,17 +30,21 @@ import { GalleryActions } from './GalleryActions';
 import { BaseActionClass } from './utils/BaseActionClass';
 import { DOMUtils } from './utils/DOMUtils';
 import { EventUtils } from './utils/EventUtils';
+import { RTLUtils } from './utils/RTLUtils';
 
 export { FormActions, AlertActions, CalendarActions, RadioActions, RangeActions, SelectActions, TabsActions, ModalActions, ToastActions, DropdownActions, TableActions, ButtonGroupActions, TooltipActions, TimePickerActions, AccordionActions, EditorActions, DatePickerActions, AddToCartActions, FileUploadActions, GalleryActions };
 
 // Export utility classes for external consumption
-export { BaseActionClass, DOMUtils, EventUtils };
+export { BaseActionClass, DOMUtils, EventUtils, RTLUtils };
 
 /**
  * Initialize all Keys UI components
  * Call this function to automatically set up all interactive functionality
  */
 export function initializeKeysUI(): void {
+    // Initialize RTL support first
+    RTLUtils.initialize();
+
     FormActions.getInstance().init();
 
     AlertActions.getInstance().init();
