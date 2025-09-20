@@ -1,4 +1,4 @@
-import Q from "quill";
+import W from "quill";
 import "quill/dist/quill.snow.css";
 const D = class D {
   constructor() {
@@ -463,8 +463,8 @@ class d {
    * Handle escape key globally
    */
   static handleEscape(t) {
-    const e = this.handleKeyPress(["Escape"], t);
-    return this.addEventListener(document, "keydown", e);
+    const e = this.handleKeyPress(["Escape"], (a, s) => t(s));
+    return this.addEventListener(document, "keydown", (a) => e(a));
   }
   /**
    * Prevent default and stop propagation helper
@@ -2157,7 +2157,7 @@ class A extends b {
     const e = this.getState(t);
     if (!e) return;
     const a = /* @__PURE__ */ new Date(), s = `${a.getFullYear()}-${String(a.getMonth() + 1).padStart(2, "0")}`;
-    e.currentMonth !== s && (e.currentMonth = s, this.setState(t, e), this.renderCalendarDisplay(t));
+    e.currentMonth !== s && (e.currentMonth = s, this.setState(t, e), this.updateCalendarDisplay(t));
   }
   /**
    * Handle calendar footer action buttons
@@ -2546,7 +2546,7 @@ class E extends b {
   /**
    * Destroy range component
    */
-  destroy(t) {
+  destroyRange(t) {
     this.removeState(t);
   }
   /**
@@ -3532,7 +3532,7 @@ class x extends b {
    * Get global toast state
    */
   getGlobalState() {
-    return this.getState(document.documentElement);
+    return this.getState(document.documentElement) || null;
   }
   /**
    * Register a toast element for management
@@ -3756,7 +3756,7 @@ class x extends b {
     const s = this.getGlobalState();
     if (!s) return;
     const i = { id: e, toast: e, ...a };
-    d.dispatchCustomEvent(document, t, i, {
+    d.dispatchCustomEvent(document.documentElement, t, i, {
       bubbles: !0,
       cancelable: !0
     });
@@ -4942,7 +4942,7 @@ class T extends b {
    * Reinitialize tooltips (useful after dynamic content changes)
    */
   reinitialize() {
-    this.tooltipStates.clear(), this.initializeTooltips();
+    this.clearAllStates(), this.initializeElements();
   }
   /**
    * Public API: Show tooltip programmatically
@@ -4968,7 +4968,7 @@ class T extends b {
   /**
    * Public API: Destroy tooltip instance
    */
-  destroy(t) {
+  destroyTooltip(t) {
     const e = r.getElementById(t);
     return e && this.hasState(e) ? (this.hideTooltip(e), this.removeState(e), !0) : !1;
   }
@@ -5700,7 +5700,7 @@ class z extends b {
     console.log("EditorActions: Final Quill config", l), console.log("EditorActions: Container element", a);
     let c;
     try {
-      c = new Q(a, l), console.log("EditorActions: Quill instance created successfully", c);
+      c = new W(a, l), console.log("EditorActions: Quill instance created successfully", c);
     } catch (h) {
       console.error("EditorActions: Failed to create Quill instance", h);
       return;
@@ -6430,7 +6430,7 @@ class Y extends b {
   }
   getQuantityInput(t) {
     const e = r.findClosest(t, ".add-to-cart-wrapper");
-    return r.querySelector(".qty-input", e);
+    return e ? r.querySelector(".qty-input", e) : null;
   }
   showError(t, e) {
     this.dispatchCartEvent(t, "cart:error", { message: e }), console.error("Add to Cart Error:", e);
@@ -6455,7 +6455,7 @@ if (typeof document < "u") {
   };
   document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", m) : m();
 }
-class G extends b {
+class K extends b {
   constructor() {
     super(...arguments), this.cleanupFunctions = [], this.filePreviewsMap = /* @__PURE__ */ new Map();
   }
@@ -7001,7 +7001,9 @@ class G extends b {
   reRenderPreviewsForLayout(t, e) {
     const a = t.getAttribute("data-layout-type") || "file-list";
     t.innerHTML = "";
-    const s = e.fileUploadZone, i = this.filePreviewsMap.get(s);
+    const s = e.fileUploadZone;
+    if (!s) return;
+    const i = this.filePreviewsMap.get(s);
     i && i.forEach((n) => {
       this.renderFilePreviewForLayout(t, n, a);
     });
@@ -7227,7 +7229,7 @@ class G extends b {
     this.cleanupFunctions.forEach((t) => t()), this.cleanupFunctions = [], this.filePreviewsMap.clear(), super.destroy();
   }
 }
-class K extends b {
+class Q extends b {
   /**
    * Initialize gallery elements - required by BaseActionClass
    */
@@ -7237,11 +7239,20 @@ class K extends b {
     });
   }
   /**
+   * Bind event listeners - required by BaseActionClass
+   */
+  bindEventListeners() {
+    d.handleDelegatedKeydown('[data-gallery="true"]', (t, e) => {
+      const a = t.dataset.galleryId;
+      a && this.handleKeyboardNavigation(e, a, t);
+    });
+  }
+  /**
    * Initialize a single gallery element
    */
   initializeGallery(t) {
     const e = t.dataset.galleryId;
-    e && (this.setState(e, {
+    e && (this.setState(t, {
       currentIndex: 0,
       isAutoplayActive: t.dataset.autoplay === "true",
       autoplayInterval: null,
@@ -7255,25 +7266,24 @@ class K extends b {
    */
   setupGalleryEventListeners(t, e) {
     const a = t.querySelector('[data-gallery-action="prev"]'), s = t.querySelector('[data-gallery-action="next"]');
-    a && d.delegate(a, "click", () => {
+    a && d.addEventListener(a, "click", () => {
       this.navigateToImage(e, t, "prev");
-    }), s && d.delegate(s, "click", () => {
+    }), s && d.addEventListener(s, "click", () => {
       this.navigateToImage(e, t, "next");
     }), t.querySelectorAll("[data-gallery-thumbnail]").forEach((o, l) => {
-      d.delegate(o, "click", () => {
+      d.addEventListener(o, "click", () => {
         this.goToImage(e, t, l);
-      }), d.delegate(o, "keydown", (c) => {
-        (c.key === "Enter" || c.key === " ") && (c.preventDefault(), this.goToImage(e, t, l));
+      }), d.addEventListener(o, "keydown", (c) => {
+        const u = c;
+        (u.key === "Enter" || u.key === " ") && (u.preventDefault(), this.goToImage(e, t, l));
       });
     });
     const n = t.querySelector('[data-gallery-action="toggle-autoplay"]');
-    n && d.delegate(n, "click", () => {
+    n && d.addEventListener(n, "click", () => {
       this.toggleAutoplay(e, t);
-    }), d.delegate(t, "keydown", (o) => {
-      this.handleKeyboardNavigation(o, e, t);
-    }), this.setupTouchEvents(t, e), d.delegate(t, "mouseenter", () => {
+    }), this.setupTouchEvents(t, e), d.addEventListener(t, "mouseenter", () => {
       this.pauseAutoplayOnHover(e);
-    }), d.delegate(t, "mouseleave", () => {
+    }), d.addEventListener(t, "mouseleave", () => {
       this.resumeAutoplayOnHover(e, t);
     });
   }
@@ -7282,18 +7292,18 @@ class K extends b {
    */
   setupTouchEvents(t, e) {
     const a = t.querySelector(".gallery-main");
-    a && (d.delegate(a, "touchstart", (s) => {
-      const i = this.getState(e);
-      i && (i.touchStartX = s.touches[0].clientX, i.isDragging = !0, this.setState(e, i));
-    }, { passive: !0 }), d.delegate(a, "touchmove", (s) => {
-      const i = this.getState(e);
-      i != null && i.isDragging && (i.touchEndX = s.touches[0].clientX, this.setState(e, i));
-    }, { passive: !0 }), d.delegate(a, "touchend", () => {
-      const s = this.getState(e);
+    a && (d.addEventListener(a, "touchstart", (s) => {
+      const i = s, n = this.getState(t);
+      n && (n.touchStartX = i.touches[0].clientX, n.isDragging = !0, this.setState(t, n));
+    }), d.addEventListener(a, "touchmove", (s) => {
+      const i = s, n = this.getState(t);
+      n != null && n.isDragging && (n.touchEndX = i.touches[0].clientX, this.setState(t, n));
+    }), d.addEventListener(a, "touchend", () => {
+      const s = this.getState(t);
       if (!(s != null && s.isDragging)) return;
       s.isDragging = !1;
       const i = s.touchStartX - s.touchEndX;
-      Math.abs(i) > 50 && (i > 0 ? this.navigateToImage(e, t, "next") : this.navigateToImage(e, t, "prev")), this.setState(e, s);
+      Math.abs(i) > 50 && (i > 0 ? this.navigateToImage(e, t, "next") : this.navigateToImage(e, t, "prev")), this.setState(t, s);
     }));
   }
   /**
@@ -7317,7 +7327,7 @@ class K extends b {
         this.goToImage(e, a, i - 1);
         break;
       case "Escape":
-        t.preventDefault(), (s = this.getState(e)) != null && s.isAutoplayActive && this.pauseAutoplay(e, a);
+        t.preventDefault(), (s = this.getState(a)) != null && s.isAutoplayActive && this.pauseAutoplay(e, a);
         break;
       case " ":
         t.preventDefault(), this.toggleAutoplay(e, a);
@@ -7328,7 +7338,7 @@ class K extends b {
    * Navigate to previous or next image
    */
   navigateToImage(t, e, a) {
-    const s = this.getState(t);
+    const s = this.getState(e);
     if (!s) return;
     const i = parseInt(e.dataset.totalImages || "0"), n = e.dataset.loop === "true";
     let o = s.currentIndex;
@@ -7338,10 +7348,10 @@ class K extends b {
    * Go to a specific image by index
    */
   goToImage(t, e, a) {
-    const s = this.getState(t);
+    const s = this.getState(e);
     if (!s) return;
     const i = parseInt(e.dataset.totalImages || "0");
-    a < 0 || a >= i || (s.currentIndex = a, this.setState(t, s), this.updateImageDisplay(e, a), this.updateThumbnails(e, a), this.updateCounter(e, a), this.updateImageDetails(e, a), this.updateNavigationButtons(e, a, i), this.updateAccessibility(e, t), this.announceImageChange(e, a, i), this.preloadAdjacentImages(e, a), this.emitGalleryEvent(e, "gallery:imageChanged", {
+    a < 0 || a >= i || (s.currentIndex = a, this.setState(e, s), this.updateImageDisplay(e, a), this.updateThumbnails(e, a), this.updateCounter(e, a), this.updateImageDetails(e, a), this.updateNavigationButtons(e, a, i), this.updateAccessibility(e, t), this.announceImageChange(e, a, i), this.preloadAdjacentImages(e, a), this.emitGalleryEvent(e, "gallery:imageChanged", {
       currentIndex: a,
       galleryId: t
     }));
@@ -7388,25 +7398,25 @@ class K extends b {
    * Start autoplay
    */
   startAutoplay(t, e) {
-    const a = this.getState(t);
+    const a = this.getState(e);
     if (!a) return;
     const s = parseInt(e.dataset.autoplayDelay || "3000");
     a.autoplayInterval = window.setInterval(() => {
       this.navigateToImage(t, e, "next");
-    }, s), a.isAutoplayActive = !0, this.setState(t, a), this.updateAutoplayButton(e, !0);
+    }, s), a.isAutoplayActive = !0, this.setState(e, a), this.updateAutoplayButton(e, !0);
   }
   /**
    * Pause autoplay
    */
   pauseAutoplay(t, e) {
-    const a = this.getState(t);
-    a && (a.autoplayInterval && (clearInterval(a.autoplayInterval), a.autoplayInterval = null), a.isAutoplayActive = !1, this.setState(t, a), this.updateAutoplayButton(e, !1));
+    const a = this.getState(e);
+    a && (a.autoplayInterval && (clearInterval(a.autoplayInterval), a.autoplayInterval = null), a.isAutoplayActive = !1, this.setState(e, a), this.updateAutoplayButton(e, !1));
   }
   /**
    * Toggle autoplay
    */
   toggleAutoplay(t, e) {
-    const a = this.getState(t);
+    const a = this.getState(e);
     a && (a.isAutoplayActive ? this.pauseAutoplay(t, e) : this.startAutoplay(t, e));
   }
   /**
@@ -7420,25 +7430,27 @@ class K extends b {
    * Pause autoplay on hover
    */
   pauseAutoplayOnHover(t) {
-    const e = this.getState(t);
-    !(e != null && e.isAutoplayActive) || !e.autoplayInterval || (clearInterval(e.autoplayInterval), e.autoplayInterval = null, this.setState(t, e));
+    const e = document.querySelector(`[data-gallery-id="${t}"]`);
+    if (!e) return;
+    const a = this.getState(e);
+    !(a != null && a.isAutoplayActive) || !a.autoplayInterval || (clearInterval(a.autoplayInterval), a.autoplayInterval = null, this.setState(e, a));
   }
   /**
    * Resume autoplay when hover ends
    */
   resumeAutoplayOnHover(t, e) {
-    const a = this.getState(t);
+    const a = this.getState(e);
     if (!(a != null && a.isAutoplayActive) || a.autoplayInterval) return;
     const s = parseInt(e.dataset.autoplayDelay || "3000");
     a.autoplayInterval = window.setInterval(() => {
       this.navigateToImage(t, e, "next");
-    }, s), this.setState(t, a);
+    }, s), this.setState(e, a);
   }
   /**
    * Update accessibility attributes
    */
   updateAccessibility(t, e) {
-    const a = this.getState(e);
+    const a = this.getState(t);
     if (!a) return;
     const s = parseInt(t.dataset.totalImages || "0"), i = t.querySelector(`[data-gallery-slide="${a.currentIndex}"]`);
     i && (i.setAttribute("aria-current", "true"), i.setAttribute("aria-label", `Image ${a.currentIndex + 1} of ${s}`)), t.querySelectorAll("[data-gallery-slide]").forEach((o, l) => {
@@ -7561,14 +7573,16 @@ class K extends b {
    * Clean up when gallery is removed
    */
   cleanup(t) {
-    const e = this.getState(t);
-    e != null && e.autoplayInterval && clearInterval(e.autoplayInterval), this.removeState(t);
+    const e = document.querySelector(`[data-gallery-id="${t}"]`);
+    if (!e) return;
+    const a = this.getState(e);
+    a != null && a.autoplayInterval && clearInterval(a.autoplayInterval), this.removeState(e);
   }
 }
-function W() {
-  w.initialize(), q.getInstance().init(), O.getInstance().init(), A.getInstance().init(), R.getInstance().init(), E.getInstance().init(), H.getInstance().init(), V.getInstance().init(), B.getInstance().init(), x.getInstance().init(), N.getInstance().init(), C.getInstance().init(), P.getInstance().init(), T.getInstance().init(), k.getInstance().init(), I.getInstance().init(), z.getInstance().init(), L.getInstance().init(), Y.getInstance().init(), G.getInstance().init(), K.getInstance().init();
+function G() {
+  w.initialize(), q.getInstance().init(), O.getInstance().init(), A.getInstance().init(), R.getInstance().init(), E.getInstance().init(), H.getInstance().init(), V.getInstance().init(), B.getInstance().init(), x.getInstance().init(), N.getInstance().init(), C.getInstance().init(), P.getInstance().init(), T.getInstance().init(), k.getInstance().init(), I.getInstance().init(), z.getInstance().init(), L.getInstance().init(), Y.getInstance().init(), K.getInstance().init(), Q.getInstance().init();
 }
-const X = {
+const Z = {
   FormActions: q.getInstance(),
   AlertActions: O.getInstance(),
   CalendarActions: A.getInstance(),
@@ -7587,10 +7601,13 @@ const X = {
   EditorActions: z.getInstance(),
   DatePickerActions: L.getInstance(),
   AddToCartActions: Y.getInstance(),
-  FileUploadActions: G.getInstance(),
-  GalleryActions: K.getInstance(),
-  init: W
+  FileUploadActions: K.getInstance(),
+  GalleryActions: Q.getInstance(),
+  init: G,
+  initialize: G
+  // Alias for consistency
 };
+typeof window < "u" && (window.KeysUI = Z);
 export {
   I as AccordionActions,
   Y as AddToCartActions,
@@ -7603,9 +7620,9 @@ export {
   N as DropdownActions,
   z as EditorActions,
   d as EventUtils,
-  G as FileUploadActions,
+  K as FileUploadActions,
   q as FormActions,
-  K as GalleryActions,
+  Q as GalleryActions,
   B as ModalActions,
   w as RTLUtils,
   R as RadioActions,
@@ -7616,6 +7633,6 @@ export {
   k as TimePickerActions,
   x as ToastActions,
   T as TooltipActions,
-  X as default,
-  W as initializeKeysUI
+  Z as default,
+  G as initializeKeysUI
 };

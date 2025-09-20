@@ -16,7 +16,9 @@ export default defineConfig({
                 // Global variables for UMD build
                 globals: {
                     'quill': 'Quill'
-                }
+                },
+                // Allow both default and named exports
+                exports: 'named'
             }
         },
         outDir: 'dist',

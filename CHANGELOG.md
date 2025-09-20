@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-01-20
+
+### Fixed
+- **TypeScript Compatibility**: Resolved all TypeScript type errors across component files
+- **Event Handler Types**: Fixed EventListener type casting for MouseEvent, TouchEvent, and KeyboardEvent
+- **Method Signature Conflicts**: Renamed conflicting destroy methods in RangeActions and TooltipActions
+- **State Management**: Fixed string vs HTMLElement parameter issues in state management methods
+- **Type Conversions**: Improved type safety in TableActions, ToastActions, and utility classes
+- **Null Safety**: Added proper null checks for optional properties and undefined returns
+- **Interface Consistency**: Standardized Livewire interface declarations across all action classes
+
+### Changed
+- **Build Process**: Enhanced TypeScript compilation with zero errors
+- **Code Quality**: Improved type safety and maintainability across the codebase
+
 ## [1.1.0] - 2025-01-19
 
 ### Added

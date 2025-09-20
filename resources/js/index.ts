@@ -88,9 +88,9 @@ export function initializeKeysUI(): void {
 }
 
 /**
- * Default export for convenience
+ * KeysUI main object - provides consistent API for both ES modules and UMD builds
  */
-export default {
+const KeysUI = {
     FormActions: FormActions.getInstance(),
     AlertActions: AlertActions.getInstance(),
     CalendarActions: CalendarActions.getInstance(),
@@ -111,5 +111,14 @@ export default {
     AddToCartActions: AddToCartActions.getInstance(),
     FileUploadActions: FileUploadActions.getInstance(),
     GalleryActions: GalleryActions.getInstance(),
-    init: initializeKeysUI
+    init: initializeKeysUI,
+    initialize: initializeKeysUI // Alias for consistency
 };
+
+// Export as default for ES modules
+export default KeysUI;
+
+// Also expose on window for UMD builds
+if (typeof window !== 'undefined') {
+    (window as any).KeysUI = KeysUI;
+}

@@ -1,0 +1,5 @@
+/**
+ * Keys UI Import Helper
+ * This file allows for simple @import 'keys-ui' in your app.css
+ */
+@import url('/vendor/keys-ui/keys-ui.css');
