@@ -9,6 +9,8 @@
  * - Extensible hooks for specialized functionality
  */
 
+import { DebugUtils } from './DebugUtils';
+
 export abstract class BaseActionClass<TState = any> {
     private static instances = new Map<string, BaseActionClass>();
     protected initialized = false;
@@ -37,23 +39,37 @@ export abstract class BaseActionClass<TState = any> {
      */
     public init(): void {
         if (this.initialized) {
+            DebugUtils.debugWarn(this.getComponentName(), 'Component already initialized, skipping');
             return;
         }
+
+        const startTime = performance.now();
+        DebugUtils.debugLog(this.getComponentName(), 'Starting initialization...');
 
         // Pre-initialization hook
         this.onBeforeInit?.();
 
         // Core initialization methods (required by subclasses)
-        this.bindEventListeners();
-        this.initializeElements();
+        try {
+            this.bindEventListeners();
+            this.initializeElements();
 
-        // Setup dynamic content observation if needed
-        this.setupDynamicObserver?.();
+            // Setup dynamic content observation if needed
+            this.setupDynamicObserver?.();
 
-        // Post-initialization hook
-        this.onAfterInit?.();
+            // Post-initialization hook
+            this.onAfterInit?.();
 
-        this.initialized = true;
+            this.initialized = true;
+
+            // Log successful initialization
+            DebugUtils.debugTiming(this.getComponentName(), 'Initialization', startTime);
+            DebugUtils.debugLog(this.getComponentName(), `Successfully initialized with ${this.getStateCount()} managed elements`);
+
+        } catch (error) {
+            DebugUtils.debugError(this.getComponentName(), 'Initialization failed', error);
+            throw error;
+        }
     }
 
     /**
@@ -77,9 +93,19 @@ export abstract class BaseActionClass<TState = any> {
      * Handles state cleanup and provides extension point
      */
     public destroy(): void {
+        if (!this.initialized) {
+            DebugUtils.debugWarn(this.getComponentName(), 'Component not initialized, nothing to destroy');
+            return;
+        }
+
+        DebugUtils.debugLog(this.getComponentName(), 'Destroying component...');
+
+        const stateCount = this.getStateCount();
         this.onDestroy?.();
         this.stateManager.clear();
         this.initialized = false;
+
+        DebugUtils.debugLog(this.getComponentName(), `Destroyed component with ${stateCount} managed elements`);
     }
 
     /**
@@ -164,6 +190,14 @@ export abstract class BaseActionClass<TState = any> {
      */
     protected getStateCount(): number {
         return this.stateManager.size;
+    }
+
+    /**
+     * Get the component name for debugging
+     * Uses the class constructor name
+     */
+    protected getComponentName(): string {
+        return this.constructor.name;
     }
 }
 

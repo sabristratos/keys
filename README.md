@@ -101,7 +101,7 @@ Add the Keys UI JavaScript to your layout:
 </html>
 ```
 
-> **Note**: `@keysAssets()` only includes JavaScript and translations. CSS must be imported manually to allow for easy customization.
+That's it! **Zero configuration required** - just install and use!
 
 ## Component Overview
 
