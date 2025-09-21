@@ -1,539 +1,419 @@
 /**
- * Popover Actions for Keys UI
- * Handles interactive popovers with positioning, events, and accessibility
+ * PopoverActions - Handles interactive functionality for Popover components
+ *
+ * Provides functionality for:
+ * - Popover open/close with keyboard navigation
+ * - Multiple trigger types (click, hover, focus, manual)
+ * - Smart positioning with FloatingManager
+ * - Click outside to close and accessibility
  */
 
-export interface PopoverOptions {
-    placement?: string;
-    trigger?: 'click' | 'hover' | 'focus' | 'manual';
-    delay?: number;
-    hideDelay?: number;
-    closeOnOutsideClick?: boolean;
-    closeOnEscape?: boolean;
-    floating?: boolean;
-    offset?: number;
-    autoPlacement?: boolean;
-    disabled?: boolean;
-}
+import { BaseActionClass } from './utils/BaseActionClass';
+import { EventUtils } from './utils/EventUtils';
+import { DOMUtils } from './utils/DOMUtils';
+import { FloatingManager, FloatingInstance } from './utils/FloatingManager';
 
-export interface PopoverInstance {
-    id: string;
-    triggerElement: HTMLElement;
-    popoverElement: HTMLElement;
-    options: PopoverOptions;
-    isVisible: boolean;
+interface PopoverState {
+    isOpen: boolean;
+    trigger: string;
     showTimeout?: number;
     hideTimeout?: number;
-    destroy: () => void;
-    show: () => void;
-    hide: () => void;
-    toggle: () => void;
-    updatePosition: () => void;
+    floating?: FloatingInstance;
 }
 
-class PopoverActions {
-    private static instances: Map<string, PopoverInstance> = new Map();
-    private static floatingUIAvailable: boolean = false;
-    private static documentEventListeners: Set<() => void> = new Set();
+export class PopoverActions extends BaseActionClass<PopoverState> {
 
-    static {
-        // Check if Floating UI is available
-        if (typeof window !== 'undefined' && (window as any).FloatingUIDOM) {
-            this.floatingUIAvailable = true;
-        }
-
-        // Initialize on DOM ready
-        if (typeof document !== 'undefined') {
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', () => this.init());
-            } else {
-                this.init();
-            }
-        }
+    /**
+     * Initialize popover elements - required by BaseActionClass
+     */
+    protected initializeElements(): void {
+        DOMUtils.findByDataAttribute('popover', 'true').forEach(popover => {
+            this.initializePopover(popover);
+        });
     }
 
     /**
-     * Initialize all popovers on the page
+     * Initialize a single popover element
      */
-    static init(): void {
-        this.cleanup();
+    private initializePopover(popoverElement: HTMLElement): void {
+        const trigger = popoverElement.dataset.trigger || 'click';
 
-        // Find all popover triggers
-        const triggers = document.querySelectorAll('[data-popover-target]');
-        triggers.forEach(trigger => {
-            if (trigger instanceof HTMLElement) {
-                this.initializePopover(trigger);
+        const state: PopoverState = {
+            isOpen: false,
+            trigger
+        };
+
+        this.setState(popoverElement, state);
+    }
+
+    /**
+     * Bind event listeners using event delegation - required by BaseActionClass
+     */
+    protected bindEventListeners(): void {
+        // Handle trigger clicks
+        EventUtils.handleDelegatedClick('[data-popover-trigger]', (element, event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const popover = DOMUtils.findClosest(element, '[data-popover="true"]');
+            if (popover && !this.isDisabled(popover)) {
+                const state = this.getState(popover);
+                if (state?.trigger === 'click') {
+                    this.togglePopover(popover);
+                }
             }
         });
 
-        // Setup global event listeners
-        this.setupGlobalEventListeners();
+        // Handle hover events
+        EventUtils.addEventListener(document, 'mouseenter', (event) => {
+            const trigger = DOMUtils.findClosest(event.target as Element, '[data-popover-trigger]') as HTMLElement;
+            if (trigger) {
+                const popover = DOMUtils.findClosest(trigger, '[data-popover="true"]');
+                if (popover && !this.isDisabled(popover)) {
+                    const state = this.getState(popover);
+                    if (state?.trigger === 'hover') {
+                        this.showPopover(popover);
+                    }
+                }
+            }
+        }, { capture: true });
+
+        EventUtils.addEventListener(document, 'mouseleave', (event) => {
+            const trigger = DOMUtils.findClosest(event.target as Element, '[data-popover-trigger]') as HTMLElement;
+            if (trigger) {
+                const popover = DOMUtils.findClosest(trigger, '[data-popover="true"]');
+                if (popover && !this.isDisabled(popover)) {
+                    const state = this.getState(popover);
+                    if (state?.trigger === 'hover') {
+                        this.hidePopover(popover);
+                    }
+                }
+            }
+        }, { capture: true });
+
+        // Handle focus events
+        EventUtils.addEventListener(document, 'focus', (event) => {
+            const trigger = DOMUtils.findClosest(event.target as Element, '[data-popover-trigger]') as HTMLElement;
+            if (trigger) {
+                const popover = DOMUtils.findClosest(trigger, '[data-popover="true"]');
+                if (popover && !this.isDisabled(popover)) {
+                    const state = this.getState(popover);
+                    if (state?.trigger === 'focus') {
+                        this.showPopover(popover);
+                    }
+                }
+            }
+        }, { capture: true });
+
+        EventUtils.addEventListener(document, 'blur', (event) => {
+            const trigger = DOMUtils.findClosest(event.target as Element, '[data-popover-trigger]') as HTMLElement;
+            if (trigger) {
+                const popover = DOMUtils.findClosest(trigger, '[data-popover="true"]');
+                if (popover && !this.isDisabled(popover)) {
+                    const state = this.getState(popover);
+                    if (state?.trigger === 'focus') {
+                        this.hidePopover(popover);
+                    }
+                }
+            }
+        }, { capture: true });
+
+        // Handle click outside to close
+        EventUtils.addEventListener(document, 'click', (event) => {
+            const target = event.target as Node;
+
+            if (target && target instanceof Element) {
+                const closestPopoverElement = target.closest('[data-popover-trigger], [data-popover-panel]');
+
+                if (!closestPopoverElement) {
+                    this.closeAllPopovers();
+                }
+            }
+        });
+
+        // Handle escape key
+        EventUtils.addEventListener(document, 'keydown', (event) => {
+            if (event.key === 'Escape') {
+                this.closeAllPopovers();
+            }
+        });
     }
 
     /**
-     * Initialize a specific popover
+     * Setup dynamic observer for new popovers - uses BaseActionClass utility
      */
-    static initializePopover(triggerElement: HTMLElement): PopoverInstance | null {
-        const targetId = triggerElement.getAttribute('data-popover-target');
-        if (!targetId) return null;
+    protected setupDynamicObserver(): void {
+        this.createDynamicObserver((addedNodes) => {
+            addedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const element = node as HTMLElement;
 
-        const popoverElement = document.getElementById(targetId);
-        if (!popoverElement) return null;
+                    if (DOMUtils.hasDataAttribute(element, 'popover', 'true')) {
+                        if (!this.hasState(element)) {
+                            this.initializePopover(element);
+                        }
+                    }
 
-        // Don't initialize if already exists
-        if (this.instances.has(targetId)) {
-            return this.instances.get(targetId) || null;
-        }
-
-        const options: PopoverOptions = {
-            placement: triggerElement.getAttribute('data-popover-placement') || 'bottom',
-            trigger: (triggerElement.getAttribute('data-popover-trigger') || 'click') as PopoverOptions['trigger'],
-            delay: parseInt(popoverElement.getAttribute('data-delay') || '0'),
-            hideDelay: parseInt(popoverElement.getAttribute('data-hide-delay') || '0'),
-            closeOnOutsideClick: popoverElement.getAttribute('data-close-on-outside-click') === 'true',
-            closeOnEscape: popoverElement.getAttribute('data-close-on-escape') === 'true',
-            floating: popoverElement.getAttribute('data-floating') === 'true',
-            offset: parseInt(popoverElement.getAttribute('data-offset') || '8'),
-            autoPlacement: popoverElement.getAttribute('data-auto-placement') === 'true',
-            disabled: popoverElement.getAttribute('data-disabled') === 'true'
-        };
-
-        const instance: PopoverInstance = {
-            id: targetId,
-            triggerElement,
-            popoverElement,
-            options,
-            isVisible: false,
-            destroy: () => this.destroyInstance(targetId),
-            show: () => this.show(targetId),
-            hide: () => this.hide(targetId),
-            toggle: () => this.toggle(targetId),
-            updatePosition: () => this.updatePosition(targetId)
-        };
-
-        // Setup event listeners for this popover
-        this.setupPopoverEventListeners(instance);
-
-        this.instances.set(targetId, instance);
-        return instance;
-    }
-
-    /**
-     * Setup event listeners for a specific popover
-     */
-    private static setupPopoverEventListeners(instance: PopoverInstance): void {
-        const { triggerElement, options } = instance;
-
-        if (options.disabled) return;
-
-        switch (options.trigger) {
-            case 'click':
-                triggerElement.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.toggle(instance.id);
-                });
-                break;
-
-            case 'hover':
-                triggerElement.addEventListener('mouseenter', () => {
-                    this.show(instance.id);
-                });
-                triggerElement.addEventListener('mouseleave', () => {
-                    this.hide(instance.id);
-                });
-                instance.popoverElement.addEventListener('mouseenter', () => {
-                    this.clearHideTimeout(instance);
-                });
-                instance.popoverElement.addEventListener('mouseleave', () => {
-                    this.hide(instance.id);
-                });
-                break;
-
-            case 'focus':
-                triggerElement.addEventListener('focus', () => {
-                    this.show(instance.id);
-                });
-                triggerElement.addEventListener('blur', () => {
-                    this.hide(instance.id);
-                });
-                break;
-
-            case 'manual':
-                // No automatic event listeners for manual trigger
-                break;
-        }
-    }
-
-    /**
-     * Setup global event listeners
-     */
-    private static setupGlobalEventListeners(): void {
-        // Outside click handler
-        const outsideClickHandler = (e: Event) => {
-            const target = e.target as HTMLElement;
-
-            this.instances.forEach((instance) => {
-                if (!instance.isVisible || !instance.options.closeOnOutsideClick) return;
-
-                const isInsidePopover = instance.popoverElement.contains(target);
-                const isInsideTrigger = instance.triggerElement.contains(target);
-
-                if (!isInsidePopover && !isInsideTrigger) {
-                    this.hide(instance.id);
+                    const popovers = DOMUtils.findByDataAttribute('popover', 'true', element);
+                    popovers.forEach(popover => {
+                        if (!this.hasState(popover)) {
+                            this.initializePopover(popover);
+                        }
+                    });
                 }
             });
-        };
-
-        // Escape key handler
-        const escapeKeyHandler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                this.instances.forEach((instance) => {
-                    if (instance.isVisible && instance.options.closeOnEscape) {
-                        this.hide(instance.id);
-                    }
-                });
-            }
-        };
-
-        // Resize handler
-        const resizeHandler = () => {
-            this.instances.forEach((instance) => {
-                if (instance.isVisible) {
-                    this.updatePosition(instance.id);
-                }
-            });
-        };
-
-        document.addEventListener('click', outsideClickHandler);
-        document.addEventListener('keydown', escapeKeyHandler);
-        window.addEventListener('resize', resizeHandler);
-
-        // Store cleanup functions
-        const cleanup = () => {
-            document.removeEventListener('click', outsideClickHandler);
-            document.removeEventListener('keydown', escapeKeyHandler);
-            window.removeEventListener('resize', resizeHandler);
-        };
-
-        this.documentEventListeners.add(cleanup);
+        });
     }
 
     /**
-     * Show a popover
+     * Toggle popover open/closed state
      */
-    static show(id: string): void {
-        const instance = this.instances.get(id);
-        if (!instance || instance.options.disabled || instance.isVisible) return;
+    private togglePopover(popover: HTMLElement): void {
+        const state = this.getState(popover);
+        if (!state) return;
 
-        this.clearTimeouts(instance);
-
-        const showPopover = () => {
-            // Hide other click-triggered popovers
-            if (instance.options.trigger === 'click') {
-                this.instances.forEach((otherInstance) => {
-                    if (otherInstance.id !== id && otherInstance.isVisible && otherInstance.options.trigger === 'click') {
-                        this.hide(otherInstance.id);
-                    }
-                });
-            }
-
-            // Update position
-            this.updatePosition(id);
-
-            // Show popover
-            instance.popoverElement.setAttribute('data-show', 'true');
-            instance.popoverElement.setAttribute('aria-hidden', 'false');
-            instance.triggerElement.setAttribute('aria-expanded', 'true');
-            instance.isVisible = true;
-
-            // Emit custom event
-            this.emitEvent(instance.triggerElement, 'popover:show', { popover: instance });
-
-            // Focus management for accessibility
-            if (instance.options.trigger === 'click' || instance.options.trigger === 'focus') {
-                setTimeout(() => {
-                    const focusableElement = instance.popoverElement.querySelector(
-                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-                    ) as HTMLElement;
-
-                    if (focusableElement) {
-                        focusableElement.focus();
-                    } else {
-                        instance.popoverElement.focus();
-                    }
-                }, 100);
-            }
-        };
-
-        if (instance.options.delay && instance.options.delay > 0) {
-            instance.showTimeout = window.setTimeout(showPopover, instance.options.delay);
+        if (state.isOpen) {
+            this.hidePopover(popover);
         } else {
-            showPopover();
+            this.showPopover(popover);
         }
     }
 
     /**
-     * Hide a popover
+     * Show popover
      */
-    static hide(id: string): void {
-        const instance = this.instances.get(id);
-        if (!instance || !instance.isVisible) return;
+    private showPopover(popover: HTMLElement): void {
+        const state = this.getState(popover);
+        if (!state || this.isDisabled(popover) || state.isOpen) return;
 
-        this.clearTimeouts(instance);
+        this.clearTimeouts(state);
 
-        const hidePopover = () => {
-            instance.popoverElement.setAttribute('data-show', 'false');
-            instance.popoverElement.setAttribute('aria-hidden', 'true');
-            instance.triggerElement.setAttribute('aria-expanded', 'false');
-            instance.isVisible = false;
+        const delay = parseInt(popover.dataset.delay || '0');
 
-            // Emit custom event
-            this.emitEvent(instance.triggerElement, 'popover:hide', { popover: instance });
+        const showAction = () => {
+            this.closeSiblingPopovers(popover);
 
-            // Return focus to trigger if needed
-            if (document.activeElement && instance.popoverElement.contains(document.activeElement)) {
-                instance.triggerElement.focus();
+            state.isOpen = true;
+            this.setState(popover, state);
+
+            const panel = DOMUtils.querySelector('[data-popover-panel]', popover) as HTMLElement;
+            const trigger = DOMUtils.querySelector('[data-popover-trigger]', popover) as HTMLElement;
+
+            if (panel) {
+                panel.classList.remove('hidden');
+                this.positionPopover(popover);
             }
+
+            if (trigger) {
+                trigger.setAttribute('aria-expanded', 'true');
+            }
+
+            this.dispatchPopoverEvent(popover, 'popover:show');
         };
 
-        const delay = instance.options.hideDelay || 0;
         if (delay > 0) {
-            instance.hideTimeout = window.setTimeout(hidePopover, delay);
+            state.showTimeout = window.setTimeout(showAction, delay);
+            this.setState(popover, state);
         } else {
-            hidePopover();
+            showAction();
         }
     }
 
     /**
-     * Toggle a popover
+     * Hide popover
      */
-    static toggle(id: string): void {
-        const instance = this.instances.get(id);
-        if (!instance) return;
+    private hidePopover(popover: HTMLElement): void {
+        const state = this.getState(popover);
+        if (!state || !state.isOpen) return;
 
-        if (instance.isVisible) {
-            this.hide(id);
+        this.clearTimeouts(state);
+
+        const hideDelay = parseInt(popover.dataset.hideDelay || '0');
+
+        const hideAction = () => {
+            if (state.floating) {
+                state.floating.cleanup();
+                state.floating = undefined;
+            }
+
+            state.isOpen = false;
+            this.setState(popover, state);
+
+            const panel = DOMUtils.querySelector('[data-popover-panel]', popover) as HTMLElement;
+            const trigger = DOMUtils.querySelector('[data-popover-trigger]', popover) as HTMLElement;
+
+            if (panel) {
+                panel.classList.add('hidden');
+            }
+
+            if (trigger) {
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+
+            this.dispatchPopoverEvent(popover, 'popover:hide');
+        };
+
+        if (hideDelay > 0) {
+            state.hideTimeout = window.setTimeout(hideAction, hideDelay);
+            this.setState(popover, state);
         } else {
-            this.show(id);
+            hideAction();
         }
     }
 
     /**
-     * Update popover position
+     * Close all open popovers
      */
-    static updatePosition(id: string): void {
-        const instance = this.instances.get(id);
-        if (!instance) return;
+    private closeAllPopovers(): void {
+        this.getAllStates().forEach((state, popover) => {
+            if (state.isOpen) {
+                const closeOnOutsideClick = popover.dataset.closeOnOutsideClick !== 'false';
+                const closeOnEscape = popover.dataset.closeOnEscape !== 'false';
 
-        if (instance.options.floating && this.floatingUIAvailable) {
-            this.updateFloatingPosition(instance);
-        } else {
-            this.updateBasicPosition(instance);
-        }
-    }
-
-    /**
-     * Update position using Floating UI
-     */
-    private static updateFloatingPosition(instance: PopoverInstance): void {
-        const { computePosition, flip, shift, offset, arrow } = (window as any).FloatingUIDOM;
-
-        const arrowElement = instance.popoverElement.querySelector('[data-popper-arrow]') as HTMLElement;
-
-        const middleware = [
-            offset(instance.options.offset || 8),
-            shift({ padding: 8 })
-        ];
-
-        if (instance.options.autoPlacement) {
-            middleware.push(flip());
-        }
-
-        if (arrowElement) {
-            middleware.push(arrow({ element: arrowElement }));
-        }
-
-        computePosition(instance.triggerElement, instance.popoverElement, {
-            placement: instance.options.placement,
-            middleware
-        }).then(({ x, y, placement, middlewareData }: any) => {
-            Object.assign(instance.popoverElement.style, {
-                left: `${x}px`,
-                top: `${y}px`,
-                position: 'absolute'
-            });
-
-            instance.popoverElement.setAttribute('data-placement', placement);
-
-            // Position arrow
-            if (arrowElement && middlewareData.arrow) {
-                const { x: arrowX, y: arrowY } = middlewareData.arrow;
-                const staticSide = {
-                    top: 'bottom',
-                    right: 'left',
-                    bottom: 'top',
-                    left: 'right',
-                }[placement.split('-')[0]];
-
-                Object.assign(arrowElement.style, {
-                    left: arrowX != null ? `${arrowX}px` : '',
-                    top: arrowY != null ? `${arrowY}px` : '',
-                    right: '',
-                    bottom: '',
-                    [staticSide as string]: '-4px',
-                });
+                if (closeOnOutsideClick || closeOnEscape) {
+                    this.hidePopover(popover);
+                }
             }
         });
     }
 
     /**
-     * Basic position calculation fallback
+     * Close sibling popovers
      */
-    private static updateBasicPosition(instance: PopoverInstance): void {
-        const triggerRect = instance.triggerElement.getBoundingClientRect();
-        const popoverRect = instance.popoverElement.getBoundingClientRect();
-        const offset = instance.options.offset || 8;
-
-        let x = 0;
-        let y = 0;
-
-        switch (instance.options.placement) {
-            case 'top':
-                x = triggerRect.left + (triggerRect.width / 2) - (popoverRect.width / 2);
-                y = triggerRect.top - popoverRect.height - offset;
-                break;
-            case 'bottom':
-                x = triggerRect.left + (triggerRect.width / 2) - (popoverRect.width / 2);
-                y = triggerRect.bottom + offset;
-                break;
-            case 'left':
-                x = triggerRect.left - popoverRect.width - offset;
-                y = triggerRect.top + (triggerRect.height / 2) - (popoverRect.height / 2);
-                break;
-            case 'right':
-                x = triggerRect.right + offset;
-                y = triggerRect.top + (triggerRect.height / 2) - (popoverRect.height / 2);
-                break;
-            default:
-                x = triggerRect.left + (triggerRect.width / 2) - (popoverRect.width / 2);
-                y = triggerRect.bottom + offset;
-        }
-
-        // Viewport constraints
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-
-        x = Math.max(8, Math.min(x, viewportWidth - popoverRect.width - 8));
-        y = Math.max(8, Math.min(y, viewportHeight - popoverRect.height - 8));
-
-        Object.assign(instance.popoverElement.style, {
-            left: `${x + window.scrollX}px`,
-            top: `${y + window.scrollY}px`,
-            position: 'absolute'
-        });
-    }
-
-    /**
-     * Clear timeouts for an instance
-     */
-    private static clearTimeouts(instance: PopoverInstance): void {
-        if (instance.showTimeout) {
-            clearTimeout(instance.showTimeout);
-            instance.showTimeout = undefined;
-        }
-        if (instance.hideTimeout) {
-            clearTimeout(instance.hideTimeout);
-            instance.hideTimeout = undefined;
-        }
-    }
-
-    /**
-     * Clear hide timeout specifically
-     */
-    private static clearHideTimeout(instance: PopoverInstance): void {
-        if (instance.hideTimeout) {
-            clearTimeout(instance.hideTimeout);
-            instance.hideTimeout = undefined;
-        }
-    }
-
-    /**
-     * Emit custom event
-     */
-    private static emitEvent(element: HTMLElement, eventName: string, detail: any): void {
-        const event = new CustomEvent(eventName, {
-            detail,
-            bubbles: true,
-            cancelable: true
-        });
-        element.dispatchEvent(event);
-    }
-
-    /**
-     * Destroy a specific instance
-     */
-    private static destroyInstance(id: string): void {
-        const instance = this.instances.get(id);
-        if (!instance) return;
-
-        this.clearTimeouts(instance);
-        if (instance.isVisible) {
-            this.hide(id);
-        }
-
-        this.instances.delete(id);
-    }
-
-    /**
-     * Clean up all instances and global listeners
-     */
-    static cleanup(): void {
-        this.instances.forEach((instance) => {
-            this.clearTimeouts(instance);
-        });
-        this.instances.clear();
-
-        this.documentEventListeners.forEach(cleanup => cleanup());
-        this.documentEventListeners.clear();
-    }
-
-    /**
-     * Public API methods
-     */
-    static getInstance(id: string): PopoverInstance | undefined {
-        return this.instances.get(id);
-    }
-
-    static getAllInstances(): PopoverInstance[] {
-        return Array.from(this.instances.values());
-    }
-
-    static showById(id: string): void {
-        this.show(id);
-    }
-
-    static hideById(id: string): void {
-        this.hide(id);
-    }
-
-    static toggleById(id: string): void {
-        this.toggle(id);
-    }
-
-    static hideAll(): void {
-        this.instances.forEach((instance) => {
-            if (instance.isVisible) {
-                this.hide(instance.id);
+    private closeSiblingPopovers(popover: HTMLElement): void {
+        this.getAllStates().forEach((state, otherPopover) => {
+            if (otherPopover !== popover && state.isOpen) {
+                this.hidePopover(otherPopover);
             }
         });
     }
+
+    /**
+     * Position popover using FloatingManager
+     */
+    private positionPopover(popover: HTMLElement): void {
+        const panel = DOMUtils.querySelector('[data-popover-panel]', popover) as HTMLElement;
+        const trigger = DOMUtils.querySelector('[data-popover-trigger]', popover) as HTMLElement;
+
+        if (!panel || !trigger) return;
+
+        const state = this.getState(popover);
+        if (!state) return;
+
+        if (state.floating) {
+            state.floating.cleanup();
+        }
+
+        const placement = popover.dataset.placement || 'bottom';
+        const align = popover.dataset.align || 'center';
+        const offset = parseInt(popover.dataset.offset || '8');
+
+        let floatingPlacement: any = placement;
+        if (placement === 'bottom' || placement === 'top') {
+            if (align === 'start') floatingPlacement = `${placement}-start`;
+            else if (align === 'end') floatingPlacement = `${placement}-end`;
+        } else if (placement === 'left' || placement === 'right') {
+            if (align === 'start') floatingPlacement = `${placement}-start`;
+            else if (align === 'end') floatingPlacement = `${placement}-end`;
+        }
+
+        const floating = FloatingManager.getInstance().createFloating(trigger, panel, {
+            placement: floatingPlacement,
+            offset,
+            flip: {
+                fallbackStrategy: 'bestFit',
+                padding: 8
+            },
+            shift: {
+                padding: 8,
+                crossAxis: true
+            },
+            hide: {
+                strategy: 'escaped'
+            },
+            autoUpdate: {
+                ancestorScroll: true,
+                ancestorResize: true,
+                elementResize: true,
+                layoutShift: true
+            }
+        });
+
+        state.floating = floating;
+        this.setState(popover, state);
+    }
+
+    /**
+     * Clear timeouts for a state
+     */
+    private clearTimeouts(state: PopoverState): void {
+        if (state.showTimeout) {
+            clearTimeout(state.showTimeout);
+            state.showTimeout = undefined;
+        }
+        if (state.hideTimeout) {
+            clearTimeout(state.hideTimeout);
+            state.hideTimeout = undefined;
+        }
+    }
+
+    /**
+     * Check if popover is disabled
+     */
+    private isDisabled(popover: HTMLElement): boolean {
+        return popover.dataset.disabled === 'true';
+    }
+
+    /**
+     * Dispatch custom popover event
+     */
+    private dispatchPopoverEvent(popover: HTMLElement, eventName: string, detail: any = null): void {
+        EventUtils.dispatchCustomEvent(popover, eventName, {
+            popover,
+            ...detail
+        }, {
+            bubbles: true
+        });
+    }
+
+    /**
+     * Clean up PopoverActions - extends BaseActionClass destroy
+     */
+    protected onDestroy(): void {
+        this.getAllStates().forEach((state, popover) => {
+            this.clearTimeouts(state);
+            if (state.floating) {
+                state.floating.cleanup();
+            }
+        });
+    }
+
+    /**
+     * Public API for manual control
+     */
+    public showById(id: string): void {
+        const popover = document.getElementById(id);
+        if (popover && DOMUtils.hasDataAttribute(popover, 'popover', 'true')) {
+            this.showPopover(popover);
+        }
+    }
+
+    public hideById(id: string): void {
+        const popover = document.getElementById(id);
+        if (popover && DOMUtils.hasDataAttribute(popover, 'popover', 'true')) {
+            this.hidePopover(popover);
+        }
+    }
+
+    public toggleById(id: string): void {
+        const popover = document.getElementById(id);
+        if (popover && DOMUtils.hasDataAttribute(popover, 'popover', 'true')) {
+            this.togglePopover(popover);
+        }
+    }
+
+    public hideAll(): void {
+        this.closeAllPopovers();
+    }
 }
 
-// Auto-initialize when script loads
-if (typeof window !== 'undefined') {
-    // Add to global scope for external access
-    (window as any).PopoverActions = PopoverActions;
-}
-
-export default PopoverActions;
+export default PopoverActions.getInstance();

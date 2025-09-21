@@ -26,7 +26,7 @@ import { DatePickerActions } from './DatePickerActions';
 import { AddToCartActions } from './AddToCartActions';
 import { FileUploadActions } from './FileUploadActions';
 import { GalleryActions } from './GalleryActions';
-import PopoverActions from './PopoverActions';
+import { PopoverActions } from './PopoverActions';
 
 // Import utility classes for external use
 import { BaseActionClass } from './utils/BaseActionClass';
@@ -90,7 +90,7 @@ export function initializeKeysUI(): void {
 
     GalleryActions.getInstance().init();
 
-    PopoverActions.init();
+    PopoverActions.getInstance().init();
 
 }
 
@@ -119,7 +119,7 @@ const KeysUI = {
     AddToCartActions: AddToCartActions.getInstance(),
     FileUploadActions: FileUploadActions.getInstance(),
     GalleryActions: GalleryActions.getInstance(),
-    PopoverActions: PopoverActions,
+    PopoverActions: PopoverActions.getInstance(),
     init: initializeKeysUI,
     initialize: initializeKeysUI // Alias for consistency
 };

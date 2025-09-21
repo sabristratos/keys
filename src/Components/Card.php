@@ -12,6 +12,7 @@ class Card extends Component
         public string $rounded = 'md',
         public string $shadow = 'sm',
         public bool $interactive = false,
+        public bool $selected = false,
         public ?string $href = null,
         public bool $disabled = false
     ) {}

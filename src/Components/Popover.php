@@ -8,8 +8,9 @@ use Keys\UI\Constants\ComponentConstants;
 class Popover extends Component
 {
     public function __construct(
-        public ?string $target = null,
+        public ?string $id = null,
         public string $placement = 'bottom',
+        public string $align = 'center',
         public string $size = 'md',
         public string $trigger = 'click',
         public bool $arrow = true,
@@ -18,24 +19,27 @@ class Popover extends Component
         public bool $closeOnEscape = true,
         public int $delay = 0,
         public int $hideDelay = 0,
-        public ?string $id = null,
         public bool $disabled = false,
         public ?string $title = null,
-        public bool $floating = true,
         public int $offset = 8,
-        public bool $autoPlacement = true
+        public bool $modal = false
     ) {
         // Generate unique ID if not provided
         $this->id = $this->id ?? 'popover-' . uniqid();
 
         // Validate placement
-        if (!in_array($this->placement, ['top', 'bottom', 'left', 'right', 'top-start', 'top-end', 'bottom-start', 'bottom-end', 'left-start', 'left-end', 'right-start', 'right-end'])) {
+        if (!in_array($this->placement, ['top', 'bottom', 'left', 'right'])) {
             $this->placement = 'bottom';
         }
 
+        // Validate align
+        if (!in_array($this->align, ['start', 'center', 'end'])) {
+            $this->align = 'center';
+        }
+
         // Validate size
-        if (!in_array($this->size, ['sm', 'md', 'lg'])) {
-            $this->size = 'md';
+        if (!in_array($this->size, ComponentConstants::TOOLTIP_SIZES)) {
+            $this->size = ComponentConstants::getDefaultSize();
         }
 
         // Validate trigger
@@ -49,31 +53,58 @@ class Popover extends Component
         }
     }
 
-    public function getPopoverClasses(): string
+    public function popoverClasses(): string
     {
-        $base = 'keys-popover absolute z-50 bg-surface border border-border shadow-lg rounded-lg';
-        $sizeClasses = $this->getSizeClasses();
+        $base = 'relative inline-block';
 
-        return trim($base . ' ' . $sizeClasses);
+        if ($this->disabled) {
+            $base .= ' opacity-50 pointer-events-none';
+        }
+
+        return $base;
     }
 
-    protected function getSizeClasses(): string
+    public function panelClasses(): string
     {
-        return match ($this->size) {
+        $base = 'absolute z-50 bg-surface border border-border rounded-lg shadow-lg hidden';
+
+        $sizeClasses = match ($this->size) {
             'sm' => 'p-3 text-sm max-w-xs',
             'md' => 'p-4 text-sm max-w-sm',
             'lg' => 'p-6 text-base max-w-md',
             default => 'p-4 text-sm max-w-sm'
         };
+
+        $positionClasses = match ($this->placement) {
+            'top' => 'bottom-full mb-' . ($this->offset / 4),
+            'bottom' => 'top-full mt-' . ($this->offset / 4),
+            'left' => 'right-full mr-' . ($this->offset / 4),
+            'right' => 'left-full ml-' . ($this->offset / 4),
+            default => 'top-full mt-2'
+        };
+
+        $alignClasses = match ($this->align) {
+            'start' => match ($this->placement) {
+                'left', 'right' => 'top-0',
+                default => 'left-0'
+            },
+            'center' => match ($this->placement) {
+                'left', 'right' => 'top-1/2 -translate-y-1/2',
+                default => 'left-1/2 -translate-x-1/2'
+            },
+            'end' => match ($this->placement) {
+                'left', 'right' => 'bottom-0',
+                default => 'right-0'
+            },
+            default => 'left-1/2 -translate-x-1/2'
+        };
+
+        return trim($base . ' ' . $sizeClasses . ' ' . $positionClasses . ' ' . $alignClasses);
     }
 
-    public function getArrowClasses(): string
+    public function triggerClasses(): string
     {
-        if (!$this->arrow) {
-            return 'hidden';
-        }
-
-        return 'keys-popover-arrow absolute w-0 h-0';
+        return 'cursor-pointer';
     }
 
     public function getTitleClasses(): string
@@ -86,110 +117,45 @@ class Popover extends Component
         };
     }
 
-    public function getPopoverAttributes(): array
+    public function getDataAttributes(): array
     {
-        $attributes = [
-            'id' => $this->id,
-            'role' => 'dialog',
-            'aria-hidden' => 'true',
-            'data-keys-popover' => 'true',
+        return [
+            'data-popover' => 'true',
+            'data-popover-id' => $this->id,
             'data-placement' => $this->placement,
+            'data-align' => $this->align,
             'data-trigger' => $this->trigger,
             'data-size' => $this->size,
-            'data-floating' => $this->floating ? 'true' : 'false',
             'data-offset' => $this->offset,
-            'data-auto-placement' => $this->autoPlacement ? 'true' : 'false'
+            'data-disabled' => $this->disabled ? 'true' : 'false',
+            'data-modal' => $this->modal ? 'true' : 'false',
+            'data-dismissible' => $this->dismissible ? 'true' : 'false',
+            'data-close-on-outside-click' => $this->closeOnOutsideClick ? 'true' : 'false',
+            'data-close-on-escape' => $this->closeOnEscape ? 'true' : 'false',
+            'data-delay' => $this->delay,
+            'data-hide-delay' => $this->hideDelay,
+            'data-arrow' => $this->arrow ? 'true' : 'false'
         ];
-
-        if ($this->target) {
-            $attributes['data-target'] = $this->target;
-        }
-
-        if ($this->dismissible) {
-            $attributes['data-dismissible'] = 'true';
-        }
-
-        if ($this->closeOnOutsideClick) {
-            $attributes['data-close-on-outside-click'] = 'true';
-        }
-
-        if ($this->closeOnEscape) {
-            $attributes['data-close-on-escape'] = 'true';
-        }
-
-        if ($this->delay > 0) {
-            $attributes['data-delay'] = $this->delay;
-        }
-
-        if ($this->hideDelay > 0) {
-            $attributes['data-hide-delay'] = $this->hideDelay;
-        }
-
-        if ($this->disabled) {
-            $attributes['data-disabled'] = 'true';
-        }
-
-        if ($this->arrow) {
-            $attributes['data-arrow'] = 'true';
-        }
-
-        return $attributes;
     }
 
-    public function getTriggerAttributes(): array
+    public function isDisabled(): bool
     {
-        $attributes = [
-            'data-popover-target' => $this->id,
-            'data-popover-placement' => $this->placement,
-            'data-popover-trigger' => $this->trigger
-        ];
-
-        // Add ARIA attributes for accessibility
-        $attributes['aria-describedby'] = $this->id;
-        $attributes['aria-expanded'] = 'false';
-
-        if ($this->trigger === 'click') {
-            $attributes['aria-haspopup'] = 'dialog';
-        }
-
-        return $attributes;
+        return $this->disabled;
     }
 
-    public function getContentAttributes(): array
+    public function hasTitle(): bool
     {
-        $attributes = [];
-
-        if ($this->title) {
-            $attributes['aria-labelledby'] = $this->id . '-title';
-        }
-
-        return $attributes;
-    }
-
-    public function getComputedPopoverClasses(): string
-    {
-        return $this->getPopoverClasses();
-    }
-
-    public function getComputedArrowClasses(): string
-    {
-        return $this->getArrowClasses();
-    }
-
-    public function getComputedTitleClasses(): string
-    {
-        return $this->getTitleClasses();
+        return !is_null($this->title);
     }
 
     public function render()
     {
         return view('keys::components.popover', [
-            'computedPopoverClasses' => $this->getComputedPopoverClasses(),
-            'computedArrowClasses' => $this->getComputedArrowClasses(),
-            'computedTitleClasses' => $this->getComputedTitleClasses(),
-            'popoverAttributes' => $this->getPopoverAttributes(),
-            'triggerAttributes' => $this->getTriggerAttributes(),
-            'contentAttributes' => $this->getContentAttributes(),
+            'computedPopoverClasses' => $this->popoverClasses(),
+            'computedPanelClasses' => $this->panelClasses(),
+            'computedTriggerClasses' => $this->triggerClasses(),
+            'computedTitleClasses' => $this->getTitleClasses(),
+            'computedDataAttributes' => $this->getDataAttributes(),
         ]);
     }
 }
