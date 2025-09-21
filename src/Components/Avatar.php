@@ -3,6 +3,7 @@
 namespace Keys\UI\Components;
 
 use Illuminate\View\Component;
+use Keys\UI\Constants\ComponentConstants;
 
 class Avatar extends Component
 {
@@ -23,23 +24,22 @@ class Avatar extends Component
         }
 
 
-        if (!in_array($this->size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
-            $this->size = 'md';
+        if (!ComponentConstants::isValidSize($this->size)) {
+            $this->size = ComponentConstants::getDefaultSize();
         }
 
 
-        if (!in_array($this->shape, ['circle', 'square'])) {
+        if (!in_array($this->shape, ComponentConstants::AVATAR_SHAPES)) {
             $this->shape = 'circle';
         }
 
 
-        $validColors = ['brand', 'success', 'warning', 'danger', 'neutral', 'red', 'green', 'blue', 'purple', 'yellow', 'teal', 'orange'];
-        if (!in_array($this->color, $validColors)) {
+        if (!ComponentConstants::isValidColorForComponent($this->color, 'avatar')) {
             $this->color = 'neutral';
         }
 
 
-        if ($this->status && !in_array($this->status, ['online', 'offline', 'away', 'busy'])) {
+        if ($this->status && !in_array($this->status, ComponentConstants::AVATAR_STATUS)) {
             $this->status = null;
         }
     }
@@ -174,8 +174,39 @@ class Avatar extends Component
         return 'flex items-center justify-center w-full h-full font-medium select-none';
     }
 
+    public function getDataAttributes(): array
+    {
+        $attributes = [
+            'data-keys-avatar' => 'true',
+            'data-size' => $this->size,
+            'data-shape' => $this->shape,
+        ];
+
+        if ($this->status) {
+            $attributes['data-status'] = $this->status;
+        }
+
+        if ($this->border) {
+            $attributes['data-border'] = 'true';
+        }
+
+        if ($this->src) {
+            $attributes['data-has-image'] = 'true';
+        } else {
+            $attributes['data-fallback-type'] = $this->name ? 'initials' : 'icon';
+        }
+
+        if ($this->color) {
+            $attributes['data-color'] = $this->color;
+        }
+
+        return $attributes;
+    }
+
     public function render()
     {
-        return view('keys::components.avatar');
+        return view('keys::components.avatar', [
+            'dataAttributes' => $this->getDataAttributes(),
+        ]);
     }
 }

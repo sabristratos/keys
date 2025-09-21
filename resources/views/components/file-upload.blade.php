@@ -4,7 +4,7 @@
     $sizeLimit = $sizeLimit;
 @endphp
 
-<div {{ $attributes->whereDoesntStartWith('wire:')->merge(['class' => $baseClasses()]) }}>
+<div {{ $attributes->whereDoesntStartWith('wire:')->merge(['class' => $baseClasses()]) }} data-file-upload-id="{{ $id }}">
     @if($isShorthand())
         <x-keys::label
             :for="$id"
@@ -176,6 +176,10 @@
                                     />
                                 @endif
 
+                                @if(isset($file['status']) && $file['status'] === 'processing')
+                                    <x-keys::loading size="xs" animation="spinner" />
+                                @endif
+
                                 <x-keys::button
                                     variant="ghost"
                                     size="xs"
@@ -183,6 +187,7 @@
                                     icon="heroicon-o-trash"
                                     data-remove-existing-file="{{ $file['id'] ?? $loop->index }}"
                                     aria-label="Remove {{ $file['name'] ?? 'file' }}"
+                                    @if(isset($file['status']) && $file['status'] === 'processing') disabled @endif
                                 />
                             </div>
                         </div>
@@ -194,25 +199,34 @@
 
     {{-- Error display --}}
     @if($showErrors && $hasError())
-        <x-keys::error :errors="$errors" class="mt-2" />
+        <x-keys::error :messages="$errors" class="mt-2" />
     @endif
 
-    {{-- Dynamic error container for JavaScript validation errors - improved visibility --}}
+    {{-- Dynamic error container --}}
     <div class="file-upload-errors mt-3 hidden" data-file-upload-errors="true" role="alert" aria-live="assertive">
-        <div class="relative animate-in fade-in slide-in-from-top-2 duration-300">
-            <div class="text-sm text-white bg-danger border border-danger rounded-lg shadow-lg p-4" data-error-content="true">
-                <div class="flex items-start gap-3">
-                    <x-keys::icon name="heroicon-o-exclamation-triangle" size="sm" class="text-white shrink-0" />
-                    <div class="flex-1">
-                        <p class="font-semibold mb-1">Upload Failed</p>
-                        <span data-error-message="true" class="text-white/90 text-xs block"></span>
-                    </div>
-                    <button type="button" class="text-white/80 hover:text-white transition-colors ml-2" data-dismiss-error="true" aria-label="Dismiss error">
-                        <x-keys::icon name="heroicon-o-x-mark" size="sm" />
-                    </button>
-                </div>
-            </div>
-        </div>
+        <x-keys::alert
+            variant="danger"
+            size="sm"
+            icon="heroicon-o-exclamation-triangle"
+            :dismissible="true"
+            class="animate-in fade-in slide-in-from-top-2 duration-300"
+        >
+            <x-slot name="title">Upload Failed</x-slot>
+            <span data-error-message="true" class="text-sm"></span>
+        </x-keys::alert>
+    </div>
+
+    {{-- Success notification --}}
+    <div class="file-upload-success mt-3 hidden" data-file-upload-success="true" role="status" aria-live="polite">
+        <x-keys::alert
+            variant="success"
+            size="sm"
+            icon="heroicon-o-check-circle"
+            :dismissible="true"
+            class="animate-in fade-in slide-in-from-top-2 duration-300"
+        >
+            <span data-success-message="true" class="text-sm"></span>
+        </x-keys::alert>
     </div>
 </div>
 
@@ -223,11 +237,13 @@
         user-select: none;
     }
 
-    /* Better visual feedback without jarring scale transform */
+    /* Better visual feedback */
     .file-upload-zone.drag-over {
         border-color: var(--color-brand);
         background: var(--color-brand-100);
         box-shadow: 0 4px 12px rgba(var(--color-brand-rgb), 0.15);
+        transform: scale(1.01);
+        transition: all 0.2s ease;
     }
 
     .file-upload-zone.has-error {
@@ -291,129 +307,20 @@
         }
     }
 
-    /* Responsive grid layouts for different file types */
-    .image-grid-layout {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    @media (max-width: 640px) {
-        .image-grid-layout {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 0.75rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .image-grid-layout {
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 0.5rem;
-        }
-    }
-
+    /* File list layout */
     .file-list-layout {
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
     }
 
-    .mixed-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    /* Image grid item enhancements */
-    .image-grid-item {
-        position: relative;
-        width: 100%;
-    }
-
-    .image-grid-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Enhanced image previews in mixed layout */
-    .mixed-image-item .file-preview-thumbnail {
-        position: relative;
-    }
-
-    .mixed-image-item .file-preview-thumbnail::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(45deg, transparent 30%, rgba(var(--color-brand-rgb), 0.1) 70%);
-        border-radius: inherit;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        pointer-events: none;
-    }
-
-    .mixed-image-item:hover .file-preview-thumbnail::after {
-        opacity: 1;
-    }
-
-    /* Animations */
-    @keyframes slide-in-right {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-
-    .animate-slide-in-right {
-        animation: slide-in-right 0.3s ease-out;
-    }
-
-    /* Loading skeleton for image previews */
-    .skeleton-loader {
-        background: linear-gradient(
-            90deg,
-            var(--color-surface) 25%,
-            var(--color-surface-hover) 50%,
-            var(--color-surface) 75%
-        );
-        background-size: 200% 100%;
-        animation: skeleton-loading 1.5s ease-in-out infinite;
-    }
-
-    @keyframes skeleton-loading {
-        0% {
-            background-position: 200% 0;
-        }
-        100% {
-            background-position: -200% 0;
-        }
-    }
-
-    /* Image grid hover effects and transitions */
-    .image-grid-item .aspect-square img {
-        transition: transform 0.3s ease, opacity 0.2s ease;
-    }
-
-    .image-grid-item:hover .aspect-square img {
-        transform: scale(1.05);
-    }
-
-    /* Status indicator animations */
-    .image-grid-item [data-file-status="uploading"] .aspect-square img {
-        animation: pulse-opacity 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-opacity {
-        0%, 100% { opacity: 0.5; }
-        50% { opacity: 0.8; }
+    /* File preview items */
+    .file-preview-item:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     /* Focus states for accessibility */
-    .image-grid-item:focus-within,
-    .mixed-image-item:focus-within,
     .file-preview-item:focus-within {
         outline: 2px solid var(--color-brand);
         outline-offset: 2px;
@@ -421,16 +328,239 @@
 
     /* Mobile optimizations */
     @media (pointer: coarse) {
-        .image-grid-item button,
-        .mixed-image-item button,
         .file-preview-item button {
             min-width: 44px;
             min-height: 44px;
         }
+    }
 
-        /* Always show delete button on mobile */
-        .image-grid-item button[data-remove-file] {
-            opacity: 0.8 !important;
+    /* Lightbox styling */
+    .lightbox-modal {
+        border: none;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        padding: 0;
+        margin: 0;
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        overflow: hidden;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .lightbox-modal::backdrop {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+    }
+
+    .lightbox-modal[open] {
+        animation: lightbox-fade-in 0.2s ease-out;
+    }
+
+    .lightbox-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .lightbox-image-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 2rem;
+        box-sizing: border-box;
+    }
+
+    .lightbox-image {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        transition: transform 0.2s ease-out;
+    }
+
+    .lightbox-image:hover {
+        transform: scale(1.02);
+    }
+
+    /* Navigation buttons */
+    .lightbox-nav {
+        transition: all 0.2s ease-out;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .lightbox-nav:hover {
+        background: rgba(0, 0, 0, 0.8);
+        transform: scale(1.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .lightbox-nav:active {
+        transform: scale(0.95);
+    }
+
+    /* Close button */
+    .lightbox-close {
+        transition: all 0.2s ease-out;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .lightbox-close:hover {
+        background: rgba(220, 38, 38, 0.8);
+        transform: scale(1.1);
+        border-color: rgba(220, 38, 38, 0.5);
+    }
+
+    .lightbox-close:active {
+        transform: scale(0.95);
+    }
+
+    /* Image info panel */
+    .lightbox-info {
+        backdrop-filter: blur(12px);
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease-out;
+    }
+
+    .lightbox-info:hover {
+        background: rgba(0, 0, 0, 0.8);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Animations */
+    @keyframes lightbox-fade-in {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
         }
     }
+
+    @keyframes lightbox-zoom-in {
+        from {
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .lightbox-image {
+        animation: lightbox-zoom-in 0.3s ease-out;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+        .lightbox-image-container {
+            padding: 1rem;
+        }
+
+        .lightbox-nav,
+        .lightbox-close {
+            width: 3rem;
+            height: 3rem;
+            font-size: 1.25rem;
+        }
+
+        .lightbox-nav {
+            left: 0.5rem;
+            right: 0.5rem;
+        }
+
+        .lightbox-close {
+            top: 0.5rem;
+            right: 0.5rem;
+        }
+
+        .lightbox-info {
+            left: 0.5rem;
+            right: 0.5rem;
+            bottom: 0.5rem;
+            padding: 0.75rem;
+        }
+
+        .lightbox-image {
+            border-radius: 4px;
+        }
+    }
+
+    /* Touch interactions */
+    @media (pointer: coarse) {
+        .lightbox-nav,
+        .lightbox-close {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .lightbox-nav:hover,
+        .lightbox-close:hover {
+            transform: none; /* Disable hover effects on touch devices */
+        }
+
+        .lightbox-nav:active,
+        .lightbox-close:active {
+            transform: scale(0.9);
+            background: rgba(0, 0, 0, 0.9);
+        }
+    }
+
+    /* High contrast mode */
+    @media (prefers-contrast: high) {
+        .lightbox-modal {
+            background: black;
+        }
+
+        .lightbox-nav,
+        .lightbox-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+        }
+
+        .lightbox-info {
+            background: black;
+            border: 2px solid white;
+        }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .lightbox-modal[open],
+        .lightbox-image,
+        .lightbox-nav,
+        .lightbox-close,
+        .lightbox-info {
+            animation: none;
+            transition: none;
+        }
+
+        .lightbox-image:hover,
+        .lightbox-nav:hover,
+        .lightbox-close:hover {
+            transform: none;
+        }
+    }
+
 </style>

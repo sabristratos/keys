@@ -3,6 +3,7 @@
 namespace Keys\UI\Components;
 
 use Illuminate\View\Component;
+use Keys\UI\Constants\ComponentConstants;
 
 class Badge extends Component
 {
@@ -18,24 +19,24 @@ class Badge extends Component
             $this->id = 'badge-' . uniqid();
         }
 
-        if (!in_array($this->variant, ['simple', 'chip'])) {
+        if (!in_array($this->variant, ComponentConstants::BADGE_VARIANTS)) {
             $this->variant = 'simple';
         }
 
-        if (!in_array($this->size, ['xs', 'sm', 'md'])) {
+        if (!in_array($this->size, ComponentConstants::BADGE_SIZES)) {
             $this->size = 'sm';
         }
 
-        $validColors = [
-            'brand', 'success', 'warning', 'danger', 'neutral',
-            'blue', 'gray', 'red', 'green', 'yellow', 'indigo', 'purple', 'pink'
-        ];
-        if (!in_array($this->color, $validColors)) {
+        if (!ComponentConstants::isValidColorForComponent($this->color, 'badge')) {
             $this->color = 'blue';
         }
 
         if ($this->dismissible && $this->variant === 'simple') {
             $this->variant = 'chip';
+        }
+
+        if ($this->dismissible && $this->variant === 'subtle') {
+            $this->dismissible = false;
         }
     }
 
@@ -69,12 +70,17 @@ class Badge extends Component
         return match ($this->variant) {
             'simple' => 'rounded-full',
             'chip' => 'rounded-sm',
+            'subtle' => '',
             default => 'rounded-full'
         };
     }
 
     public function colorClasses(): string
     {
+        if ($this->variant === 'subtle') {
+            return $this->colorClassesSubtle();
+        }
+
         return match ($this->color) {
             'brand' => 'bg-brand/10 text-brand',
             'success' => 'bg-success/10 text-success',
@@ -93,9 +99,33 @@ class Badge extends Component
         };
     }
 
+    public function colorClassesSubtle(): string
+    {
+        return match ($this->color) {
+            'brand' => 'text-brand',
+            'success' => 'text-success',
+            'warning' => 'text-warning',
+            'danger' => 'text-danger',
+            'neutral' => 'text-neutral',
+            'blue' => 'text-blue-600',
+            'gray' => 'text-neutral-600',
+            'red' => 'text-red-600',
+            'green' => 'text-green-600',
+            'yellow' => 'text-yellow-600',
+            'indigo' => 'text-indigo-600',
+            'purple' => 'text-purple-600',
+            'pink' => 'text-pink-600',
+            default => 'text-blue-600'
+        };
+    }
+
 
     public function badgeClasses(bool $isIconOnly = false): string
     {
+        if ($this->variant === 'subtle') {
+            return $this->subtleBadgeClasses($isIconOnly);
+        }
+
         $baseClasses = 'inline-flex items-center font-medium';
 
         if ($isIconOnly) {
@@ -110,6 +140,20 @@ class Badge extends Component
         $hoverClasses = $this->dismissible ? $this->hoverClasses() : '';
 
         return trim("{$baseClasses} {$sizeClasses} {$shapeClasses} {$colorClasses} {$hoverClasses}");
+    }
+
+    public function subtleBadgeClasses(bool $isIconOnly = false): string
+    {
+        $baseClasses = 'inline-flex items-center gap-1.5 font-medium';
+        $colorClasses = $this->colorClassesSubtle();
+        $sizeClasses = match ($this->size) {
+            'xs' => 'text-xs',
+            'sm' => 'text-xs',
+            'md' => 'text-sm',
+            default => 'text-xs'
+        };
+
+        return trim("{$baseClasses} {$sizeClasses} {$colorClasses}");
     }
 
     public function hoverClasses(): string
@@ -142,8 +186,32 @@ class Badge extends Component
         };
     }
 
+    public function getDataAttributes(): array
+    {
+        $attributes = [
+            'data-keys-badge' => 'true',
+            'data-variant' => $this->variant,
+            'data-color' => $this->color,
+            'data-size' => $this->size,
+        ];
+
+        if ($this->dismissible) {
+            $attributes['data-dismissible'] = 'true';
+            $attributes['data-badge-id'] = $this->id;
+        }
+
+        if ($this->icon) {
+            $attributes['data-has-icon'] = 'true';
+            $attributes['data-icon'] = $this->icon;
+        }
+
+        return $attributes;
+    }
+
     public function render()
     {
-        return view('keys::components.badge');
+        return view('keys::components.badge', [
+            'dataAttributes' => $this->getDataAttributes(),
+        ]);
     }
 }

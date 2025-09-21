@@ -3,7 +3,6 @@
 namespace Keys\UI;
 
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Keys\UI\Components\Accordion;
 use Keys\UI\Components\Alert;
@@ -34,6 +33,7 @@ use Keys\UI\Components\Menu\Radio as MenuRadio;
 use Keys\UI\Components\Menu\Separator as MenuSeparator;
 use Keys\UI\Components\Menu\Submenu as MenuSubmenu;
 use Keys\UI\Components\Modal;
+use Keys\UI\Components\Popover;
 use Keys\UI\Components\Radio;
 use Keys\UI\Components\Range;
 use Keys\UI\Components\Select;
@@ -61,10 +61,10 @@ use Keys\UI\Components\AddToCart;
 use Keys\UI\Components\FileUpload;
 use Keys\UI\Components\Progress;
 use Keys\UI\Components\Separator;
-use Keys\UI\Services\AssetManager;
 use Keys\UI\Services\KeysManager;
 use Keys\UI\Services\ModalManager;
 use Keys\UI\Services\ToastManager;
+use Keys\UI\Components\Scripts;
 
 class KeysUiServiceProvider extends ServiceProvider
 {
@@ -78,9 +78,6 @@ class KeysUiServiceProvider extends ServiceProvider
             'keys-ui'
         );
 
-        $this->app->singleton(AssetManager::class, function ($app) {
-            return new AssetManager();
-        });
 
         $this->app->singleton(ModalManager::class, function ($app) {
             return new ModalManager();
@@ -111,10 +108,6 @@ class KeysUiServiceProvider extends ServiceProvider
             __DIR__.'/../resources/views' => resource_path('views/vendor/keys'),
         ], 'keys-ui-views');
 
-        // Publish both CSS and JS assets together for zero-config setup
-        $this->publishes([
-            __DIR__.'/../dist' => public_path('vendor/keys-ui'),
-        ], 'keys-ui-assets');
 
         $this->publishes([
             __DIR__.'/Components' => app_path('View/Components/Keys'),
@@ -155,6 +148,7 @@ class KeysUiServiceProvider extends ServiceProvider
         Blade::component('keys::breadcrumbs', Breadcrumbs::class);
         Blade::component('keys::breadcrumbs.item', Item::class);
         Blade::component('keys::modal', Modal::class);
+        Blade::component('keys::popover', Popover::class);
         Blade::component('keys::toast', Toast::class);
         Blade::component('keys::dropdown', Dropdown::class);
         Blade::component('keys::editor', Editor::class);
@@ -181,19 +175,9 @@ class KeysUiServiceProvider extends ServiceProvider
         Blade::component('keys::file-upload', FileUpload::class);
         Blade::component('keys::progress', Progress::class);
         Blade::component('keys::separator', Separator::class);
+        Blade::component('keys::scripts', Scripts::class);
 
         $this->app->alias(KeysManager::class, 'keys');
-
-        $this->registerAssetDirectives();
     }
 
-    /**
-     * Register Blade directives for asset injection
-     */
-    protected function registerAssetDirectives(): void
-    {
-        Blade::directive('keysScripts', function () {
-            return "<?php echo app('Keys\\UI\\Services\\AssetManager')->renderScripts(); ?>";
-        });
-    }
 }

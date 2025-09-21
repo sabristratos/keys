@@ -12,7 +12,7 @@
         'required' => $required,
         'rows' => $rows,
         'cols' => $cols,
-    ], fn($value) => !is_null($value)));
+    ], fn($value) => !is_null($value)))->merge($dataAttributes);
 
 @endphp
 
@@ -25,6 +25,10 @@
         <div class="relative mt-1">
             @include('keys::partials.textarea-field')
         </div>
+
+        @if($hint)
+            <p class="mt-1 text-xs text-muted">{{ $hint }}</p>
+        @endif
 
         @if($showErrors && !is_null($errors))
             <x-keys::error :messages="$errors" />

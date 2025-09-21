@@ -24,19 +24,26 @@ class Textarea extends Component
         public bool $optional = false,
         public string|array|Collection|null $errors = null,
         public bool $showErrors = true,
+        public ?string $icon = null,  // Alias for iconLeft
         public ?string $iconLeft = null,
         public ?string $iconRight = null,
+        public ?string $hint = null,  // Add support for hint text
         public array $actions = [],
         public bool $clearable = false,
         public bool $copyable = false,
         public ?string $externalUrl = null,
         public string $actionVariant = 'ghost',
         public string $actionSize = 'xs',
-        public bool $hasError = false
+        public bool $hasError = false,
+        public bool $showCharacterCount = false,
+        public ?int $maxLength = null
     ) {
+        // Handle icon alias for iconLeft
+        if ($this->icon && !$this->iconLeft) {
+            $this->iconLeft = $this->icon;
+        }
 
         $this->id = $this->id ?? $this->name;
-
 
         if (!$this->hasError && $this->hasErrors()) {
             $this->hasError = true;
@@ -82,9 +89,11 @@ class Textarea extends Component
     public function sizeClasses(): string
     {
         return match ($this->size) {
+            'xs' => 'px-2.5 py-1 text-xs',
             'sm' => 'px-3 py-1.5 text-sm',
             'md' => 'px-3 py-2 text-sm',
             'lg' => 'px-4 py-2.5 text-base',
+            'xl' => 'px-4 py-3 text-base',
             default => 'px-3 py-2 text-sm'
         };
     }
@@ -286,6 +295,72 @@ class Textarea extends Component
         };
     }
 
+    public function getDataAttributes(): array
+    {
+        $attributes = [
+            'data-keys-textarea' => 'true',
+            'data-size' => $this->size,
+        ];
+
+        // State attributes
+        if ($this->disabled) {
+            $attributes['data-disabled'] = 'true';
+        }
+
+        if ($this->readonly) {
+            $attributes['data-readonly'] = 'true';
+        }
+
+        if ($this->required) {
+            $attributes['data-required'] = 'true';
+        }
+
+        if ($this->hasError()) {
+            $attributes['data-invalid'] = 'true';
+        }
+
+        // Feature attributes
+        if ($this->autoResize) {
+            $attributes['data-auto-resize'] = 'true';
+        }
+
+        if ($this->showCharacterCount) {
+            $attributes['data-show-character-count'] = 'true';
+        }
+
+        if ($this->maxLength) {
+            $attributes['data-max-length'] = $this->maxLength;
+        }
+
+        // Icon attributes
+        if ($this->iconLeft) {
+            $attributes['data-has-icon-left'] = 'true';
+            $attributes['data-icon-left'] = $this->iconLeft;
+        }
+
+        if ($this->iconRight) {
+            $attributes['data-has-icon-right'] = 'true';
+            $attributes['data-icon-right'] = $this->iconRight;
+        }
+
+        if ($this->iconLeft || $this->iconRight) {
+            $attributes['data-has-icon'] = 'true';
+        }
+
+        // Actions
+        if ($this->hasActions()) {
+            $attributes['data-has-actions'] = 'true';
+            $attributes['data-actions-count'] = count($this->getAllActions());
+        }
+
+        // Value state
+        if (!empty($this->value)) {
+            $attributes['data-has-value'] = 'true';
+        }
+
+        return $attributes;
+    }
+
     public function render()
     {
         return view('keys::components.textarea', [
@@ -294,6 +369,7 @@ class Textarea extends Component
             'computedActionData' => $this->getComputedActionData(),
             'computedIconOffsets' => $this->getComputedIconOffsets(),
             'computedIconPosition' => $this->getComputedIconPosition(),
+            'dataAttributes' => $this->getDataAttributes(),
         ]);
     }
 }

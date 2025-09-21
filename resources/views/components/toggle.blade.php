@@ -4,7 +4,7 @@
 @endphp
 
 
-<label for="{{ $id }}" {{ $wrapperAttributes->merge(['class' => $combinedClasses()]) }}>
+<label for="{{ $id }}" {{ $wrapperAttributes->merge(['class' => $combinedClasses()])->merge($dataAttributes) }}>
     
     <input
         type="checkbox"
@@ -36,6 +36,9 @@
                     @endif
                     @if($description)
                         <p class="text-sm text-muted mt-1">{{ $description }}</p>
+                    @endif
+                    @if($hint)
+                        <p class="text-xs text-muted mt-1">{{ $hint }}</p>
                     @endif
                 </div>
 

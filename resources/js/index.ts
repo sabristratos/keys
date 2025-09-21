@@ -7,6 +7,7 @@
 
 import { FormActions } from './FormActions';
 import { AlertActions } from './AlertActions';
+import { BadgeActions } from './BadgeActions';
 import { CalendarActions } from './CalendarActions';
 import { RadioActions } from './RadioActions';
 import { RangeActions } from './RangeActions';
@@ -25,76 +26,72 @@ import { DatePickerActions } from './DatePickerActions';
 import { AddToCartActions } from './AddToCartActions';
 import { FileUploadActions } from './FileUploadActions';
 import { GalleryActions } from './GalleryActions';
+import PopoverActions from './PopoverActions';
 
 // Import utility classes for external use
 import { BaseActionClass } from './utils/BaseActionClass';
 import { DOMUtils } from './utils/DOMUtils';
 import { EventUtils } from './utils/EventUtils';
 import { RTLUtils } from './utils/RTLUtils';
-import { DebugUtils } from './utils/DebugUtils';
+import FloatingManager from './utils/FloatingManager';
 
-export { FormActions, AlertActions, CalendarActions, RadioActions, RangeActions, SelectActions, TabsActions, ModalActions, ToastActions, DropdownActions, TableActions, ButtonGroupActions, TooltipActions, TimePickerActions, AccordionActions, EditorActions, DatePickerActions, AddToCartActions, FileUploadActions, GalleryActions };
+export { FormActions, AlertActions, BadgeActions, CalendarActions, RadioActions, RangeActions, SelectActions, TabsActions, ModalActions, ToastActions, DropdownActions, TableActions, ButtonGroupActions, TooltipActions, TimePickerActions, AccordionActions, EditorActions, DatePickerActions, AddToCartActions, FileUploadActions, GalleryActions, PopoverActions };
 
 // Export utility classes for external consumption
-export { BaseActionClass, DOMUtils, EventUtils, RTLUtils, DebugUtils };
+export { BaseActionClass, DOMUtils, EventUtils, RTLUtils, FloatingManager };
 
 /**
  * Initialize all Keys UI components
  * Call this function to automatically set up all interactive functionality
  */
 export function initializeKeysUI(): void {
-    const startTime = performance.now();
-
-    DebugUtils.debugLog('KeysUI', 'Starting Keys UI initialization...');
-
     // Initialize RTL support first
     RTLUtils.initialize();
 
-    // Define all components to initialize
-    const components = [
-        { name: 'FormActions', instance: FormActions.getInstance() },
-        { name: 'AlertActions', instance: AlertActions.getInstance() },
-        { name: 'CalendarActions', instance: CalendarActions.getInstance() },
-        { name: 'RadioActions', instance: RadioActions.getInstance() },
-        { name: 'RangeActions', instance: RangeActions.getInstance() },
-        { name: 'SelectActions', instance: SelectActions.getInstance() },
-        { name: 'TabsActions', instance: TabsActions.getInstance() },
-        { name: 'ModalActions', instance: ModalActions.getInstance() },
-        { name: 'ToastActions', instance: ToastActions.getInstance() },
-        { name: 'DropdownActions', instance: DropdownActions.getInstance() },
-        { name: 'TableActions', instance: TableActions.getInstance() },
-        { name: 'ButtonGroupActions', instance: ButtonGroupActions.getInstance() },
-        { name: 'TooltipActions', instance: TooltipActions.getInstance() },
-        { name: 'TimePickerActions', instance: TimePickerActions.getInstance() },
-        { name: 'AccordionActions', instance: AccordionActions.getInstance() },
-        { name: 'EditorActions', instance: EditorActions.getInstance() },
-        { name: 'DatePickerActions', instance: DatePickerActions.getInstance() },
-        { name: 'AddToCartActions', instance: AddToCartActions.getInstance() },
-        { name: 'FileUploadActions', instance: FileUploadActions.getInstance() },
-        { name: 'GalleryActions', instance: GalleryActions.getInstance() },
-    ];
+    FormActions.getInstance().init();
 
-    let successCount = 0;
-    let failedComponents: string[] = [];
+    AlertActions.getInstance().init();
 
-    // Initialize each component with error handling
-    components.forEach(({ name, instance }) => {
-        try {
-            instance.init();
-            successCount++;
-        } catch (error) {
-            failedComponents.push(name);
-            DebugUtils.debugError('KeysUI', `Failed to initialize ${name}`, error);
-        }
-    });
+    BadgeActions.getInstance().init();
 
-    // Log initialization summary
-    const initTime = performance.now() - startTime;
-    DebugUtils.debugInitSummary(successCount, initTime);
+    CalendarActions.getInstance().init();
 
-    if (failedComponents.length > 0) {
-        DebugUtils.debugError('KeysUI', `${failedComponents.length} components failed to initialize`, failedComponents);
-    }
+    RadioActions.getInstance().init();
+
+    RangeActions.getInstance().init();
+
+    SelectActions.getInstance().init();
+
+    TabsActions.getInstance().init();
+
+    ModalActions.getInstance().init();
+
+    ToastActions.getInstance().init();
+
+    DropdownActions.getInstance().init();
+
+    TableActions.getInstance().init();
+
+    ButtonGroupActions.getInstance().init();
+
+    TooltipActions.getInstance().init();
+
+    TimePickerActions.getInstance().init();
+
+    AccordionActions.getInstance().init();
+
+    EditorActions.getInstance().init();
+
+    DatePickerActions.getInstance().init();
+
+    AddToCartActions.getInstance().init();
+
+    FileUploadActions.getInstance().init();
+
+    GalleryActions.getInstance().init();
+
+    PopoverActions.init();
+
 }
 
 /**
@@ -103,6 +100,7 @@ export function initializeKeysUI(): void {
 const KeysUI = {
     FormActions: FormActions.getInstance(),
     AlertActions: AlertActions.getInstance(),
+    BadgeActions: BadgeActions.getInstance(),
     CalendarActions: CalendarActions.getInstance(),
     RadioActions: RadioActions.getInstance(),
     RangeActions: RangeActions.getInstance(),
@@ -121,6 +119,7 @@ const KeysUI = {
     AddToCartActions: AddToCartActions.getInstance(),
     FileUploadActions: FileUploadActions.getInstance(),
     GalleryActions: GalleryActions.getInstance(),
+    PopoverActions: PopoverActions,
     init: initializeKeysUI,
     initialize: initializeKeysUI // Alias for consistency
 };

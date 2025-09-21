@@ -129,8 +129,36 @@ class Card extends Component
         return $this->disabled ? 'opacity-50 cursor-not-allowed' : '';
     }
 
+    public function getDataAttributes(): array
+    {
+        $attributes = [
+            'data-keys-card' => 'true',
+            'data-variant' => $this->variant,
+            'data-padding' => $this->padding,
+            'data-rounded' => $this->rounded,
+            'data-shadow' => $this->shadow,
+        ];
+
+        if ($this->interactive) {
+            $attributes['data-interactive'] = 'true';
+        }
+
+        if ($this->selected) {
+            $attributes['data-selected'] = 'true';
+        }
+
+        if ($this->href) {
+            $attributes['data-href'] = $this->href;
+            $attributes['data-clickable'] = 'true';
+        }
+
+        return $attributes;
+    }
+
     public function render()
     {
-        return view('keys::components.card');
+        return view('keys::components.card', [
+            'dataAttributes' => $this->getDataAttributes(),
+        ]);
     }
 }

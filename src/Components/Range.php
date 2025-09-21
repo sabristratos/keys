@@ -27,6 +27,8 @@ class Range extends Component
         public bool $optional = false,
         public string|array|Collection|null $errors = null,
         public bool $showErrors = true,
+        public ?string $icon = null,  // Add icon support
+        public ?string $hint = null,  // Add hint support
         public bool $hasError = false
     ) {
         $this->id = $this->id ?? $this->name;
@@ -133,9 +135,11 @@ class Range extends Component
     public function sizeClasses(): string
     {
         return match ($this->size) {
+            'xs' => 'h-0.5',
             'sm' => 'h-1',
             'md' => 'h-2',
             'lg' => 'h-3',
+            'xl' => 'h-4',
             default => 'h-2'
         };
     }
@@ -144,9 +148,11 @@ class Range extends Component
     {
         $base = 'relative';
         $spacing = match ($this->size) {
+            'xs' => 'px-1 py-2',
             'sm' => 'px-2 py-3',
             'md' => 'px-3 py-4',
             'lg' => 'px-4 py-5',
+            'xl' => 'px-5 py-6',
             default => 'px-3 py-4'
         };
 
@@ -231,6 +237,48 @@ class Range extends Component
         return $this->id ?? 'range-' . uniqid();
     }
 
+    public function getDataAttributes(): array
+    {
+        $attributes = [
+            'data-keys-range' => 'true',
+            'data-size' => $this->size,
+            'data-min' => $this->min,
+            'data-max' => $this->max,
+            'data-step' => $this->step,
+            'data-value' => $this->value,
+        ];
+
+        // State attributes
+        if ($this->disabled) {
+            $attributes['data-disabled'] = 'true';
+        }
+
+        if ($this->required) {
+            $attributes['data-required'] = 'true';
+        }
+
+        if ($this->hasError()) {
+            $attributes['data-invalid'] = 'true';
+        }
+
+        // Feature attributes
+        if ($this->showValue) {
+            $attributes['data-show-value'] = 'true';
+        }
+
+        if (!empty($this->ticks)) {
+            $attributes['data-show-ticks'] = 'true';
+            $attributes['data-ticks-count'] = count($this->ticks);
+        }
+
+        // Color variant
+        if ($this->color) {
+            $attributes['data-color'] = $this->color;
+        }
+
+        return $attributes;
+    }
+
     public function render()
     {
         return view('keys::components.range', [
@@ -242,6 +290,7 @@ class Range extends Component
             'computedFillClasses' => $this->getComputedFillClasses(),
             'computedContainerClasses' => $this->getComputedContainerClasses(),
             'uniqueId' => $this->getUniqueId(),
+            'dataAttributes' => $this->getDataAttributes(),
         ]);
     }
 }

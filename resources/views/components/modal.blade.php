@@ -13,7 +13,7 @@
         $dialogAttributes = $dialogAttributes->merge(['data-modal-animate' => true]);
     }
 
-    $dialogAttributes = $dialogAttributes->merge($eventAttributes);
+    $dialogAttributes = $dialogAttributes->merge($eventAttributes)->merge($dataAttributes);
 @endphp
 
 <dialog {{ $dialogAttributes }}>

@@ -154,13 +154,69 @@ class Select extends Component
         return $this->id ?? 'select-' . uniqid();
     }
 
+    public function getComputedFloatingData(): array
+    {
+        return [
+            'placement' => 'bottom',
+            'alignment' => 'start',
+            'offset' => 4
+        ];
+    }
+
+    public function getDataAttributes(): array
+    {
+        $attributes = [
+            'data-keys-select' => 'true',
+            'data-size' => $this->size,
+            'data-multiple' => $this->multiple ? 'true' : 'false',
+            'data-searchable' => $this->searchable ? 'true' : 'false',
+            'data-clearable' => $this->clearable ? 'true' : 'false',
+            'data-disabled' => $this->disabled ? 'true' : 'false',
+            'data-name' => $this->name,
+        ];
+
+        // State attributes
+        if ($this->required) {
+            $attributes['data-required'] = 'true';
+        }
+
+        if ($this->hasError()) {
+            $attributes['data-invalid'] = 'true';
+        }
+
+        // Value attributes
+        if ($this->value !== null) {
+            $attributes['data-value'] = is_array($this->value) ? json_encode($this->value) : $this->value;
+            $attributes['data-has-value'] = 'true';
+        }
+
+        // Selection count for multiple selects
+        if ($this->multiple) {
+            $selectedCount = count($this->getSelectedValues());
+            $attributes['data-selected-count'] = $selectedCount;
+            if ($selectedCount > 0) {
+                $attributes['data-has-selection'] = 'true';
+            }
+        }
+
+        // Floating UI attributes (preserve existing behavior)
+        $floatingData = $this->getComputedFloatingData();
+        $attributes['data-floating-placement'] = $floatingData['placement'];
+        $attributes['data-floating-alignment'] = $floatingData['alignment'];
+        $attributes['data-floating-offset'] = $floatingData['offset'];
+
+        return $attributes;
+    }
+
     public function render()
     {
         return view('keys::components.select', [
             'computedIconSize' => $this->getComputedIconSize(),
             'computedTriggerClasses' => $this->getComputedTriggerClasses(),
             'computedDropdownClasses' => $this->getComputedDropdownClasses(),
+            'computedFloatingData' => $this->getComputedFloatingData(),
             'uniqueId' => $this->getUniqueId(),
+            'dataAttributes' => $this->getDataAttributes(),
         ]);
     }
 }

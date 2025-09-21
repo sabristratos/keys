@@ -5,14 +5,9 @@
     $selectAttributes = $wrapperAttributes
         ->except(['class'])
         ->merge(array_filter([
-            'data-select' => 'true',
-            'data-multiple' => $multiple ? 'true' : 'false',
-            'data-searchable' => $searchable ? 'true' : 'false',
-            'data-clearable' => $clearable ? 'true' : 'false',
-            'data-disabled' => $disabled ? 'true' : 'false',
-            'data-name' => $name,
-            'data-value' => is_array($value) ? json_encode($value) : $value,
-        ], fn($value) => !is_null($value)));
+            'data-select' => 'true', // Keep original for compatibility
+        ], fn($value) => !is_null($value)))
+        ->merge($dataAttributes); // Add comprehensive data attributes
 
     $hiddenInputName = $multiple ? ($name . '[]') : $name;
 @endphp

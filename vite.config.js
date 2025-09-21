@@ -6,20 +6,15 @@ export default defineConfig({
         lib: {
             entry: resolve(__dirname, 'resources/js/index.ts'),
             name: 'KeysUI',
-            fileName: (format) => format === 'umd' ? 'keys-ui.min.js' : `keys-ui.${format}.js`,
+            fileName: (format) => `keys-ui.${format}.js`,
             formats: ['es', 'umd']
         },
-        minify: true,
         rollupOptions: {
             // External dependencies that shouldn't be bundled
-            external: ['quill', 'quill/dist/quill.snow.css'],
+            external: [],
             output: {
                 // Global variables for UMD build
-                globals: {
-                    'quill': 'Quill'
-                },
-                // Allow both default and named exports
-                exports: 'named'
+                globals: {}
             }
         },
         outDir: 'dist',

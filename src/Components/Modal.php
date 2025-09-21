@@ -3,6 +3,7 @@
 namespace Keys\UI\Components;
 
 use Illuminate\View\Component;
+use Keys\UI\Constants\ComponentConstants;
 
 class Modal extends Component
 {
@@ -20,8 +21,8 @@ class Modal extends Component
         public ?string $wireModel = null
     ) {
 
-        if (!in_array($this->size, ['xs', 'sm', 'md', 'lg', 'xl', 'full'])) {
-            $this->size = 'md';
+        if (!in_array($this->size, ComponentConstants::MODAL_SIZES)) {
+            $this->size = ComponentConstants::getDefaultSize();
         }
 
 
@@ -220,6 +221,45 @@ class Modal extends Component
         return $events;
     }
 
+    public function getDataAttributes(): array
+    {
+        $attributes = [
+            'data-keys-modal' => 'true',
+            'data-size' => $this->size,
+            'data-placement' => $this->placement,
+        ];
+
+        if ($this->backdrop !== 'default') {
+            $attributes['data-backdrop'] = $this->backdrop;
+        }
+
+        if ($this->animate) {
+            $attributes['data-animate'] = 'true';
+        }
+
+        if ($this->scrollable) {
+            $attributes['data-scrollable'] = 'true';
+        }
+
+        if ($this->closeOnEscape) {
+            $attributes['data-close-on-escape'] = 'true';
+        }
+
+        if ($this->closeOnClickOutside) {
+            $attributes['data-close-on-click-outside'] = 'true';
+        }
+
+        if ($this->lazy) {
+            $attributes['data-lazy'] = 'true';
+        }
+
+        if ($this->isLivewireEnabled()) {
+            $attributes['data-livewire-enabled'] = 'true';
+        }
+
+        return $attributes;
+    }
+
     public function render()
     {
         return view('keys::components.modal', [
@@ -231,6 +271,7 @@ class Modal extends Component
             'computedFooterClasses' => $this->getComputedFooterClasses(),
             'livewireAttributes' => $this->getLivewireAttributes(),
             'eventAttributes' => $this->getEventAttributes(),
+            'dataAttributes' => $this->getDataAttributes(),
         ]);
     }
 }

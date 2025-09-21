@@ -7,12 +7,13 @@
  * - Preview generation for images
  * - Progress tracking with visual feedback
  * - Automatic Livewire integration when wire: attributes are detected
- * - Error handling and retry functionality
+ * - Error handling with user feedback
  */
 
 import { BaseActionClass } from './utils/BaseActionClass';
 import { DOMUtils } from './utils/DOMUtils';
 import { EventUtils } from './utils/EventUtils';
+import LightboxActions from './LightboxActions';
 
 interface FileUploadState {
     files: File[];
@@ -43,6 +44,7 @@ interface FilePreview {
 export class FileUploadActions extends BaseActionClass<FileUploadState> {
     private cleanupFunctions: (() => void)[] = [];
     private filePreviewsMap = new Map<HTMLElement, Map<string, FilePreview>>();
+    private lightboxActions: LightboxActions;
 
     protected bindEventListeners(): void {
         // Handle drop zone clicks
@@ -106,29 +108,31 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
                 (element, event) => this.handleAddMoreFiles(element, event)
             )
         );
+
     }
 
     protected initializeElements(): void {
+        // Initialize lightbox actions
+        console.log('🔍 FileUploadActions: Initializing lightbox actions');
+        this.lightboxActions = new LightboxActions();
+        this.lightboxActions.init(); // Initialize the lightbox to bind event listeners
+
         const zones = DOMUtils.findByDataAttribute('file-upload-zone');
-        console.log(`FileUploadActions: Found ${zones.length} file upload zones to initialize`);
+        console.log('🔍 FileUploadActions: Found upload zones:', zones.length);
         zones.forEach((zone, index) => {
-            console.log(`FileUploadActions: Initializing zone ${index + 1}:`, zone);
             this.initializeZone(zone);
         });
     }
 
     private initializeZone(zone: HTMLElement): void {
         const input = this.findFileInput(zone);
-        console.log(`FileUploadActions: Found input for zone:`, input);
         if (!input) {
-            console.warn('FileUploadActions: No file input found for zone:', zone);
             return;
         }
 
         const previewAttr = DOMUtils.getDataAttribute(zone, 'preview');
         const progressAttr = DOMUtils.getDataAttribute(zone, 'progress');
         const autoUploadAttr = DOMUtils.getDataAttribute(zone, 'auto-upload');
-        console.log('FileUploadActions: Data attributes - preview:', previewAttr, 'progress:', progressAttr, 'auto-upload:', autoUploadAttr);
 
         const state: FileUploadState = {
             files: [],
@@ -181,9 +185,7 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
     }
 
     private handleDropZoneClick(zone: HTMLElement, event: MouseEvent): void {
-        console.log('FileUploadActions: Drop zone clicked:', zone, event);
         if (DOMUtils.isDisabled(zone)) {
-            console.log('FileUploadActions: Zone is disabled, ignoring click');
             return;
         }
 
@@ -196,11 +198,9 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
             const clickedElement = target.closest('button, a, [role="button"]:not([data-file-upload-zone])');
 
             if (clickedElement && !target.closest('.pointer-events-none')) {
-                console.log('FileUploadActions: Clicked on nested interactive element, ignoring');
                 return;
             }
 
-            console.log('FileUploadActions: Valid drop zone click, triggering file select');
             this.triggerFileSelect(zone);
         }
     }
@@ -219,29 +219,23 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
 
     private triggerFileSelect(zone: HTMLElement): void {
         const input = this.findFileInput(zone);
-        console.log('FileUploadActions: Found input for trigger:', input);
         if (input) {
-            console.log('FileUploadActions: Triggering input click');
             input.click();
             // Announce to screen readers
             this.announceToScreenReader('File selection dialog opened');
         } else {
-            console.warn('FileUploadActions: No input found for zone trigger');
         }
     }
 
     // Browse button functionality removed - now handled by drop zone click
 
     private handleFileInputChange(input: HTMLInputElement, event: Event): void {
-        console.log('FileUploadActions: File input change detected:', input, event);
         // Find the sibling zone within the same wrapper
         const wrapper = input.parentElement;
         const zone = wrapper ? wrapper.querySelector('[data-file-upload-zone]') as HTMLElement : null;
-        console.log('FileUploadActions: Found zone for file input:', zone);
         if (!zone) return;
 
         const files = Array.from(input.files || []);
-        console.log('FileUploadActions: Selected files:', files);
         this.processFiles(zone, files);
     }
 
@@ -285,45 +279,35 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
     }
 
     private handleRemoveFile(button: HTMLElement, event: MouseEvent): void {
-        console.log('FileUploadActions: Remove button clicked:', button, event);
         event.stopPropagation();
 
         const fileId = button.getAttribute('data-remove-file');
-        console.log('FileUploadActions: File ID to remove:', fileId);
 
         // The preview area is outside the zone, so we need to find the zone via the wrapper
         const previewArea = DOMUtils.findClosest(button, '[data-file-previews]');
         const wrapper = previewArea?.parentElement;
         const zone = wrapper ? wrapper.querySelector('[data-file-upload-zone]') as HTMLElement : null;
 
-        console.log('FileUploadActions: Found preview area:', previewArea);
-        console.log('FileUploadActions: Found wrapper:', wrapper);
-        console.log('FileUploadActions: Found zone for removal:', zone);
 
         if (zone && fileId) {
             this.removeFile(zone, fileId);
         } else {
-            console.warn('FileUploadActions: Could not find zone or fileId for removal');
         }
     }
 
     private handleRemoveExistingFile(button: HTMLElement, event: MouseEvent): void {
-        console.log('FileUploadActions: Remove existing file button clicked:', button, event);
         event.stopPropagation();
 
         const fileId = button.getAttribute('data-remove-existing-file');
-        console.log('FileUploadActions: File ID to remove:', fileId);
 
         // Emit custom event for parent component to handle
         EventUtils.dispatchCustomEvent(button, 'file-upload:remove-existing', {
             fileId: fileId
         });
 
-        console.log('FileUploadActions: Dispatched remove-existing event for file:', fileId);
     }
 
     private handleAddMoreFiles(button: HTMLElement, event: MouseEvent): void {
-        console.log('FileUploadActions: Add more files button clicked:', button, event);
         event.stopPropagation();
 
         // Find the zone through the preview area
@@ -331,32 +315,25 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
         const wrapper = previewArea?.parentElement;
         const zone = wrapper ? wrapper.querySelector('[data-file-upload-zone]') as HTMLElement : null;
 
-        console.log('FileUploadActions: Found zone for add more button:', zone);
         if (!zone) {
-            console.warn('FileUploadActions: No zone found for add more button');
             return;
         }
 
         // Trigger file selection
         const input = this.findFileInput(zone);
         if (input) {
-            console.log('FileUploadActions: Triggering input click for add more');
             input.click();
             this.announceToScreenReader('File selection dialog opened for additional files');
         } else {
-            console.warn('FileUploadActions: No input found for add more button');
         }
     }
 
     private processFiles(zone: HTMLElement, files: File[]): void {
-        console.log('FileUploadActions: Processing files:', files);
         const state = this.getState(zone);
-        console.log('FileUploadActions: Current state:', state);
         if (!state) return;
 
         // Validate files
         const validationResult = this.validateFiles(files, state.validationRules, state.files.length);
-        console.log('FileUploadActions: Validation result:', validationResult);
         if (!validationResult.valid) {
             this.showError(zone, validationResult.errors.join(', '));
             return;
@@ -364,7 +341,8 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
 
         // Add files to state
         const newFiles = validationResult.validFiles;
-        console.log('FileUploadActions: Adding new files to state:', newFiles);
+
+        const filteredFiles = newFiles;
 
         // Check if we need to clear existing files (single file mode)
         const input = this.findFileInput(zone);
@@ -372,20 +350,18 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
 
         if (!isMultiple && state.files.length > 0) {
             // Single file mode - replace existing file
-            state.files = [...newFiles];
+            state.files = [...filteredFiles];
             // Clear existing previews first
             this.clearAllPreviews(zone);
         } else {
             // Multiple file mode - add to existing files
-            state.files.push(...newFiles);
+            state.files.push(...filteredFiles);
         }
 
         this.setState(zone, state);
 
         // Create previews if enabled
-        console.log('FileUploadActions: Preview enabled?', state.preview);
         if (state.preview) {
-            console.log('FileUploadActions: Creating file previews for:', newFiles);
             this.createFilePreviews(zone, newFiles);
         }
 
@@ -396,8 +372,9 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
 
         // Auto upload if enabled
         if (state.autoUpload) {
-            this.uploadFiles(zone, newFiles);
+            this.uploadFiles(zone, filteredFiles);
         }
+
 
         // Announce file selection to screen readers
         const fileCount = newFiles.length;
@@ -412,7 +389,7 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
 
         // Emit custom event
         EventUtils.dispatchCustomEvent(zone, 'file-upload:files-added', {
-            files: newFiles,
+            files: filteredFiles,
             allFiles: state.files
         });
     }
@@ -475,7 +452,6 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
     private createFilePreviews(zone: HTMLElement, files: File[]): void {
         const previewContainer = zone.parentElement?.querySelector('[data-preview-list]') as HTMLElement;
         if (!previewContainer) {
-            console.warn('FileUploadActions: Preview container not found');
             return;
         }
 
@@ -491,210 +467,41 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
             };
 
             previews.set(fileId, preview);
-            this.renderFilePreview(previewContainer, preview);
+            this.renderFilePreview(previewContainer, preview, zone);
         });
 
         this.filePreviewsMap.set(zone, previews);
 
-        // Update layout based on file types
         this.updatePreviewLayout(zone);
         this.showPreviewArea(zone);
     }
 
-    private renderFilePreview(container: HTMLElement, preview: FilePreview): void {
-        const layoutType = container.getAttribute('data-layout-type') || 'file-list';
-        this.renderFilePreviewForLayout(container, preview, layoutType);
+    private renderFilePreview(container: HTMLElement, preview: FilePreview, zone: HTMLElement): void {
+        this.renderFilePreviewForLayout(container, preview, 'file-list', zone);
     }
 
     /**
      * Renders a file preview for a specific layout type
      */
-    private renderFilePreviewForLayout(container: HTMLElement, preview: FilePreview, layoutType: string): void {
+    private renderFilePreviewForLayout(container: HTMLElement, preview: FilePreview, layoutType: string, zone: HTMLElement): void {
         const isImage = preview.file.type.startsWith('image/');
         const fileSize = this.formatFileSize(preview.file.size);
         const fileIconName = this.getFileTypeIconName(preview.file);
 
-        // Create preview element with layout-specific structure
-        let previewElement: HTMLElement;
-
-        if (layoutType === 'image-grid' && isImage) {
-            // Large image card layout for pure image uploads
-            previewElement = this.createImageGridPreview(preview, fileSize);
-        } else if (layoutType === 'mixed' && isImage) {
-            // Enhanced image preview for mixed uploads
-            previewElement = this.createMixedImagePreview(preview, fileSize);
-        } else {
-            // Standard file list layout
-            previewElement = this.createFileListPreview(preview, fileSize, fileIconName, isImage);
-        }
-
-        // Add to container
+        const previewElement = this.createFileListPreview(preview, fileSize, fileIconName, isImage, zone);
         container.appendChild(previewElement);
 
-        // Initialize image preview loading for images
         if (isImage) {
-            this.loadImagePreview(previewElement, preview);
+            this.loadImagePreview(previewElement, preview, zone);
         }
 
-        // Update status-specific classes
         this.updatePreviewStatus(previewElement, preview.status);
     }
 
-    /**
-     * Creates a large image grid preview for pure image uploads
-     */
-    private createImageGridPreview(preview: FilePreview, fileSize: string): HTMLElement {
-        const element = DOMUtils.createElement('div', {
-            classes: ['image-grid-item', 'group', 'relative', 'bg-surface', 'border', 'border-border', 'rounded-lg', 'overflow-hidden', 'transition-all', 'duration-200', 'hover:shadow-lg', 'hover:border-brand'],
-            attributes: {
-                'data-file-id': preview.id,
-                'data-file-status': preview.status,
-                'role': 'listitem'
-            }
-        });
+    private createFileListPreview(preview: FilePreview, fileSize: string, fileIconName: string, isImage: boolean, zone: HTMLElement): HTMLElement {
+        // Check if lightbox is enabled for this zone
+        const lightboxEnabled = zone.getAttribute('data-lightbox') === 'true';
 
-        element.innerHTML = `
-            <!-- Large Image Display (1:1 aspect ratio) -->
-            <div class="aspect-square relative bg-surface overflow-hidden">
-                <img
-                    src=""
-                    alt="Preview of ${this.escapeHtml(preview.file.name)}"
-                    class="w-full h-full object-cover opacity-50 transition-opacity duration-200"
-                    data-image-preview="true"
-                />
-
-                <!-- Status indicator corner badge -->
-                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    ${this.getStatusIndicator(preview.status)}
-                </div>
-
-                <!-- Hover overlay with file details -->
-                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end">
-                    <div class="p-4 w-full text-white">
-                        <h4 class="font-medium text-sm truncate mb-1" title="${this.escapeHtml(preview.file.name)}">
-                            ${this.escapeHtml(preview.file.name)}
-                        </h4>
-                        <div class="flex items-center justify-between text-xs text-white/80">
-                            <span>${fileSize}</span>
-                            ${preview.status !== 'pending' ? `<span class="capitalize">${preview.status}</span>` : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Delete button (always visible on mobile, hover on desktop) -->
-            <button
-                type="button"
-                class="absolute top-2 left-2 w-8 h-8 bg-black/60 hover:bg-danger text-white rounded-full transition-all duration-200 opacity-70 hover:opacity-100 md:opacity-0 md:group-hover:opacity-100"
-                data-remove-file="${preview.id}"
-                aria-label="Remove ${this.escapeHtml(preview.file.name)}"
-            >
-                ${this.getHeroiconSvg('heroicon-o-x-mark', 'w-4 h-4')}
-            </button>
-
-            <!-- Progress bar for uploads -->
-            ${preview.status === 'uploading' ? `
-                <div class="absolute bottom-0 left-0 right-0 h-2 bg-black/20">
-                    <div
-                        class="h-full bg-brand transition-all duration-300 ease-out"
-                        style="width: ${preview.progress}%"
-                        data-progress-bar="${preview.id}"
-                    ></div>
-                </div>
-            ` : ''}
-        `;
-
-        return element;
-    }
-
-    /**
-     * Creates an enhanced image preview for mixed file uploads
-     */
-    private createMixedImagePreview(preview: FilePreview, fileSize: string): HTMLElement {
-        const element = DOMUtils.createElement('div', {
-            classes: ['mixed-image-item', 'group', 'relative', 'flex', 'items-center', 'p-4', 'border', 'border-border', 'rounded-lg', 'bg-surface', 'hover:bg-surface/80', 'transition-all', 'duration-200'],
-            attributes: {
-                'data-file-id': preview.id,
-                'data-file-status': preview.status,
-                'role': 'listitem'
-            }
-        });
-
-        element.innerHTML = `
-            <!-- Enhanced Image Thumbnail (larger than standard) -->
-            <div class="flex items-center space-x-4 flex-1 min-w-0">
-                <div class="file-preview-thumbnail flex-shrink-0">
-                    <div class="relative w-20 h-20 rounded-lg overflow-hidden bg-surface border border-border">
-                        <img
-                            src=""
-                            alt="Preview of ${this.escapeHtml(preview.file.name)}"
-                            class="w-full h-full object-cover opacity-50"
-                            data-image-preview="true"
-                        />
-                        <!-- Status indicator -->
-                        <div class="absolute top-1 right-1">
-                            ${this.getStatusIndicator(preview.status, 'sm')}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- File Information -->
-                <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-foreground truncate group-hover:text-brand transition-colors" title="${this.escapeHtml(preview.file.name)}">
-                        ${this.escapeHtml(preview.file.name)}
-                    </p>
-                    <div class="flex items-center space-x-2 text-xs text-muted mt-1">
-                        <span>${fileSize}</span>
-                        ${preview.status !== 'pending' ? `
-                            <span class="text-muted/50">•</span>
-                            <span class="capitalize ${this.getStatusColor(preview.status)}">
-                                ${preview.status}
-                            </span>
-                        ` : ''}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center space-x-2 flex-shrink-0">
-                ${preview.status === 'uploading' ? `
-                    <div class="w-4 h-4 animate-spin text-brand">
-                        <svg fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </div>
-                ` : ''}
-
-                <button
-                    type="button"
-                    class="p-2 opacity-60 group-hover:opacity-100 hover:bg-danger/10 text-danger hover:text-danger-hover rounded transition-all duration-200"
-                    data-remove-file="${preview.id}"
-                    aria-label="Remove ${this.escapeHtml(preview.file.name)}"
-                >
-                    ${this.getHeroiconSvg('heroicon-o-trash', 'w-4 h-4')}
-                </button>
-            </div>
-
-            <!-- Progress Bar -->
-            ${preview.status === 'uploading' ? `
-                <div class="absolute bottom-0 left-0 right-0 h-1 bg-border rounded-b-lg overflow-hidden">
-                    <div
-                        class="h-full bg-brand transition-all duration-300 ease-out"
-                        style="width: ${preview.progress}%"
-                        data-progress-bar="${preview.id}"
-                    ></div>
-                </div>
-            ` : ''}
-        `;
-
-        return element;
-    }
-
-    /**
-     * Creates a standard file list preview
-     */
-    private createFileListPreview(preview: FilePreview, fileSize: string, fileIconName: string, isImage: boolean): HTMLElement {
         const element = DOMUtils.createElement('div', {
             classes: ['file-preview-item', 'group', 'relative', 'flex', 'items-center', 'justify-between', 'p-4', 'border', 'border-border', 'rounded-lg', 'bg-surface', 'hover:bg-surface/80', 'transition-all', 'duration-200'],
             attributes: {
@@ -708,8 +515,16 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
             <div class="flex items-center space-x-4 flex-1 min-w-0">
                 <div class="file-preview-thumbnail flex-shrink-0">
                     ${isImage ?
-                        `<div class="relative w-12 h-12 rounded-md overflow-hidden bg-surface border border-border">
+                        `<div class="relative w-12 h-12 rounded-md overflow-hidden bg-surface border border-border ${lightboxEnabled ? 'cursor-pointer hover:ring-2 hover:ring-brand/50 transition-all' : ''}"
+                              ${lightboxEnabled ? `data-lightbox-trigger="${preview.id}" role="button" tabindex="0" aria-label="View ${this.escapeHtml(preview.file.name)} in lightbox"` : ''}>
                             <img src="" alt="Preview of ${this.escapeHtml(preview.file.name)}" class="w-full h-full object-cover opacity-50" data-image-preview="true" />
+                            ${lightboxEnabled ? `
+                                <div class="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100 pointer-events-none">
+                                    <svg class="w-4 h-4 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                                    </svg>
+                                </div>
+                            ` : ''}
                         </div>` :
                         `<div class="w-12 h-12 rounded-md bg-surface border border-border flex items-center justify-center text-muted group-hover:text-foreground transition-colors">
                             ${this.getHeroiconSvg(fileIconName, 'w-6 h-6')}
@@ -775,35 +590,6 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
         return element;
     }
 
-    /**
-     * Gets status indicator for corner badges
-     */
-    private getStatusIndicator(status: string, size: string = 'md'): string {
-        const sizeClass = size === 'sm' ? 'w-4 h-4' : 'w-6 h-6';
-        const bgClass = size === 'sm' ? 'w-4 h-4' : 'w-6 h-6';
-
-        switch (status) {
-            case 'success':
-                return `<div class="${bgClass} bg-success rounded-full flex items-center justify-center">
-                    ${this.getHeroiconSvg('heroicon-o-check', `${size === 'sm' ? 'w-2.5 h-2.5' : 'w-4 h-4'} text-white`)}
-                </div>`;
-            case 'error':
-                return `<div class="${bgClass} bg-danger rounded-full flex items-center justify-center">
-                    ${this.getHeroiconSvg('heroicon-o-x-mark', `${size === 'sm' ? 'w-2.5 h-2.5' : 'w-4 h-4'} text-white`)}
-                </div>`;
-            case 'uploading':
-                return `<div class="${bgClass} bg-brand rounded-full flex items-center justify-center">
-                    <div class="${size === 'sm' ? 'w-2.5 h-2.5' : 'w-4 h-4'} animate-spin text-white">
-                        <svg fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </div>
-                </div>`;
-            default:
-                return '';
-        }
-    }
 
     private escapeHtml(text: string): string {
         const div = document.createElement('div');
@@ -824,38 +610,38 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
         }
     }
 
-    private loadImagePreview(element: HTMLElement, preview: FilePreview): void {
+    private loadImagePreview(element: HTMLElement, preview: FilePreview, zone: HTMLElement): void {
         const img = element.querySelector('[data-image-preview]') as HTMLImageElement;
         if (img && preview.file.type.startsWith('image/')) {
-            // Add loading skeleton
-            const thumbnail = element.querySelector('.file-preview-thumbnail');
-            if (thumbnail) {
-                thumbnail.classList.add('skeleton-loader');
-            }
-
             const reader = new FileReader();
             reader.onload = (e) => {
                 if (e.target?.result) {
                     img.src = e.target.result as string;
                     img.classList.remove('opacity-50');
-
-                    // Remove skeleton loader when image loads
-                    img.onload = () => {
-                        if (thumbnail) {
-                            thumbnail.classList.remove('skeleton-loader');
-                        }
-                    };
-
                     preview.preview = e.target.result as string;
-                    console.log('FileUploadActions: Image preview loaded for:', preview.id);
+
+                    // Register image with lightbox if enabled
+                    const lightboxEnabled = zone.getAttribute('data-lightbox') === 'true';
+                    console.log('🔍 FileUploadActions: Lightbox enabled:', lightboxEnabled, 'for zone:', zone);
+                    if (lightboxEnabled && this.lightboxActions) {
+                        // Get the wrapper element that has data-file-upload-id
+                        const wrapper = zone.parentElement as HTMLElement;
+                        if (wrapper && wrapper.hasAttribute('data-file-upload-id')) {
+                            const lightboxImage = {
+                                id: preview.id,
+                                src: e.target.result as string,
+                                alt: `Preview of ${preview.file.name}`,
+                                fileName: preview.file.name,
+                                fileSize: this.formatFileSize(preview.file.size),
+                                fileType: preview.file.type
+                            };
+                            console.log('🔍 FileUploadActions: Adding image to lightbox:', lightboxImage);
+                            this.lightboxActions.addImage(wrapper, lightboxImage);
+                        }
+                    }
                 }
             };
             reader.onerror = () => {
-                console.error('FileUploadActions: Failed to read image file:', preview.file.name);
-                // Remove skeleton loader on error
-                if (thumbnail) {
-                    thumbnail.classList.remove('skeleton-loader');
-                }
                 this.announceToScreenReader(`Failed to load preview for ${preview.file.name}`);
             };
             reader.readAsDataURL(preview.file);
@@ -863,10 +649,8 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
     }
 
     private updatePreviewStatus(element: HTMLElement, status: string): void {
-        // Remove existing status classes
         element.classList.remove('upload-success', 'upload-error', 'uploading');
 
-        // Add appropriate status class
         if (status === 'success') {
             element.classList.add('upload-success');
         } else if (status === 'error') {
@@ -875,75 +659,20 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
             element.classList.add('uploading');
         }
 
-        // Update data attribute
         element.setAttribute('data-file-status', status);
     }
 
-    /**
-     * Updates the preview layout based on file types (grid for images, list for files)
-     */
     private updatePreviewLayout(zone: HTMLElement): void {
         const previewContainer = zone.parentElement?.querySelector('[data-preview-list]') as HTMLElement;
         if (!previewContainer) {
-            console.warn('FileUploadActions: Preview container not found for layout update');
             return;
         }
 
-        const state = this.getState(zone);
-        if (!state) return;
-
-        // Detect if we have images
-        const hasImages = state.files.some(file => file.type.startsWith('image/'));
-        const imageCount = state.files.filter(file => file.type.startsWith('image/')).length;
-        const totalFiles = state.files.length;
-
-        // Determine layout type
-        const isImageOnlyUpload = hasImages && imageCount === totalFiles;
-        const isMixedUpload = hasImages && imageCount < totalFiles;
-
-        console.log('FileUploadActions: Layout detection - Images:', imageCount, 'Total:', totalFiles, 'Image-only:', isImageOnlyUpload);
-
-        // Update layout classes
-        previewContainer.classList.remove('image-grid-layout', 'file-list-layout', 'mixed-layout');
-
-        if (isImageOnlyUpload) {
-            // Pure image upload - use grid layout
-            previewContainer.classList.add('image-grid-layout');
-            previewContainer.setAttribute('data-layout-type', 'image-grid');
-        } else if (isMixedUpload) {
-            // Mixed files - use enhanced list with larger images
-            previewContainer.classList.add('mixed-layout');
-            previewContainer.setAttribute('data-layout-type', 'mixed');
-        } else {
-            // Regular files - use list layout
-            previewContainer.classList.add('file-list-layout');
-            previewContainer.setAttribute('data-layout-type', 'file-list');
-        }
-
-        // Re-render existing previews with new layout
-        this.reRenderPreviewsForLayout(previewContainer, state);
+        previewContainer.classList.remove('image-grid-layout', 'mixed-layout');
+        previewContainer.classList.add('file-list-layout');
+        previewContainer.setAttribute('data-layout-type', 'file-list');
     }
 
-    /**
-     * Re-renders all previews for the current layout type
-     */
-    private reRenderPreviewsForLayout(container: HTMLElement, state: FileUploadState): void {
-        const layoutType = container.getAttribute('data-layout-type') || 'file-list';
-
-        // Clear existing previews
-        container.innerHTML = '';
-
-        // Get all current previews
-        const zone = state.fileUploadZone;
-        if (!zone) return;
-        const previews = this.filePreviewsMap.get(zone);
-        if (!previews) return;
-
-        // Re-render each preview with the new layout
-        previews.forEach(preview => {
-            this.renderFilePreviewForLayout(container, preview, layoutType);
-        });
-    }
 
     private updateFilePreviewProgress(fileId: string, progress: number, status?: string): void {
         const previewElement = document.querySelector(`[data-file-id="${fileId}"]`) as HTMLElement;
@@ -961,21 +690,13 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
         }
     }
 
-    private generateImagePreview(file: File, fileId: string, container: HTMLElement): void {
-        // This is now handled by loadImagePreview in the initializePreviewItem method
-        // Keep for backward compatibility but functionality moved to template-based approach
-        console.log('FileUploadActions: Image preview generation handled by template system');
-    }
 
     private removeFile(zone: HTMLElement, fileId: string): void {
-        console.log('FileUploadActions: removeFile called with zone:', zone, 'fileId:', fileId);
         const state = this.getState(zone);
         if (!state) {
-            console.warn('FileUploadActions: No state found for zone');
             return;
         }
 
-        console.log('FileUploadActions: Current files before removal:', state.files);
 
         // Get file name for announcement
         const fileToRemove = state.files.find(file => this.generateFileId(file) === fileId);
@@ -985,21 +706,27 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
         state.files = state.files.filter(file => this.generateFileId(file) !== fileId);
         this.setState(zone, state);
 
-        console.log('FileUploadActions: Files after removal:', state.files);
 
         // Remove preview
         const previews = this.filePreviewsMap.get(zone);
         if (previews) {
             previews.delete(fileId);
-            console.log('FileUploadActions: Removed from previews map');
+        }
+
+        // Remove from lightbox if enabled
+        const lightboxEnabled = zone.getAttribute('data-lightbox') === 'true';
+        if (lightboxEnabled && this.lightboxActions) {
+            // Get the wrapper element that has data-file-upload-id
+            const wrapper = zone.parentElement as HTMLElement;
+            if (wrapper && wrapper.hasAttribute('data-file-upload-id')) {
+                this.lightboxActions.removeImage(wrapper, fileId);
+            }
         }
 
         // Remove from DOM
         const previewElement = zone.parentElement?.querySelector(`[data-file-id="${fileId}"]`);
-        console.log('FileUploadActions: Found preview element to remove:', previewElement);
         if (previewElement) {
             DOMUtils.removeElement(previewElement as HTMLElement);
-            console.log('FileUploadActions: Removed preview element from DOM');
         }
 
         // Update Livewire if applicable
@@ -1113,7 +840,6 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
         if (!wrapper) return null;
 
         const input = wrapper.querySelector('[data-file-input]') as HTMLInputElement;
-        console.log('FileUploadActions: Looking for input in wrapper:', wrapper, 'found:', input);
         return input || null;
     }
 
@@ -1256,6 +982,7 @@ export class FileUploadActions extends BaseActionClass<FileUploadState> {
             liveRegion!.textContent = '';
         }, 5000);
     }
+
 
     private generateFileId(file: File): string {
         return `${file.name}-${file.size}-${Date.now()}`;

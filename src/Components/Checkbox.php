@@ -4,6 +4,7 @@ namespace Keys\UI\Components;
 
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
+use Keys\UI\Constants\ComponentConstants;
 
 class Checkbox extends Component
 {
@@ -40,13 +41,16 @@ class Checkbox extends Component
         }
 
 
-        if (!in_array($this->variant, ['standard', 'bordered', 'colored', 'card'])) {
+        if (!in_array($this->variant, ComponentConstants::FORM_VARIANTS)) {
             $this->variant = 'standard';
         }
 
+        if (!ComponentConstants::isValidSize($this->size)) {
+            $this->size = ComponentConstants::getDefaultSize();
+        }
 
-        if (!in_array($this->color, ['brand', 'success', 'warning', 'danger', 'neutral'])) {
-            $this->color = 'brand';
+        if (!in_array($this->color, ComponentConstants::SEMANTIC_COLORS)) {
+            $this->color = ComponentConstants::getDefaultColor();
         }
 
         if ($this->variant === 'card' && !$this->title && $this->label) {
@@ -264,11 +268,73 @@ class Checkbox extends Component
         return $this->label || $this->title || $this->description;
     }
 
+    public function getDataAttributes(): array
+    {
+        $attributes = [
+            'data-keys-checkbox' => 'true',
+            'data-variant' => $this->variant,
+            'data-color' => $this->color,
+            'data-size' => $this->size,
+        ];
+
+        // State attributes
+        if ($this->checked) {
+            $attributes['data-checked'] = 'true';
+        }
+
+        if ($this->disabled) {
+            $attributes['data-disabled'] = 'true';
+        }
+
+        if ($this->required) {
+            $attributes['data-required'] = 'true';
+        }
+
+        if ($this->indeterminate) {
+            $attributes['data-indeterminate'] = 'true';
+        }
+
+        if ($this->hasError()) {
+            $attributes['data-invalid'] = 'true';
+        }
+
+        // Content attributes
+        if ($this->hasContent()) {
+            $attributes['data-has-content'] = 'true';
+        }
+
+        if ($this->icon) {
+            $attributes['data-has-icon'] = 'true';
+            $attributes['data-icon'] = $this->icon;
+        }
+
+        if ($this->description) {
+            $attributes['data-has-description'] = 'true';
+        }
+
+        // Actions
+        if ($this->hasActions()) {
+            $attributes['data-has-actions'] = 'true';
+            $attributes['data-actions-count'] = count($this->actions);
+        }
+
+        // Display mode
+        if (!$this->showInput) {
+            $attributes['data-input-hidden'] = 'true';
+        }
+
+        // Value
+        $attributes['data-value'] = $this->value;
+
+        return $attributes;
+    }
+
     public function render()
     {
         return view('keys::components.checkbox', [
             'computedActionSize' => $this->getComputedActionSize(),
             'computedActionData' => $this->getComputedActionData(),
+            'dataAttributes' => $this->getDataAttributes(),
         ]);
     }
 }

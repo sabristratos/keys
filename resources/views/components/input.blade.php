@@ -14,6 +14,8 @@
         'required' => $required,
     ], fn($value) => !is_null($value)));
 
+    // Merge data attributes
+    $inputAttributes = $inputAttributes->merge($dataAttributes);
 @endphp
 
 @if($isShorthand())
@@ -25,6 +27,10 @@
         <div class="relative mt-1">
             @include('keys::partials.input-field')
         </div>
+
+        @if($hint)
+            <p class="mt-1 text-xs text-muted">{{ $hint }}</p>
+        @endif
 
         @if($showErrors && !is_null($errors))
             <x-keys::error :messages="$errors" />

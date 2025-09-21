@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Work/keys/packages/**)",
+      "Read(//c/Work/keys/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -23,13 +23,13 @@ class FileUpload extends Component
         public bool $showErrors = true,
         public bool $preview = true,
         public bool $progress = true,
-        public bool $dragDrop = true,
         public bool $autoUpload = false,
         public ?int $chunkSize = null,
         public array $existingFiles = [],
         public string $variant = 'default',
         public string $size = 'md',
-        public bool $hasError = false
+        public bool $hasError = false,
+        public bool $lightbox = true
     ) {
         $this->id = $this->id ?? $this->name ?? 'file-upload-' . uniqid();
 
@@ -119,11 +119,10 @@ class FileUpload extends Component
         };
     }
 
-    public function getAcceptAttribute(): ?string
-    {
-        return $this->accept;
-    }
-
+    /**
+     * Convert maxSize from kilobytes to bytes
+     * @return int|null Size in bytes, or null if no limit
+     */
     public function getMaxSizeInBytes(): ?int
     {
         return $this->maxSize ? $this->maxSize * 1024 : null;
@@ -223,8 +222,7 @@ class FileUpload extends Component
     public function getComputedDropZoneData(): array
     {
         return [
-            'file_upload_id' => $this->id,
-            'accept' => $this->getAcceptAttribute(),
+            'accept' => $this->accept,
             'multiple' => $this->multiple ? 'true' : 'false',
             'max_size' => $this->getMaxSizeInBytes(),
             'max_files' => $this->maxFiles,
@@ -232,6 +230,7 @@ class FileUpload extends Component
             'chunk_size' => $this->chunkSize,
             'preview' => $this->preview ? 'true' : 'false',
             'progress' => $this->progress ? 'true' : 'false',
+            'lightbox' => $this->lightbox ? 'true' : 'false',
             'validation_rules' => json_encode($this->getValidationRules()),
             'existing_files' => json_encode($this->existingFiles)
         ];
@@ -286,6 +285,31 @@ class FileUpload extends Component
         return 'heroicon-o-document';
     }
 
+    public function getDataAttributes(): array
+    {
+        $attributes = [
+            'data-keys-file-upload' => 'true',
+            'data-variant' => $this->variant,
+            'data-size' => $this->size,
+            'data-multiple' => $this->multiple ? 'true' : 'false',
+            'data-disabled' => $this->disabled ? 'true' : 'false',
+            'data-required' => $this->required ? 'true' : 'false',
+            'data-has-files' => !empty($this->existingFiles) ? 'true' : 'false',
+            'data-file-count' => count($this->existingFiles),
+            'data-lightbox' => $this->lightbox ? 'true' : 'false',
+        ];
+
+        if ($this->hasError()) {
+            $attributes['data-has-error'] = 'true';
+        }
+
+        if ($this->maxFiles) {
+            $attributes['data-max-files'] = $this->maxFiles;
+        }
+
+        return $attributes;
+    }
+
     public function render()
     {
         return view('keys::components.file-upload', [
@@ -294,6 +318,7 @@ class FileUpload extends Component
             'sizeLimit' => $this->getSizeLimit(),
             'formatFileSize' => fn($bytes) => $this->formatFileSize($bytes),
             'getFileIconName' => fn($type, $name) => $this->getFileIconName($type, $name),
+            'dataAttributes' => $this->getDataAttributes(),
         ]);
     }
 }
