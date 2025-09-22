@@ -95,6 +95,7 @@ class Badge extends Component
             'indigo' => 'bg-indigo-500/10 text-indigo-600',
             'purple' => 'bg-purple-500/10 text-purple-600',
             'pink' => 'bg-pink-500/10 text-pink-600',
+            'dark' => 'bg-neutral-900 text-white',
             default => 'bg-blue-500/10 text-blue-600'
         };
     }
@@ -172,6 +173,7 @@ class Badge extends Component
             'indigo' => 'hover:bg-indigo-500/20',
             'purple' => 'hover:bg-purple-500/20',
             'pink' => 'hover:bg-pink-500/20',
+            'dark' => 'hover:bg-neutral-800',
             default => 'hover:bg-blue-500/20'
         };
     }

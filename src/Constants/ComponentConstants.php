@@ -34,7 +34,8 @@ class ComponentConstants
         'pink',
         'gray',
         'teal',
-        'orange'
+        'orange',
+        'dark'
     ];
 
     /**

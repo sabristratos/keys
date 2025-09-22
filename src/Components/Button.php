@@ -78,7 +78,7 @@ class Button extends Component
             'info' => 'border border-info bg-info text-foreground-info hover:border-info-hover hover:bg-info-hover active:border-info-active active:bg-info-active disabled:border-info-disabled disabled:bg-info-disabled focus-visible:ring-info',
             'neutral' => 'border border-neutral bg-neutral text-foreground-neutral hover:border-neutral-hover hover:bg-neutral-hover active:border-neutral-active active:bg-neutral-active disabled:border-neutral-disabled disabled:bg-neutral-disabled focus-visible:ring-neutral',
             'ghost' => 'border border-transparent bg-transparent text-foreground hover:bg-surface active:bg-border disabled:text-neutral-disabled focus-visible:ring-neutral',
-            'outline' => 'bg-transparent border border-border text-foreground hover:bg-surface active:bg-border disabled:text-neutral-disabled focus-visible:ring-neutral',
+            'outline' => 'bg-transparent border border-border text-foreground hover:border-brand hover:bg-brand hover:text-foreground-brand active:bg-border disabled:text-neutral-disabled focus-visible:ring-neutral',
             default => 'border border-brand bg-brand text-foreground-brand hover:border-brand-hover hover:bg-brand-hover active:border-brand-active active:bg-brand-active disabled:border-brand-disabled disabled:bg-brand-disabled focus-visible:ring-brand'
         };
     }
