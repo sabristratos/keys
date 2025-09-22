@@ -226,10 +226,9 @@ class Modal extends Component
         $attributes = [
             'data-keys-modal' => 'true',
             'data-size' => $this->size,
-            'data-placement' => $this->placement,
         ];
 
-        if ($this->backdrop !== 'default') {
+        if ($this->backdrop !== 'blur') {
             $attributes['data-backdrop'] = $this->backdrop;
         }
 
@@ -239,14 +238,6 @@ class Modal extends Component
 
         if ($this->scrollable) {
             $attributes['data-scrollable'] = 'true';
-        }
-
-        if ($this->closeOnEscape) {
-            $attributes['data-close-on-escape'] = 'true';
-        }
-
-        if ($this->closeOnClickOutside) {
-            $attributes['data-close-on-click-outside'] = 'true';
         }
 
         if ($this->lazy) {
