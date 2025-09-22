@@ -5,7 +5,7 @@
             'role' => 'option',
             'data-value' => $value,
             'data-display-label' => $displayLabel,
-            'data-searchable-text' => $getSearchableText(),
+            'data-searchable-text' => $searchableText,
             'aria-selected' => $selected ? 'true' : 'false',
             'tabindex' => $disabled ? null : '0',
         ]);

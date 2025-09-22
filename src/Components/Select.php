@@ -23,7 +23,9 @@ class Select extends Component
         public bool $optional = false,
         public string|array|Collection|null $errors = null,
         public bool $showErrors = true,
-        public bool $hasError = false
+        public bool $hasError = false,
+        public ?string $ariaLabel = null,
+        public ?string $ariaDescribedby = null
     ) {
 
         $this->id = $this->id ?? $this->name;
@@ -204,6 +206,22 @@ class Select extends Component
             $attributes['data-invalid'] = 'true';
         }
 
+        if ($this->disabled) {
+            $attributes['data-state'] = 'disabled';
+        } else {
+            $attributes['data-state'] = 'enabled';
+        }
+
+        // Form integration attributes
+        if ($this->label) {
+            $attributes['data-has-label'] = 'true';
+            $attributes['data-shorthand-mode'] = 'true';
+        }
+
+        if ($this->placeholder) {
+            $attributes['data-has-placeholder'] = 'true';
+        }
+
         // Value attributes
         if ($this->value !== null) {
             $attributes['data-value'] = is_array($this->value) ? json_encode($this->value) : $this->value;
@@ -224,6 +242,15 @@ class Select extends Component
         $attributes['data-floating-placement'] = $floatingData['placement'];
         $attributes['data-floating-alignment'] = $floatingData['alignment'];
         $attributes['data-floating-offset'] = $floatingData['offset'];
+
+        // Accessibility attributes
+        if ($this->ariaLabel) {
+            $attributes['aria-label'] = $this->ariaLabel;
+        }
+
+        if ($this->ariaDescribedby) {
+            $attributes['aria-describedby'] = $this->ariaDescribedby;
+        }
 
         return $attributes;
     }

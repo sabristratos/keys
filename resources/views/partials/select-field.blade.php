@@ -69,6 +69,16 @@
     color: var(--color-neutral-400);
 }
 
+[data-select="true"][data-invalid="true"] [data-select-trigger] {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 1px var(--color-danger);
+}
+
+[data-select="true"][data-invalid="true"] [data-select-trigger]:focus {
+    ring-color: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
 @keyframes chipIn {
     from {
         opacity: 0;
@@ -103,12 +113,20 @@
 </style>
 
 
+{{-- Stable input for Livewire synchronization (never removed by JavaScript) --}}
+<input type="hidden"
+       name="{{ $name }}_livewire"
+       value="{{ $multiple ? json_encode($getSelectedValues()) : ($value ?? '') }}"
+       class="select-livewire-input"
+       {{ $wireAttributes }}>
+
+{{-- Separate form inputs for form submission (managed by JavaScript) --}}
 @if($multiple)
-    @foreach($getSelectedValues() as $index => $selectedValue)
-        <input type="hidden" name="{{ $name }}[]" value="{{ $selectedValue }}" class="select-hidden-input" @if($index === 0) {{ $wireAttributes }} @endif>
+    @foreach($getSelectedValues() as $selectedValue)
+        <input type="hidden" name="{{ $name }}[]" value="{{ $selectedValue }}" class="select-form-input">
     @endforeach
 @else
-    <input type="hidden" name="{{ $name }}" value="{{ is_array($value) ? '' : $value }}" class="select-hidden-input" {{ $wireAttributes }}>
+    <input type="hidden" name="{{ $name }}" value="{{ $value ?? '' }}" class="select-form-input">
 @endif
 
 
@@ -175,8 +193,12 @@
         </div>
     @endif
 
-    
-    <div class="max-h-48 overflow-y-auto overflow-x-hidden" data-select-options>
+
+    <div class="max-h-48 overflow-y-auto overflow-x-hidden"
+         data-select-options
+         role="listbox"
+         aria-labelledby="{{ $uniqueId }}"
+         aria-multiselectable="{{ $multiple ? 'true' : 'false' }}">
         {{ $slot }}
     </div>
 

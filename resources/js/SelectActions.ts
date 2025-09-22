@@ -32,6 +32,7 @@ interface SelectState {
     focusedIndex: number;
     filteredOptions: SelectOption[];
     floating?: FloatingInstance;
+    searchTimeout?: number;
 }
 
 export class SelectActions extends BaseActionClass<SelectState> {
@@ -51,17 +52,9 @@ export class SelectActions extends BaseActionClass<SelectState> {
      */
     private initializeSelect(selectElement: HTMLElement): void {
         const isMultiple = selectElement.dataset.multiple === 'true';
-        const initialValue = selectElement.dataset.value;
 
-        let selectedValues: string[] = [];
-
-        if (initialValue) {
-            try {
-                selectedValues = isMultiple ? JSON.parse(initialValue) : [initialValue];
-            } catch {
-                selectedValues = isMultiple ? [] : [initialValue];
-            }
-        }
+        // Read initial values from Livewire input (primary) or data attribute (fallback)
+        let selectedValues: string[] = this.readInitialValues(selectElement, isMultiple);
 
         const state: SelectState = {
             isOpen: false,
@@ -76,6 +69,98 @@ export class SelectActions extends BaseActionClass<SelectState> {
         this.updateOptionsSelectedState(selectElement);
         this.updateDisplay(selectElement);
         this.updateHiddenInputs(selectElement);
+
+        // Set up Livewire integration
+        this.setupLivewireSync(selectElement);
+    }
+
+    /**
+     * Read initial values from Livewire input or fallback to data attributes
+     */
+    private readInitialValues(selectElement: HTMLElement, isMultiple: boolean): string[] {
+        // Try to read from stable Livewire input first
+        const livewireInput = DOMUtils.querySelector('.select-livewire-input', selectElement) as HTMLInputElement;
+
+        if (livewireInput && livewireInput.value) {
+            try {
+                if (isMultiple) {
+                    const parsed = JSON.parse(livewireInput.value);
+                    return Array.isArray(parsed) ? parsed : [];
+                } else {
+                    return livewireInput.value ? [livewireInput.value] : [];
+                }
+            } catch {
+                // JSON parse failed, treat as single value
+                return livewireInput.value ? [livewireInput.value] : [];
+            }
+        }
+
+        // Fallback to data attribute
+        const initialValue = selectElement.dataset.value;
+        if (initialValue) {
+            try {
+                return isMultiple ? JSON.parse(initialValue) : [initialValue];
+            } catch {
+                return isMultiple ? [] : [initialValue];
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * Set up Livewire synchronization
+     */
+    private setupLivewireSync(select: HTMLElement): void {
+        const livewireInput = DOMUtils.querySelector('.select-livewire-input', select) as HTMLInputElement;
+        if (!livewireInput) return;
+
+        // Listen for external changes to the Livewire input (from server updates)
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                    this.syncFromLivewire(select);
+                }
+            });
+        });
+
+        observer.observe(livewireInput, {
+            attributes: true,
+            attributeFilter: ['value']
+        });
+
+        // Also listen for input events in case Livewire programmatically updates
+        livewireInput.addEventListener('input', (event) => {
+            // Only sync if the event didn't originate from our own updates
+            if (!(event as any)._keysSelectOrigin) {
+                this.syncFromLivewire(select);
+            }
+        });
+    }
+
+    /**
+     * Synchronize select state from Livewire input value
+     */
+    private syncFromLivewire(select: HTMLElement): void {
+        const state = this.getState(select);
+        if (!state) return;
+
+        const isMultiple = select.dataset.multiple === 'true';
+        const newValues = this.readInitialValues(select, isMultiple);
+
+        // Only update if values actually changed
+        const currentValues = JSON.stringify(state.selectedValues);
+        const newValuesStr = JSON.stringify(newValues);
+
+        if (currentValues !== newValuesStr) {
+            state.selectedValues = newValues;
+            this.setState(select, state);
+
+            // Update display and options but NOT inputs (avoid circular updates)
+            this.updateDisplay(select);
+            this.updateOptionsSelectedState(select);
+            this.updateFormInputs(select, state, isMultiple);
+        }
     }
 
     /**
@@ -157,7 +242,7 @@ export class SelectActions extends BaseActionClass<SelectState> {
             const isInDropdown = searchInput.closest('[data-select-dropdown]');
 
             if (select && isSearchable && isInDropdown) {
-                this.handleSearch(select, searchInput.value);
+                this.handleDebouncedSearch(select, searchInput.value);
             }
         });
 
@@ -229,6 +314,10 @@ export class SelectActions extends BaseActionClass<SelectState> {
         state.isOpen = true;
         this.setState(select, state);
 
+        // Update data attributes for targeting
+        select.setAttribute('data-open', 'true');
+        select.setAttribute('data-dropdown-state', 'open');
+
         const dropdown = DOMUtils.querySelector('[data-select-dropdown]', select) as HTMLElement;
         const trigger = DOMUtils.querySelector('[data-select-trigger]', select) as HTMLElement;
         const searchInput = DOMUtils.querySelector('[data-select-search]', select) as HTMLInputElement;
@@ -277,6 +366,10 @@ export class SelectActions extends BaseActionClass<SelectState> {
         state.searchTerm = '';
         state.focusedIndex = -1;
         this.setState(select, state);
+
+        // Update data attributes for targeting
+        select.setAttribute('data-open', 'false');
+        select.setAttribute('data-dropdown-state', 'closed');
 
         const dropdown = DOMUtils.querySelector('[data-select-dropdown]', select) as HTMLElement;
         const trigger = DOMUtils.querySelector('[data-select-trigger]', select) as HTMLElement;
@@ -393,6 +486,26 @@ export class SelectActions extends BaseActionClass<SelectState> {
     }
 
     /**
+     * Handle debounced search functionality
+     */
+    private handleDebouncedSearch(select: HTMLElement, searchTerm: string): void {
+        const state = this.getState(select);
+        if (!state) return;
+
+        // Clear existing timeout
+        if (state.searchTimeout) {
+            clearTimeout(state.searchTimeout);
+        }
+
+        // Set new debounced timeout
+        state.searchTimeout = window.setTimeout(() => {
+            this.handleSearch(select, searchTerm);
+        }, 150) as number; // 150ms debounce
+
+        this.setState(select, state);
+    }
+
+    /**
      * Handle search functionality
      */
     private handleSearch(select: HTMLElement, searchTerm: string): void {
@@ -401,6 +514,10 @@ export class SelectActions extends BaseActionClass<SelectState> {
 
         state.searchTerm = searchTerm.toLowerCase();
         this.setState(select, state);
+
+        // Update search data attributes
+        select.setAttribute('data-search-active', state.searchTerm ? 'true' : 'false');
+        select.setAttribute('data-search-term', state.searchTerm);
 
         this.updateFilteredOptions(select);
         this.updateOptionsVisibility(select);
@@ -458,6 +575,11 @@ export class SelectActions extends BaseActionClass<SelectState> {
                 noResultsElement.classList.add('hidden');
             }
         }
+
+        // Update visibility data attributes
+        select.setAttribute('data-visible-options', visibleCount.toString());
+        select.setAttribute('data-has-results', visibleCount > 0 ? 'true' : 'false');
+        select.setAttribute('data-show-no-results', (visibleCount === 0 && state.searchTerm) ? 'true' : 'false');
     }
 
     /**
@@ -665,55 +787,65 @@ export class SelectActions extends BaseActionClass<SelectState> {
     }
 
     /**
-     * Update hidden form inputs
+     * Update inputs for Livewire and form submission
+     * Uses stable element architecture - never removes Livewire-tracked elements
      */
     private updateHiddenInputs(select: HTMLElement): void {
         const state = this.getState(select);
         if (!state) return;
 
         const isMultiple = select.dataset.multiple === 'true';
+
+        // Update stable Livewire input (NEVER remove this element)
+        this.updateLivewireInput(select, state, isMultiple);
+
+        // Update form inputs separately
+        this.updateFormInputs(select, state, isMultiple);
+    }
+
+    /**
+     * Update the stable Livewire input value (never recreate the element)
+     */
+    private updateLivewireInput(select: HTMLElement, state: SelectState, isMultiple: boolean): void {
+        const livewireInput = DOMUtils.querySelector('.select-livewire-input', select) as HTMLInputElement;
+        if (!livewireInput) return;
+
+        // Update value only - never remove/recreate the element
+        const newValue = isMultiple
+            ? JSON.stringify(state.selectedValues)
+            : (state.selectedValues[0] || '');
+
+        // Only update if value actually changed to avoid unnecessary events
+        if (livewireInput.value !== newValue) {
+            livewireInput.value = newValue;
+
+            // Dispatch input event for real-time Livewire updates
+            // Mark with origin flag to prevent circular updates
+            const event = new Event('input', { bubbles: true }) as any;
+            event._keysSelectOrigin = true;
+            livewireInput.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * Update form inputs for proper form submission (these can be recreated)
+     */
+    private updateFormInputs(select: HTMLElement, state: SelectState, isMultiple: boolean): void {
         const name = select.dataset.name;
         if (!name) return;
 
-        // Preserve wire attributes from existing inputs before removing
-        const existingInputs = DOMUtils.querySelectorAll('.select-hidden-input', select);
-        let wireAttributes: NamedNodeMap | null = null;
+        // Remove existing form inputs (safe to remove - no wire attributes)
+        const existingFormInputs = DOMUtils.querySelectorAll('.select-form-input', select);
+        existingFormInputs.forEach(input => input.remove());
 
-        // Find the first input with wire attributes to preserve them
-        for (const input of existingInputs) {
-            const inputElement = input as HTMLInputElement;
-            const hasWireAttributes = Array.from(inputElement.attributes).some(attr =>
-                attr.name.startsWith('wire:model') || attr.name.startsWith('wire:')
-            );
-            if (hasWireAttributes) {
-                wireAttributes = inputElement.attributes;
-                break;
-            }
-        }
-
-        // Remove existing inputs
-        existingInputs.forEach(input => input.remove());
-
-        let wireAttributedInput: HTMLInputElement | null = null;
-
+        // Create new form inputs for submission
         if (isMultiple) {
-            state.selectedValues.forEach((value, index) => {
+            state.selectedValues.forEach(value => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = `${name}[]`;
                 input.value = value;
-                input.className = 'select-hidden-input';
-
-                // Apply wire attributes only to the first input to avoid conflicts
-                if (index === 0 && wireAttributes) {
-                    Array.from(wireAttributes).forEach(attr => {
-                        if (attr.name.startsWith('wire:model') || attr.name.startsWith('wire:')) {
-                            input.setAttribute(attr.name, attr.value);
-                        }
-                    });
-                    wireAttributedInput = input;
-                }
-
+                input.className = 'select-form-input';
                 select.appendChild(input);
             });
         } else {
@@ -721,24 +853,8 @@ export class SelectActions extends BaseActionClass<SelectState> {
             input.type = 'hidden';
             input.name = name;
             input.value = state.selectedValues[0] || '';
-            input.className = 'select-hidden-input';
-
-            // Apply wire attributes to the single input
-            if (wireAttributes) {
-                Array.from(wireAttributes).forEach(attr => {
-                    if (attr.name.startsWith('wire:model') || attr.name.startsWith('wire:')) {
-                        input.setAttribute(attr.name, attr.value);
-                    }
-                });
-                wireAttributedInput = input;
-            }
-
+            input.className = 'select-form-input';
             select.appendChild(input);
-        }
-
-        // Dispatch change event for Livewire integration
-        if (wireAttributedInput) {
-            wireAttributedInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
     }
 
@@ -922,6 +1038,25 @@ export class SelectActions extends BaseActionClass<SelectState> {
     }
 
     /**
+     * Set select value programmatically (external API)
+     */
+    public setSelectValue(select: HTMLElement, value: string | string[]): void {
+        const values = Array.isArray(value) ? value : [value];
+        this.setSelectedValues(select, values);
+    }
+
+    /**
+     * Get current select value (external API)
+     */
+    public getSelectValue(select: HTMLElement): string | string[] | null {
+        const state = this.getState(select);
+        if (!state) return null;
+
+        const isMultiple = select.dataset.multiple === 'true';
+        return isMultiple ? state.selectedValues : (state.selectedValues[0] || null);
+    }
+
+    /**
      * Check if floating is enabled for select (always true now)
      */
     private isFloatingEnabled(select: HTMLElement): boolean {
@@ -1005,9 +1140,14 @@ export class SelectActions extends BaseActionClass<SelectState> {
      * Clean up SelectActions - extends BaseActionClass destroy
      */
     protected onDestroy(): void {
-        // Clean up floating instances
+        // Clean up floating instances and timeouts
         this.getAllStates().forEach((state, select) => {
             this.cleanupFloating(select);
+
+            // Clear any pending search timeouts
+            if (state.searchTimeout) {
+                clearTimeout(state.searchTimeout);
+            }
         });
     }
 }
