@@ -75,6 +75,7 @@ export class SelectActions extends BaseActionClass<SelectState> {
         this.updateOptions(selectElement);
         this.updateOptionsSelectedState(selectElement);
         this.updateDisplay(selectElement);
+        this.updateHiddenInputs(selectElement);
     }
 
     /**
@@ -674,16 +675,45 @@ export class SelectActions extends BaseActionClass<SelectState> {
         const name = select.dataset.name;
         if (!name) return;
 
+        // Preserve wire attributes from existing inputs before removing
         const existingInputs = DOMUtils.querySelectorAll('.select-hidden-input', select);
+        let wireAttributes: NamedNodeMap | null = null;
+
+        // Find the first input with wire attributes to preserve them
+        for (const input of existingInputs) {
+            const inputElement = input as HTMLInputElement;
+            const hasWireAttributes = Array.from(inputElement.attributes).some(attr =>
+                attr.name.startsWith('wire:model') || attr.name.startsWith('wire:')
+            );
+            if (hasWireAttributes) {
+                wireAttributes = inputElement.attributes;
+                break;
+            }
+        }
+
+        // Remove existing inputs
         existingInputs.forEach(input => input.remove());
 
+        let wireAttributedInput: HTMLInputElement | null = null;
+
         if (isMultiple) {
-            state.selectedValues.forEach(value => {
+            state.selectedValues.forEach((value, index) => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = `${name}[]`;
                 input.value = value;
                 input.className = 'select-hidden-input';
+
+                // Apply wire attributes only to the first input to avoid conflicts
+                if (index === 0 && wireAttributes) {
+                    Array.from(wireAttributes).forEach(attr => {
+                        if (attr.name.startsWith('wire:model') || attr.name.startsWith('wire:')) {
+                            input.setAttribute(attr.name, attr.value);
+                        }
+                    });
+                    wireAttributedInput = input;
+                }
+
                 select.appendChild(input);
             });
         } else {
@@ -692,7 +722,23 @@ export class SelectActions extends BaseActionClass<SelectState> {
             input.name = name;
             input.value = state.selectedValues[0] || '';
             input.className = 'select-hidden-input';
+
+            // Apply wire attributes to the single input
+            if (wireAttributes) {
+                Array.from(wireAttributes).forEach(attr => {
+                    if (attr.name.startsWith('wire:model') || attr.name.startsWith('wire:')) {
+                        input.setAttribute(attr.name, attr.value);
+                    }
+                });
+                wireAttributedInput = input;
+            }
+
             select.appendChild(input);
+        }
+
+        // Dispatch change event for Livewire integration
+        if (wireAttributedInput) {
+            wireAttributedInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
     }
 

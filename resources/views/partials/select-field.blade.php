@@ -104,11 +104,11 @@
 
 
 @if($multiple)
-    @foreach($getSelectedValues() as $selectedValue)
-        <input type="hidden" name="{{ $name }}[]" value="{{ $selectedValue }}" class="select-hidden-input" {{ $livewireAttributes ?? '' }}>
+    @foreach($getSelectedValues() as $index => $selectedValue)
+        <input type="hidden" name="{{ $name }}[]" value="{{ $selectedValue }}" class="select-hidden-input" @if($index === 0) {{ $wireAttributes }} @endif>
     @endforeach
 @else
-    <input type="hidden" name="{{ $name }}" value="{{ is_array($value) ? '' : $value }}" class="select-hidden-input" {{ $livewireAttributes ?? '' }}>
+    <input type="hidden" name="{{ $name }}" value="{{ is_array($value) ? '' : $value }}" class="select-hidden-input" {{ $wireAttributes }}>
 @endif
 
 

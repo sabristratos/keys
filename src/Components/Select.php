@@ -16,6 +16,7 @@ class Select extends Component
         public bool $clearable = false,
         public ?string $placeholder = null,
         public string $size = 'md',
+        public string $width = 'full',
         public bool $disabled = false,
         public bool $required = false,
         public ?string $label = null,
@@ -70,11 +71,12 @@ class Select extends Component
 
     public function triggerClasses(): string
     {
-        $base = 'relative w-full cursor-pointer rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
+        $base = 'relative cursor-pointer rounded-md border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
+        $width = $this->widthClasses();
         $size = $this->sizeClasses();
         $state = $this->stateClasses();
 
-        return trim($base . ' ' . $size . ' ' . $state);
+        return trim($base . ' ' . $width . ' ' . $size . ' ' . $state);
     }
 
     public function sizeClasses(): string
@@ -84,6 +86,22 @@ class Select extends Component
             'md' => 'px-3 py-2 text-sm',
             'lg' => 'px-4 py-2.5 text-base',
             default => 'px-3 py-2 text-sm'
+        };
+    }
+
+    public function widthClasses(): string
+    {
+        return match ($this->width) {
+            'auto' => 'w-auto',
+            'xs' => 'w-20',
+            'sm' => 'w-32',
+            'md' => 'w-48',
+            'lg' => 'w-64',
+            'xl' => 'w-80',
+            '2xl' => 'w-96',
+            'fit' => 'w-fit',
+            'full' => 'w-full',
+            default => 'w-full'
         };
     }
 
@@ -102,7 +120,8 @@ class Select extends Component
 
     public function dropdownClasses(): string
     {
-        return 'absolute z-50 mt-1 w-full rounded-md bg-surface border border-border shadow-lg';
+        $width = $this->width === 'auto' || $this->width === 'fit' ? 'w-auto min-w-full' : 'w-full';
+        return "absolute z-50 mt-1 {$width} rounded-md bg-surface border border-border shadow-lg";
     }
 
 
@@ -168,6 +187,7 @@ class Select extends Component
         $attributes = [
             'data-keys-select' => 'true',
             'data-size' => $this->size,
+            'data-width' => $this->width,
             'data-multiple' => $this->multiple ? 'true' : 'false',
             'data-searchable' => $this->searchable ? 'true' : 'false',
             'data-clearable' => $this->clearable ? 'true' : 'false',

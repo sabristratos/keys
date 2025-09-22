@@ -1,5 +1,5 @@
 @php
-    $livewireAttributes = $attributes->whereStartsWith('wire:');
+    $wireAttributes = $attributes->whereStartsWith('wire:');
     $wrapperAttributes = $attributes->whereDoesntStartWith('wire:');
 
     $selectAttributes = $wrapperAttributes
@@ -19,7 +19,7 @@
         </x-keys::label>
 
         <div class="relative mt-1" {{ $selectAttributes }}>
-            @include('keys::partials.select-field', ['livewireAttributes' => $livewireAttributes])
+            @include('keys::partials.select-field', ['wireAttributes' => $wireAttributes])
         </div>
 
         @if($showErrors && !is_null($errors))
@@ -28,6 +28,6 @@
     </div>
 @else
     <div class="relative" {{ $wrapperAttributes->only('class') }} {{ $selectAttributes }}>
-        @include('keys::partials.select-field', ['livewireAttributes' => $livewireAttributes])
+        @include('keys::partials.select-field', ['wireAttributes' => $wireAttributes])
     </div>
 @endif
