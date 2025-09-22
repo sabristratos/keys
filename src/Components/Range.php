@@ -262,18 +262,13 @@ class Range extends Component
         }
 
         // Feature attributes
-        if ($this->showValue) {
-            $attributes['data-show-value'] = 'true';
+        if ($this->showValues) {
+            $attributes['data-show-values'] = 'true';
         }
 
         if (!empty($this->ticks)) {
             $attributes['data-show-ticks'] = 'true';
             $attributes['data-ticks-count'] = count($this->ticks);
-        }
-
-        // Color variant
-        if ($this->color) {
-            $attributes['data-color'] = $this->color;
         }
 
         return $attributes;
