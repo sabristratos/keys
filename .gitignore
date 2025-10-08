@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 vendor/
+dist/
+.claude/
 
 # Log files
 *.log
