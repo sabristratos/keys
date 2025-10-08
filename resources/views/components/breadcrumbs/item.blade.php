@@ -9,14 +9,14 @@
     $maxWidthClasses = $maxWidth ?? '';
 
     $linkStateClasses = $isLink()
-        ? 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
-        : 'text-neutral-900 dark:text-neutral-100 font-medium';
+        ? 'text-secondary hover:text-primary'
+        : 'text-primary font-medium';
 
     $linkClasses = "$baseClasses $truncateClasses $maxWidthClasses $linkStateClasses";
 
     $textClasses = $truncate ? 'truncate' : '';
 
-    $separatorClasses = 'flex items-center mx-2 text-neutral-600 dark:text-neutral-400';
+    $separatorClasses = 'flex items-center mx-2 text-muted';
 
     $linkAttributes = $attributes->except(['class', 'separator']);
 

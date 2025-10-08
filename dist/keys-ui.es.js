@@ -3875,7 +3875,7 @@ class cc extends J {
   selectOption(e, t) {
     var a;
     const n = this.getState(e), i = t.dataset.value;
-    if (!n || !i || t.getAttribute("aria-disabled") === "true")
+    if (!n || i === null || i === void 0 || t.getAttribute("aria-disabled") === "true")
       return;
     if (e.dataset.multiple === "true") {
       const o = n.selectedValues.indexOf(i);

@@ -29,39 +29,39 @@
     } else {
         // Color-based solid backgrounds and states
         $gradientClasses = match ($color) {
-            'brand' => 'group-has-[:checked]:border-indigo-600',
+            'brand' => 'group-has-[:checked]:border-accent',
             'success' => 'group-has-[:checked]:border-green-600',
             'warning' => 'group-has-[:checked]:border-amber-600',
             'danger' => 'group-has-[:checked]:border-red-600',
             'neutral' => 'group-has-[:checked]:border-neutral-500',
-            default => 'group-has-[:checked]:border-indigo-600'
+            default => 'group-has-[:checked]:border-accent'
         };
 
         $dotBackground = match ($color) {
-            'brand' => 'bg-indigo-500',
+            'brand' => 'bg-accent',
             'success' => 'bg-green-500',
             'warning' => 'bg-amber-500',
             'danger' => 'bg-red-500',
             'neutral' => 'bg-neutral-500 dark:bg-neutral-600',
-            default => 'bg-indigo-500'
+            default => 'bg-accent'
         };
 
         $hoverColor = match ($color) {
-            'brand' => 'group-hover:border-indigo-500',
+            'brand' => 'group-hover:border-accent',
             'success' => 'group-hover:border-green-500',
             'warning' => 'group-hover:border-amber-500',
             'danger' => 'group-hover:border-red-500',
             'neutral' => 'group-hover:border-neutral-400',
-            default => 'group-hover:border-indigo-500'
+            default => 'group-hover:border-accent'
         };
 
         $focusRing = match ($color) {
-            'brand' => 'group-has-[:focus-visible]:ring-indigo-500',
+            'brand' => 'group-has-[:focus-visible]:ring-accent',
             'success' => 'group-has-[:focus-visible]:ring-green-500',
             'warning' => 'group-has-[:focus-visible]:ring-amber-500',
             'danger' => 'group-has-[:focus-visible]:ring-red-500',
             'neutral' => 'group-has-[:focus-visible]:ring-neutral-500',
-            default => 'group-has-[:focus-visible]:ring-indigo-500'
+            default => 'group-has-[:focus-visible]:ring-accent'
         };
 
         $radioCircleClasses = "border-2 border-neutral-400 dark:border-neutral-500 rounded-full flex items-center justify-center transition-all duration-300 {$hoverColor} {$gradientClasses} group-has-[:focus-visible]:ring-2 group-has-[:focus-visible]:ring-offset-2 {$focusRing} dark:group-has-[:focus-visible]:ring-offset-neutral-900 shadow-xs";
@@ -84,24 +84,24 @@
 
     if ($variant === 'colored') {
         $borderColor = match ($color) {
-            'brand' => 'border-line has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-950/30',
+            'brand' => 'border-line has-[:checked]:border-accent has-[:checked]:bg-accent-subtle',
             'success' => 'border-line has-[:checked]:border-green-500 has-[:checked]:bg-green-50 dark:has-[:checked]:bg-green-950/30',
             'warning' => 'border-line has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-950/30',
             'danger' => 'border-line has-[:checked]:border-red-500 has-[:checked]:bg-red-50 dark:has-[:checked]:bg-red-950/30',
             'neutral' => 'border-line has-[:checked]:border-neutral-400 has-[:checked]:bg-neutral-100 dark:has-[:checked]:bg-neutral-800',
-            default => 'border-line has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-950/30'
+            default => 'border-line has-[:checked]:border-accent has-[:checked]:bg-accent-subtle'
         };
         $wrapperBaseClasses .= ' ' . $borderColor;
     }
 
     if ($variant === 'card') {
         $bgColor = match ($color) {
-            'brand' => 'has-[:checked]:bg-indigo-50 has-[:checked]:border-indigo-500 dark:has-[:checked]:bg-indigo-950/30',
+            'brand' => 'has-[:checked]:bg-accent-subtle has-[:checked]:border-accent',
             'success' => 'has-[:checked]:bg-green-50 has-[:checked]:border-green-500 dark:has-[:checked]:bg-green-950/30',
             'warning' => 'has-[:checked]:bg-amber-50 has-[:checked]:border-amber-500 dark:has-[:checked]:bg-amber-950/30',
             'danger' => 'has-[:checked]:bg-red-50 has-[:checked]:border-red-500 dark:has-[:checked]:bg-red-950/30',
             'neutral' => 'has-[:checked]:bg-neutral-100 has-[:checked]:border-neutral-400 dark:has-[:checked]:bg-neutral-800',
-            default => 'has-[:checked]:bg-indigo-50 has-[:checked]:border-indigo-500 dark:has-[:checked]:bg-indigo-950/30'
+            default => 'has-[:checked]:bg-accent-subtle has-[:checked]:border-accent'
         };
         $wrapperBaseClasses .= ' ' . $bgColor;
     }

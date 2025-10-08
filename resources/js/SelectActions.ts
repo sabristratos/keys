@@ -221,7 +221,7 @@ export class SelectActions extends BaseActionClass<SelectState> {
         const state = this.getState(select);
         const optionValue = option.dataset.value;
 
-        if (!state || !optionValue || option.getAttribute('aria-disabled') === 'true') {
+        if (!state || optionValue === null || optionValue === undefined || option.getAttribute('aria-disabled') === 'true') {
             return;
         }
 

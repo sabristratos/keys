@@ -4,7 +4,7 @@
     $rowVariantClasses = '';
     if ($selected) {
         // These classes are now applied directly based on the $selected prop
-        $rowVariantClasses = 'bg-accent/10 border-l-2 border-accent';
+        $rowVariantClasses = 'bg-accent-subtle border-l-2 border-accent';
     } else {
         $rowVariantClasses = match ($variant) {
             'danger' => 'bg-danger-subtle',

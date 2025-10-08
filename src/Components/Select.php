@@ -143,6 +143,7 @@ class Select extends Component
 
         if ($this->placeholder) {
             $attributes['data-has-placeholder'] = 'true';
+            $attributes['data-placeholder'] = $this->placeholder;
         }
 
         if ($this->value !== null) {

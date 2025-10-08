@@ -3,7 +3,7 @@
     $triggerStyles = "anchor-name: --trigger-{$id};";
 
     // Base popover classes
-    $baseClasses = 'keys-popover z-[2000] px-3 pb-3 pt-1 -mx-3 border-0 bg-transparent text-inherit';
+    $baseClasses = 'keys-popover z-[2000] px-3 pb-3 -mx-3 border-0 bg-transparent text-inherit';
 
     // Content base classes
     $contentBase = 'bg-overlay space-y-1 rounded-lg shadow-lg text-primary max-w-[90vw] w-max';
