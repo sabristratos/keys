@@ -248,4 +248,36 @@ class ToastInstance
     {
         return $this->id;
     }
+
+    public function success(string $message, string $title = null): self
+    {
+        return $this->variant('success')
+            ->title($title)
+            ->message($message)
+            ->show();
+    }
+
+    public function error(string $message, string $title = null): self
+    {
+        return $this->variant('error')
+            ->title($title)
+            ->message($message)
+            ->show();
+    }
+
+    public function warning(string $message, string $title = null): self
+    {
+        return $this->variant('warning')
+            ->title($title)
+            ->message($message)
+            ->show();
+    }
+
+    public function info(string $message, string $title = null): self
+    {
+        return $this->variant('info')
+            ->title($title)
+            ->message($message)
+            ->show();
+    }
 }
