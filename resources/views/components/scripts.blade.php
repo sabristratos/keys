@@ -1,14 +1,9 @@
 
 @php
-
-    $jsPath = 'vendor/keys-ui/keys-ui.min.js';
-    $jsExists = file_exists(public_path($jsPath));
-    $jsUrl = $jsExists ? asset($jsPath) : '';
-
-    if (!app()->hasDebugModeEnabled() && $jsExists) {
-        $hash = substr(md5_file(public_path($jsPath)), 0, 8);
-        $jsUrl .= '?v=' . $hash;
-    }
+    // Check if JS exists in vendor directory
+    $vendorJsPath = base_path('vendor/keys/ui/dist/keys-ui.min.js');
+    $jsExists = file_exists($vendorJsPath);
+    $jsContent = $jsExists ? file_get_contents($vendorJsPath) : null;
 
     $translations = [
         'feedback' => [
@@ -71,18 +66,20 @@
     ];
 @endphp
 
-@if($jsExists)
-    
+@if($jsExists && $jsContent)
+
     <script>
         window.KeysUITranslations = @json($translations);
         window.KeysUIConfig = @json($config);
     </script>
 
-    
-    <script src="{{ $jsUrl }}" defer></script>
 
-    
-    <script defer>
+    <script>
+        {!! $jsContent !!}
+    </script>
+
+
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof KeysUI !== 'undefined' && KeysUI.init) {
                 KeysUI.init();
