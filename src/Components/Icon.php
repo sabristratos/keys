@@ -143,7 +143,7 @@ class Icon extends Component
         $cacheKey = "blade:{$iconName}";
 
         if (!isset(self::$existenceCache[$cacheKey])) {
-            $iconPath = __DIR__ . "/../resources/views/components/icons/{$iconName}.blade.php";
+            $iconPath = __DIR__ . "/../../resources/views/components/icons/{$iconName}.blade.php";
             self::$existenceCache[$cacheKey] = File::exists($iconPath);
         }
 

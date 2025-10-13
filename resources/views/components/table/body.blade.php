@@ -1,8 +1,8 @@
 @php
     $bodyClasses = match ($variant) {
-        'divided' => 'divide-y divide-line bg-elevation-1',
-        'bordered' => 'divide-y divide-line bg-elevation-1 border-t border-line',
-        default => 'divide-y divide-line bg-elevation-1'
+        'divided' => 'divide-y divide-border bg-card',
+        'bordered' => 'divide-y divide-border bg-card border-t border-border',
+        default => 'divide-y divide-border bg-card'
     };
 @endphp
 

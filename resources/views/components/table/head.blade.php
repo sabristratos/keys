@@ -1,7 +1,7 @@
 @php
-    $headBaseClasses = 'bg-elevation-2';
+    $headBaseClasses = 'bg-input';
     $headVariantClasses = match ($variant) {
-        'bordered' => 'border-b border-line',
+        'bordered' => 'border-b border-border',
         'elevated' => 'shadow-sm',
         default => ''
     };

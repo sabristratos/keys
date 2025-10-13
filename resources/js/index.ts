@@ -7,10 +7,10 @@
 
 import { FormActions } from './FormActions';
 import { TextareaActions } from './TextareaActions';
+import { EditorActions } from './EditorActions';
 import { AlertActions } from './AlertActions';
 import { AvatarActions } from './AvatarActions';
 import { BadgeActions } from './BadgeActions';
-import { BadgeGroupActions } from './BadgeGroupActions';
 import { ButtonActions } from './ButtonActions';
 import { CalendarCore } from './calendar/CalendarCore';
 import { RadioActions } from './RadioActions';
@@ -21,10 +21,7 @@ import { ToastActions } from './ToastActions';
 import { DropdownActions } from './DropdownActions';
 import { TableActions } from './TableActions';
 import { TimePickerActions } from './TimePickerActions';
-import { EditorActions } from './EditorActions';
 import { DatePickerActions } from './DatePickerActions';
-import { AddToCartActions } from './AddToCartActions';
-import { GalleryActions } from './GalleryActions';
 import { PopoverActions } from './PopoverActions';
 import { ImageActions } from './ImageActions';
 import { LightboxActions } from './LightboxActions';
@@ -32,11 +29,8 @@ import { ChartActions } from './ChartActions';
 import ColorPickerActions from './ColorPickerActions';
 import { SidebarActions } from './SidebarActions';
 import { CountdownActions } from './CountdownActions';
-import { FileUploadActions} from "@/FileUploadActions";
+import { FileUploadActions } from './FileUploadActions';
 import './TabsActions';
-
-import Quill from 'quill';
-
 
 import { BaseActionClass } from './utils/BaseActionClass';
 import { DOMUtils } from './utils/DOMUtils';
@@ -46,7 +40,7 @@ import { LivewireUtils } from './utils/LivewireUtils';
 
 import polyfill from '@oddbird/css-anchor-positioning/fn';
 
-export { FileUploadActions, FormActions, TextareaActions, AlertActions, AvatarActions, BadgeActions, BadgeGroupActions, ButtonActions, CalendarCore, RadioActions, RangeActions, SelectActions, ModalActions, ToastActions, DropdownActions, TableActions, TimePickerActions, EditorActions, DatePickerActions, AddToCartActions, GalleryActions, PopoverActions, ImageActions, LightboxActions, ChartActions, ColorPickerActions, SidebarActions, CountdownActions };
+export { FileUploadActions, FormActions, TextareaActions, EditorActions, AlertActions, AvatarActions, BadgeActions, ButtonActions, CalendarCore, RadioActions, RangeActions, SelectActions, ModalActions, ToastActions, DropdownActions, TableActions, TimePickerActions, DatePickerActions, PopoverActions, ImageActions, LightboxActions, ChartActions, ColorPickerActions, SidebarActions, CountdownActions };
 
 export { BaseActionClass, DOMUtils, EventUtils, RTLUtils, LivewireUtils };
 
@@ -67,6 +61,8 @@ export function initializeKeysUI(): void {
 
     TextareaActions.getInstance().init();
 
+    EditorActions.getInstance().init();
+
     AlertActions.getInstance().init();
 
     FileUploadActions.getInstance().init();
@@ -74,8 +70,6 @@ export function initializeKeysUI(): void {
     AvatarActions.getInstance().init();
 
     BadgeActions.getInstance().init();
-
-    BadgeGroupActions.getInstance().init();
 
     ButtonActions.getInstance().init();
 
@@ -97,15 +91,7 @@ export function initializeKeysUI(): void {
 
     TimePickerActions.getInstance().init();
 
-
-    EditorActions.getInstance().init();
-
     DatePickerActions.getInstance().init();
-
-    AddToCartActions.getInstance().init();
-
-
-    GalleryActions.getInstance().init();
 
     ImageActions.getInstance().init();
 
@@ -131,10 +117,10 @@ export function initializeKeysUI(): void {
 const KeysUI = {
     FormActions: FormActions.getInstance(),
     TextareaActions: TextareaActions.getInstance(),
+    EditorActions: EditorActions.getInstance(),
     AlertActions: AlertActions.getInstance(),
     AvatarActions: AvatarActions.getInstance(),
     BadgeActions: BadgeActions.getInstance(),
-    BadgeGroupActions: BadgeGroupActions.getInstance(),
     ButtonActions: ButtonActions.getInstance(),
     CalendarCore: CalendarCore.getInstance(),
     RadioActions: RadioActions.getInstance(),
@@ -145,10 +131,7 @@ const KeysUI = {
     DropdownActions: DropdownActions.getInstance(),
     TableActions: TableActions.getInstance(),
     TimePickerActions: TimePickerActions.getInstance(),
-    EditorActions: EditorActions.getInstance(),
     DatePickerActions: DatePickerActions.getInstance(),
-    AddToCartActions: AddToCartActions.getInstance(),
-    GalleryActions: GalleryActions.getInstance(),
     ImageActions: ImageActions.getInstance(),
     LightboxActions: LightboxActions.getInstance(),
     ChartActions: ChartActions.getInstance(),
@@ -156,7 +139,6 @@ const KeysUI = {
     SidebarActions: SidebarActions.getInstance(),
     CountdownActions: CountdownActions.getInstance(),
     FileUploadActions: FileUploadActions.getInstance(),
-    Quill: Quill,
     init: initializeKeysUI,
     initialize: initializeKeysUI
 };
@@ -165,6 +147,4 @@ export default KeysUI;
 
 if (typeof window !== 'undefined') {
     (window as any).KeysUI = KeysUI;
-    (window as any).Quill = Quill;
-    (window as any).manualSyncEditor = () => KeysUI.EditorActions.manualSync();
 }

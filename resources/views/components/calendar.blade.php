@@ -1,8 +1,8 @@
 @php
     $wireAttributes = $attributes->whereStartsWith('wire:');
 
-    $baseWidth = $monthsToShow > 1 ? 'min-w-[560px] w-full' : 'min-w-[280px] w-max';
-    $baseClasses = 'user-select-none text-primary';
+    $baseWidth = $monthsToShow > 1 ? 'min-w-[560px] w-full' : ($fullWidth ? 'w-full' : 'min-w-[280px] w-max');
+    $baseClasses = 'user-select-none text-text';
 
     $sizeClasses = match ($size) {
         'sm' => 'text-sm',
@@ -17,7 +17,7 @@
     } elseif ($hasError()) {
         $stateClasses = 'border-danger';
     } else {
-        $stateClasses = 'border-line hover:border-neutral-300 dark:hover:border-neutral-600';
+        $stateClasses = 'border-border hover:border-neutral-300 dark:hover:border-neutral-600';
     }
 
     $cellClasses = match ($size) {
@@ -36,7 +36,7 @@
 @if($isShorthand())
     <x-keys::field :label="$label" :optional="$optional" :required="$required" :errors="$errors" :showErrors="$showErrors">
         <div {{ $containerAttributes }}>
-            <div class="calendar-header flex items-center justify-between px-4 py-3 border-b border-line">
+            <div class="calendar-header flex items-center justify-between px-4 py-3 border-b border-border">
                 <x-keys::button
                     variant="ghost"
                     size="sm"
@@ -54,7 +54,7 @@
                         data-calendar-month-year-btn
                         :disabled="$disabled"
                     >
-                        <span class="calendar-month-year-display">{{ $monthYearDisplay }}</span>
+                        <span class="calendar-month-year-display text-base font-semibold">{{ $monthYearDisplay }}</span>
                     </x-keys::button>
                 </div>
 
@@ -69,16 +69,17 @@
                 </x-keys::button>
             </div>
 
-            <div class="calendar-main-content flex flex-col md:flex-row gap-4" data-calendar-main-content>
+            <div class="calendar-main-content flex flex-col md:flex-row gap-6" data-calendar-main-content>
 
                 @if(isset($quickSelectors) && is_array($quickSelectors) && count($quickSelectors) > 0)
-                    <div class="calendar-quick-selectors md:w-max flex-shrink-0 order-first p-2" data-view-mode-show="calendar">
-                        <div class="text-xs font-medium text-muted mb-2">{{ __('keys-ui::keys-ui.datepicker.quick_select_label') }}</div>
-                        <div class="flex flex-wrap md:flex-col gap-1">
+                    <div class="calendar-quick-selectors md:w-max flex-shrink-0 order-first p-4 md:border-r md:border-border" data-view-mode-show="calendar">
+                        <div class="text-xs font-medium text-text mb-2">{{ __('keys-ui::keys-ui.datepicker.quick_select_label') }}</div>
+                        <div class="flex flex-wrap md:flex-col gap-2">
                             @foreach($quickSelectors as $selector)
                                 <x-keys::button
                                     variant="ghost"
                                     size="xs"
+                                    class="w-full justify-start text-text-muted hover:text-text"
                                     data-quick-selector="{{ $selector['value'] }}"
                                     :title="$selector['description'] ?? $selector['label']"
                                     aria-label="{{ $selector['description'] ?? $selector['label'] }}"
@@ -109,7 +110,7 @@
                 </div>
             </div>
 
-            <div class="calendar-footer flex items-center justify-between px-4 py-3 border-t border-line">
+            <div class="calendar-footer flex items-center justify-between px-4 py-3 border-t border-border">
                 <div class="flex items-center gap-2">
                     <x-keys::button
                         variant="ghost"
@@ -132,7 +133,7 @@
                         data-calendar-action="today"
                         :disabled="$disabled"
                         title="Select today's date"
-                        icon-left="heroicon-o-map-pin"
+                        icon-left="heroicon-o-calendar-days"
                     >
 {{ __('keys-ui::keys-ui.datepicker.go_to_today') }}
                     </x-keys::button>
@@ -169,7 +170,7 @@
     </x-keys::field>
 @else
     <div {{ $containerAttributes }}>
-        <div class="calendar-header flex items-center justify-between px-4 py-3 border-b border-line">
+        <div class="calendar-header flex items-center justify-between px-4 py-3 border-b border-border">
             <x-keys::button
                 variant="ghost"
                 size="sm"
@@ -187,7 +188,7 @@
                     data-calendar-month-year-btn
                     :disabled="$disabled"
                 >
-                    <span class="calendar-month-year-display">{{ $monthYearDisplay }}</span>
+                    <span class="calendar-month-year-display text-base font-semibold">{{ $monthYearDisplay }}</span>
                 </x-keys::button>
             </div>
 
@@ -202,16 +203,17 @@
             </x-keys::button>
         </div>
 
-        <div class="calendar-main-content flex flex-col md:flex-row gap-4" data-calendar-main-content>
+        <div class="calendar-main-content flex flex-col md:flex-row gap-6" data-calendar-main-content>
 
             @if(isset($quickSelectors) && is_array($quickSelectors) && count($quickSelectors) > 0)
-                <div class="calendar-quick-selectors md:w-max flex-shrink-0 order-first p-2" data-view-mode-show="calendar">
-                    <div class="text-xs font-medium text-muted mb-2">{{ __('keys-ui::keys-ui.datepicker.quick_select_label') }}</div>
-                    <div class="flex flex-wrap md:flex-col gap-1">
+                <div class="calendar-quick-selectors md:w-max flex-shrink-0 order-first p-4 md:border-r md:border-border" data-view-mode-show="calendar">
+                    <div class="text-xs font-medium text-text mb-2">{{ __('keys-ui::keys-ui.datepicker.quick_select_label') }}</div>
+                    <div class="flex flex-wrap md:flex-col gap-2">
                         @foreach($quickSelectors as $selector)
                             <x-keys::button
                                 variant="ghost"
                                 size="xs"
+                                class="w-full justify-start text-text-muted hover:text-text"
                                 data-quick-selector="{{ $selector['value'] }}"
                                 :title="$selector['description'] ?? $selector['label']"
                                 aria-label="{{ $selector['description'] ?? $selector['label'] }}"
@@ -242,7 +244,7 @@
             </div>
         </div>
 
-        <div class="calendar-footer flex items-center justify-between px-4 py-3 border-t border-line">
+        <div class="calendar-footer flex items-center justify-between px-4 py-3 border-t border-border">
             <div class="flex items-center gap-2">
                 <x-keys::button
                     variant="ghost"
@@ -265,7 +267,7 @@
                     data-calendar-action="today"
                     :disabled="$disabled"
                     title="Select today's date"
-                    icon-left="heroicon-o-map-pin"
+                    icon-left="heroicon-o-calendar-days"
                 >
 {{ __('keys-ui::keys-ui.datepicker.go_to_today') }}
                 </x-keys::button>
@@ -315,97 +317,97 @@
     /* === IMPROVED RANGE SELECTION STYLES === */
     /* In-range dates - subtle background */
     [data-keys-calendar="true"][data-is-range="true"] .calendar-day button[data-is-in-range="true"] {
-        background-color: var(--color-accent-50) !important;
-        color: var(--color-accent-700) !important;
-        border: 1px solid var(--color-accent-100) !important;
+        background-color: var(--color-brand-subtle) !important;
+        color: var(--color-brand) !important;
+        border: 1px solid var(--color-brand-subtle-hover) !important;
         position: relative;
     }
 
     [data-keys-calendar="true"][data-is-range="true"] .calendar-day button[data-is-in-range="true"]:hover {
-        background-color: var(--color-accent-100) !important;
-        color: var(--color-accent-800) !important;
-        border-color: var(--color-accent-200) !important;
+        background-color: var(--color-brand-subtle-hover) !important;
+        color: var(--color-brand-active) !important;
+        border-color: var(--color-brand-subtle-active) !important;
     }
 
     /* Range start date - distinct styling with gradient */
     [data-keys-calendar="true"][data-is-range="true"] .calendar-day button[data-is-range-start="true"] {
-        background: linear-gradient(135deg, var(--color-accent), var(--color-accent-600)) !important;
-        color: white !important;
+        background: linear-gradient(135deg, var(--color-brand), var(--color-brand-hover)) !important;
+        color: var(--color-brand-foreground) !important;
         font-weight: 700;
-        border: 2px solid var(--color-accent-700) !important;
+        border: 2px solid var(--color-brand-active) !important;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     /* Range end date - distinct styling with different gradient */
     [data-keys-calendar="true"][data-is-range="true"] .calendar-day button[data-is-range-end="true"] {
-        background: linear-gradient(135deg, var(--color-accent-600), var(--color-accent)) !important;
-        color: white !important;
+        background: linear-gradient(135deg, var(--color-brand-hover), var(--color-brand)) !important;
+        color: var(--color-brand-foreground) !important;
         font-weight: 700;
-        border: 2px solid var(--color-accent-700) !important;
+        border: 2px solid var(--color-brand-active) !important;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     [data-keys-calendar="true"][data-is-range="true"] .calendar-day button[data-is-range-start="true"]:hover,
     [data-keys-calendar="true"][data-is-range="true"] .calendar-day button[data-is-range-end="true"]:hover {
-        background: var(--color-accent-hover) !important;
-        color: white !important;
+        background: var(--color-brand-hover) !important;
+        color: var(--color-brand-foreground) !important;
         transform: scale(1.05);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     /* Range hover preview - clearer feedback */
     [data-keys-calendar="true"][data-is-range="true"] .calendar-day button[data-is-hover-range="true"] {
-        background-color: var(--color-accent-100);
-        color: var(--color-accent-800);
-        border: 1px dashed var(--color-accent-300);
+        background-color: var(--color-brand-subtle);
+        color: var(--color-brand);
+        border: 1px dashed var(--color-brand-subtle-active);
     }
 
     /* === IMPROVED DARK MODE RANGE STYLES === */
     /* In-range dates - dark mode */
     [data-keys-calendar="true"][data-is-range="true"]:where(.dark, .dark *) .calendar-day button[data-is-in-range="true"] {
-        background-color: var(--color-accent-900) !important;
-        color: var(--color-accent-300) !important;
-        border: 1px solid var(--color-accent-800) !important;
+        background-color: var(--color-brand-subtle) !important;
+        color: var(--color-brand) !important;
+        border: 1px solid var(--color-brand-subtle-hover) !important;
     }
 
     [data-keys-calendar="true"][data-is-range="true"]:where(.dark, .dark *) .calendar-day button[data-is-in-range="true"]:hover {
-        background-color: var(--color-accent-800) !important;
-        color: var(--color-accent-200) !important;
-        border-color: var(--color-accent-700) !important;
+        background-color: var(--color-brand-subtle-hover) !important;
+        color: var(--color-brand-hover) !important;
+        border-color: var(--color-brand-subtle-active) !important;
     }
 
     /* Range start date - dark mode */
     [data-keys-calendar="true"][data-is-range="true"]:where(.dark, .dark *) .calendar-day button[data-is-range-start="true"] {
-        background: linear-gradient(135deg, var(--color-accent-600), var(--color-accent-500)) !important;
-        color: white !important;
+        background: linear-gradient(135deg, var(--color-brand-hover), var(--color-brand)) !important;
+        color: var(--color-brand-foreground) !important;
         font-weight: 700;
-        border: 2px solid var(--color-accent-400) !important;
+        border: 2px solid var(--color-brand-active) !important;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     /* Range end date - dark mode */
     [data-keys-calendar="true"][data-is-range="true"]:where(.dark, .dark *) .calendar-day button[data-is-range-end="true"] {
-        background: linear-gradient(135deg, var(--color-accent-500), var(--color-accent-600)) !important;
-        color: white !important;
+        background: linear-gradient(135deg, var(--color-brand), var(--color-brand-hover)) !important;
+        color: var(--color-brand-foreground) !important;
         font-weight: 700;
-        border: 2px solid var(--color-accent-400) !important;
+        border: 2px solid var(--color-brand-active) !important;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     [data-keys-calendar="true"][data-is-range="true"]:where(.dark, .dark *) .calendar-day button[data-is-range-start="true"]:hover,
     [data-keys-calendar="true"][data-is-range="true"]:where(.dark, .dark *) .calendar-day button[data-is-range-end="true"]:hover {
-        background: var(--color-accent-500) !important;
-        color: white !important;
+        background: var(--color-brand-hover) !important;
+        color: var(--color-brand-foreground) !important;
         transform: scale(1.05);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-        border-color: var(--color-accent-300) !important;
+        border-color: var(--color-brand-active) !important;
     }
 
     /* Range hover preview - dark mode */
     [data-keys-calendar="true"][data-is-range="true"]:where(.dark, .dark *) .calendar-day button[data-is-hover-range="true"] {
-        background-color: var(--color-accent-800);
-        color: var(--color-accent-200);
-        border: 1px dashed var(--color-accent-600);
+        background-color: var(--color-brand-subtle);
+        color: var(--color-brand);
+        border: 1px dashed var(--color-brand-subtle-active);
     }
 
     /* === MONTH/YEAR SELECTION GRIDS === */
@@ -416,7 +418,7 @@
 
     [data-keys-calendar="true"] .month-grid button:hover:not(:disabled),
     [data-keys-calendar="true"] .year-grid button:hover:not(:disabled) {
-        background-color: var(--color-neutral-hover);
+        background-color: var(--color-hover);
         transform: translateY(-1px);
         box-shadow: var(--shadow-sm);
     }
@@ -433,7 +435,26 @@
         text-align: center;
         font-weight: 600;
         padding: 0.5rem;
-        border-bottom: 1px solid var(--color-line);
+        border-bottom: 1px solid var(--color-border);
         margin-bottom: 0.5rem;
+    }
+
+    /* === PERSISTENT TODAY INDICATOR === */
+    /* Add subtle dot below today's date that persists even when selected/in range */
+    [data-keys-calendar="true"] .calendar-day button[data-is-today="true"]::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: var(--color-brand);
+    }
+
+    /* Today indicator visibility with !important to override other states */
+    [data-keys-calendar="true"] .calendar-day button[data-is-today="true"]::after {
+        display: block !important;
     }
 </style>

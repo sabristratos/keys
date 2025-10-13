@@ -1,8 +1,8 @@
 
 @php
-    $separatorClasses = $isLabeled() ? 'flex items-center my-2' : 'my-2 border-t border-line';
-    $lineClasses = 'flex-1 border-t border-line';
-    $labelClasses = 'px-3 text-xs font-medium text-muted uppercase tracking-wider';
+    $separatorClasses = $isLabeled() ? 'flex items-center my-2' : 'my-2 border-t border-border';
+    $lineClasses = 'flex-1 border-t border-border';
+    $labelClasses = 'px-3 text-xs font-medium text-text-muted uppercase tracking-wider';
 @endphp
 
 @if($isLabeled() && $hasLabel())

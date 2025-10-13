@@ -56,6 +56,7 @@ export class CalendarCore extends BaseActionClass<CalendarState> {
             startDate: calendarData.startDate || null,
             endDate: calendarData.endDate || null,
             focusedDate: calendarData.selectedDate || calendarData.startDate || this.getTodayDate(),
+            hoveredDate: null,
             isRange: calendarData.isRange || false,
             monthsToShow: calendarData.monthsToShow || 1,
             rangeSelectionState: 'none',
@@ -123,6 +124,32 @@ export class CalendarCore extends BaseActionClass<CalendarState> {
                 if (dateString && !isDisabled) {
                     this.selectDate(calendar, dateString);
                 }
+            }
+        });
+
+        // Range hover preview
+        calendar.addEventListener('mouseover', (e) => {
+            const target = e.target as HTMLElement;
+            const state = this.getState(calendar);
+
+            if (!state || !state.isRange) return;
+
+            if (target.dataset.calendarDayBtn !== undefined) {
+                const dateString = target.dataset.date;
+                const isDisabled = target.hasAttribute('disabled') || target.getAttribute('aria-disabled') === 'true';
+
+                if (dateString && !isDisabled && state.rangeSelectionState === 'selecting-end') {
+                    this.updateState(calendar, { hoveredDate: dateString });
+                    this.renderCalendar(calendar);
+                }
+            }
+        });
+
+        calendar.addEventListener('mouseleave', (e) => {
+            const state = this.getState(calendar);
+            if (state && state.isRange && state.hoveredDate) {
+                this.updateState(calendar, { hoveredDate: null });
+                this.renderCalendar(calendar);
             }
         });
     }

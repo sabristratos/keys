@@ -21,7 +21,7 @@
     };
 
     $colorClasses = match ($color) {
-        'brand' => 'accent',
+        'brand' => 'brand',
         'warning' => 'warning',
         'success' => 'success',
         'danger' => 'danger',
@@ -63,7 +63,7 @@
                     @endfor
 
                     @if($showCount)
-                        <span class="text-sm text-muted ml-2">{{ $value }}/{{ $max }}</span>
+                        <span class="text-sm text-text-muted ml-2">{{ $value }}/{{ $max }}</span>
                     @endif
                 </div>
             @else
@@ -72,7 +72,7 @@
                     @for ($i = $max; $i >= 1; $i--)
                         @php
                             $inputClasses = match($color) {
-                                'brand' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-accent [&:checked~label_svg]:opacity-100",
+                                'brand' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-brand [&:checked~label_svg]:opacity-100",
                                 'warning' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-warning [&:checked~label_svg]:opacity-100",
                                 'success' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-success [&:checked~label_svg]:opacity-100",
                                 'danger' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-danger [&:checked~label_svg]:opacity-100",
@@ -81,7 +81,7 @@
                             };
 
                             $labelClasses = match($color) {
-                                'brand' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 [&_svg]:transition-opacity hover:[&_svg]:text-accent hover:[&_svg]:!opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-accent [&:hover~label_svg]:!opacity-100 group-hover:[&_svg]:opacity-10",
+                                'brand' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 [&_svg]:transition-opacity hover:[&_svg]:text-brand hover:[&_svg]:!opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-brand [&:hover~label_svg]:!opacity-100 group-hover:[&_svg]:opacity-10",
                                 'warning' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 [&_svg]:transition-opacity hover:[&_svg]:text-warning hover:[&_svg]:!opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-warning [&:hover~label_svg]:!opacity-100 group-hover:[&_svg]:opacity-10",
                                 'success' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 [&_svg]:transition-opacity hover:[&_svg]:text-success hover:[&_svg]:!opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-success [&:hover~label_svg]:!opacity-100 group-hover:[&_svg]:opacity-10",
                                 'danger' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 [&_svg]:transition-opacity hover:[&_svg]:text-danger hover:[&_svg]:!opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-danger [&:hover~label_svg]:!opacity-100 group-hover:[&_svg]:opacity-10",
@@ -105,14 +105,14 @@
                     @endfor
 
                     @if($showCount)
-                        <span class="text-sm text-muted ml-2">{{ $value }}/{{ $max }}</span>
+                        <span class="text-sm text-text-muted ml-2">{{ $value }}/{{ $max }}</span>
                     @endif
                 </div>
             @endif
         </div>
 
         @if($hint)
-            <p class="text-xs text-muted">{{ $hint }}</p>
+            <p class="text-xs text-text-muted">{{ $hint }}</p>
         @endif
 
         @if($showErrors && $hasError())
@@ -143,7 +143,7 @@
                 @endfor
 
                 @if($showCount)
-                    <span class="text-sm text-muted ml-2">{{ $value }}/{{ $max }}</span>
+                    <span class="text-sm text-text-muted ml-2">{{ $value }}/{{ $max }}</span>
                 @endif
             </div>
         @else
@@ -152,7 +152,7 @@
                 @for ($i = $max; $i >= 1; $i--)
                     @php
                         $inputClasses = match($color) {
-                            'brand' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-accent [&:checked~label_svg]:opacity-100",
+                            'brand' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-brand [&:checked~label_svg]:opacity-100",
                             'warning' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-warning [&:checked~label_svg]:opacity-100",
                             'success' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-success [&:checked~label_svg]:opacity-100",
                             'danger' => "peer/star-{$i} sr-only [&:checked~label_svg]:text-danger [&:checked~label_svg]:opacity-100",
@@ -161,7 +161,7 @@
                         };
 
                         $labelClasses = match($color) {
-                            'brand' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 hover:[&_svg]:text-accent hover:[&_svg]:opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-accent [&:hover~label_svg]:opacity-100",
+                            'brand' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 hover:[&_svg]:text-brand hover:[&_svg]:opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-brand [&:hover~label_svg]:opacity-100",
                             'warning' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 hover:[&_svg]:text-warning hover:[&_svg]:opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-warning [&:hover~label_svg]:opacity-100",
                             'success' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 hover:[&_svg]:text-success hover:[&_svg]:opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-success [&:hover~label_svg]:opacity-100",
                             'danger' => "cursor-pointer transition-all duration-200 {$iconSizeClasses} [&_svg]:text-neutral-400 [&_svg]:opacity-30 hover:[&_svg]:text-danger hover:[&_svg]:opacity-100 hover:[&_svg]:scale-110 [&:hover~label_svg]:text-danger [&:hover~label_svg]:opacity-100",
@@ -185,7 +185,7 @@
                 @endfor
 
                 @if($showCount)
-                    <span class="text-sm text-muted ml-2">{{ $value }}/{{ $max }}</span>
+                    <span class="text-sm text-text-muted ml-2">{{ $value }}/{{ $max }}</span>
                 @endif
             </div>
         @endif

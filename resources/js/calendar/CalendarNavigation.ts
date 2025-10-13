@@ -113,7 +113,7 @@ export class CalendarNavigation {
             <div class="flex items-center justify-between mb-4">
                 <button
                     type="button"
-                    class="p-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-accent"
+                    class="p-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-brand"
                     data-calendar-year-nav="prev"
                     aria-label="Previous year"
                 >
@@ -124,7 +124,7 @@ export class CalendarNavigation {
 
                 <button
                     type="button"
-                    class="text-lg font-semibold px-4 py-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-accent"
+                    class="text-lg font-semibold px-4 py-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-brand"
                     data-calendar-year-btn
                     aria-label="Select year ${currentYear}"
                 >
@@ -133,7 +133,7 @@ export class CalendarNavigation {
 
                 <button
                     type="button"
-                    class="p-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-accent"
+                    class="p-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-brand"
                     data-calendar-year-nav="next"
                     aria-label="Next year"
                 >
@@ -192,7 +192,7 @@ export class CalendarNavigation {
             <div class="flex items-center justify-between mb-4">
                 <button
                     type="button"
-                    class="p-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-accent"
+                    class="p-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-brand"
                     data-calendar-decade-nav="prev"
                     aria-label="Previous decade"
                 >
@@ -207,7 +207,7 @@ export class CalendarNavigation {
 
                 <button
                     type="button"
-                    class="p-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-accent"
+                    class="p-2 rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-brand"
                     data-calendar-decade-nav="next"
                     aria-label="Next decade"
                 >
@@ -351,38 +351,38 @@ export class CalendarNavigation {
      * Get month button classes
      */
     private static getMonthButtonClasses(isSelected: boolean, isDisabled: boolean): string {
-        const baseClasses = 'w-full p-3 rounded-md text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent';
+        const baseClasses = 'w-full p-3 rounded-md text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand';
 
         if (isDisabled) {
-            return `${baseClasses} bg-elevation-1 text-muted cursor-not-allowed opacity-50`;
+            return `${baseClasses} bg-card text-text-muted cursor-not-allowed opacity-50`;
         }
 
         if (isSelected) {
-            return `${baseClasses} bg-accent text-white font-semibold shadow-sm`;
+            return `${baseClasses} bg-brand text-white font-semibold shadow-sm`;
         }
 
-        return `${baseClasses} text-primary hover:bg-neutral-hover hover:scale-105`;
+        return `${baseClasses} text-text hover:bg-neutral-hover hover:scale-105`;
     }
 
     /**
      * Get year button classes
      */
     private static getYearButtonClasses(isSelected: boolean, isDisabled: boolean, isOutOfDecade: boolean): string {
-        const baseClasses = 'w-full p-3 rounded-md text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent';
+        const baseClasses = 'w-full p-3 rounded-md text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand';
 
         if (isDisabled) {
-            return `${baseClasses} bg-elevation-1 text-muted cursor-not-allowed opacity-50`;
+            return `${baseClasses} bg-card text-text-muted cursor-not-allowed opacity-50`;
         }
 
         if (isSelected) {
-            return `${baseClasses} bg-accent text-white font-semibold shadow-sm`;
+            return `${baseClasses} bg-brand text-white font-semibold shadow-sm`;
         }
 
         if (isOutOfDecade) {
-            return `${baseClasses} text-muted hover:bg-neutral-hover opacity-75`;
+            return `${baseClasses} text-text-muted hover:bg-neutral-hover opacity-75`;
         }
 
-        return `${baseClasses} text-primary hover:bg-neutral-hover hover:scale-105`;
+        return `${baseClasses} text-text hover:bg-neutral-hover hover:scale-105`;
     }
 
     /**

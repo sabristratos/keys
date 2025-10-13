@@ -18,6 +18,7 @@ export interface CalendarDay {
     isInRange?: boolean;
     isRangeStart?: boolean;
     isRangeEnd?: boolean;
+    isInHoverRange?: boolean;
 }
 
 export interface CalendarState {
@@ -26,6 +27,7 @@ export interface CalendarState {
     startDate: string | null;
     endDate: string | null;
     focusedDate: string | null;
+    hoveredDate: string | null;
     isDisabled: boolean;
     isRange: boolean;
     monthsToShow: number;
@@ -202,6 +204,10 @@ export class CalendarDateSelection {
             attributes.push('data-is-range-end="true"');
         }
 
+        if (day.isInHoverRange) {
+            attributes.push('data-is-hover-range="true"');
+        }
+
         return attributes.join(' ');
     }
 
@@ -220,5 +226,29 @@ export class CalendarDateSelection {
      */
     public static isToday(dateString: string): boolean {
         return dateString === this.getTodayDate();
+    }
+
+    /**
+     * Check if a date is in the hover preview range
+     * Shows preview when user has selected start date and is hovering to select end date
+     */
+    public static isDateInHoverRange(dateString: string, state: CalendarState): boolean {
+        if (!state.isRange || !state.hoveredDate) return false;
+
+        // Only show hover preview when selecting end date
+        if (state.rangeSelectionState !== 'selecting-end' || !state.startDate || state.endDate) {
+            return false;
+        }
+
+        const date = new Date(dateString);
+        const start = new Date(state.startDate);
+        const hovered = new Date(state.hoveredDate);
+
+        // Create preview range between start and hovered date
+        if (hovered >= start) {
+            return date >= start && date <= hovered;
+        } else {
+            return date >= hovered && date <= start;
+        }
     }
 }

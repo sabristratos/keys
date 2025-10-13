@@ -69,8 +69,7 @@ class DatePicker extends Component
         public ?string $label = null,
         public bool $optional = false,
         public string|array|Collection|null $errors = null,
-        public bool $showErrors = true,
-        public bool $hasError = false
+        public bool $showErrors = true
     ) {
         
         $this->id = $this->id ?? $this->name ?? 'date-picker-' . uniqid();
@@ -109,16 +108,6 @@ class DatePicker extends Component
         if ($this->monthsToShow < 1 || $this->monthsToShow > 12) {
             $this->monthsToShow = 1;
         }
-
-        
-        \Log::debug("DatePicker Debug [{$this->name}] - Constructor Error Check", [
-            'errors_type' => is_object($this->errors) ? get_class($this->errors) : gettype($this->errors),
-            'errors_value' => is_object($this->errors) ? 'object' : $this->errors,
-            'initial_hasError' => $this->hasError,
-            'hasErrors_result' => $this->hasErrors()
-        ]);
-
-        
     }
 
     /**
@@ -164,18 +153,6 @@ class DatePicker extends Component
     {
         return !is_null($this->label);
     }
-
-    public function hasError(): bool
-    {
-        $result = $this->hasError || $this->hasErrors();
-        \Log::debug("DatePicker Debug [{$this->name}] - hasError() method called", [
-            'hasError_property' => $this->hasError,
-            'hasErrors_method' => $this->hasErrors(),
-            'final_result' => $result
-        ]);
-        return $result;
-    }
-
 
     /**
      * Get formatted value for display (simplified)
@@ -245,13 +222,15 @@ class DatePicker extends Component
             'data-clearable' => $this->clearable ? 'true' : 'false',
             'data-has-calendar-icon' => $this->showCalendarIcon ? 'true' : 'false',
             'data-close-on-select' => $this->closeOnSelect ? 'true' : 'false',
+            'data-placeholder' => $this->placeholder,
+            'data-close-delay' => '150',
         ];
 
-        
+
         if ($this->disabled) $attributes['data-disabled'] = 'true';
         if ($this->readonly) $attributes['data-readonly'] = 'true';
         if ($this->required) $attributes['data-required'] = 'true';
-        if ($this->hasError()) $attributes['data-invalid'] = 'true';
+        if ($this->hasErrors()) $attributes['data-invalid'] = 'true';
         if ($this->getFormattedValue()) $attributes['data-has-value'] = 'true';
 
         
@@ -315,13 +294,6 @@ class DatePicker extends Component
             ? []
             : (is_array($this->quickSelectors) ? $this->quickSelectors : $defaultQuickSelectors);
 
-        $hasErrorResult = $this->hasError();
-        \Log::debug("DatePicker Debug [{$this->name}] - Template variable assignment", [
-            'hasError_result' => $hasErrorResult,
-            'property_value' => $this->hasError,
-            'method_result' => $this->hasErrors()
-        ]);
-
         return view('keys::components.date-picker', [
             'formattedValue' => $this->getFormattedValue(),
             'submitValue' => $this->getSubmitValue(),
@@ -329,7 +301,7 @@ class DatePicker extends Component
             'quickSelectorsData' => $quickSelectors,
             'dataAttributes' => $this->getDataAttributes(),
             'isShorthand' => $this->isShorthand(),
-            'hasError' => $hasErrorResult,
+            'hasError' => $this->hasErrors(),
         ]);
     }
 }

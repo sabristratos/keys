@@ -51,11 +51,11 @@
     }
 
     $lineColorClasses = match ($color) {
-        'brand' => 'border-accent',
+        'brand' => 'border-brand',
         'success' => 'border-success',
         'warning' => 'border-warning',
         'danger' => 'border-danger',
-        'neutral' => 'border-line',
+        'neutral' => 'border-border',
         'blue' => 'border-blue-500',
         'gray' => 'border-neutral-400',
         'red' => 'border-red-500',
@@ -64,7 +64,7 @@
         'indigo' => 'border-indigo-500',
         'purple' => 'border-purple-500',
         'pink' => 'border-pink-500',
-        default => 'border-line'
+        default => 'border-border'
     };
 
     if ($variant === 'dashed') {
@@ -79,11 +79,11 @@
 
     $gradientDirection = $orientation === 'vertical' ? 'bg-gradient-to-b' : 'bg-gradient-to-r';
     $gradientColors = match ($color) {
-        'brand' => 'from-transparent via-accent to-transparent',
+        'brand' => 'from-transparent via-brand to-transparent',
         'success' => 'from-transparent via-success to-transparent',
         'warning' => 'from-transparent via-warning to-transparent',
         'danger' => 'from-transparent via-danger to-transparent',
-        'neutral' => 'from-transparent via-line to-transparent',
+        'neutral' => 'from-transparent via-border to-transparent',
         'blue' => 'from-transparent via-blue-500 to-transparent',
         'gray' => 'from-transparent via-neutral-400 to-transparent',
         'red' => 'from-transparent via-red-500 to-transparent',
@@ -92,7 +92,7 @@
         'indigo' => 'from-transparent via-indigo-500 to-transparent',
         'purple' => 'from-transparent via-purple-500 to-transparent',
         'pink' => 'from-transparent via-pink-500 to-transparent',
-        default => 'from-transparent via-line to-transparent'
+        default => 'from-transparent via-border to-transparent'
     };
 
     if ($orientation === 'vertical') {
@@ -121,7 +121,7 @@
         'lg' => 'text-lg px-5',
         default => 'text-sm px-3'
     };
-    $contentClasses = "bg-base px-3 text-muted $contentSizeClasses";
+    $contentClasses = "bg-body px-3 text-text-muted $contentSizeClasses";
 
     $iconSize = match ($size) {
         'xs' => 'xs',
@@ -132,11 +132,11 @@
     };
 
     $iconColorClasses = match ($color) {
-        'brand' => 'text-accent',
+        'brand' => 'text-brand',
         'success' => 'text-success',
         'warning' => 'text-warning',
         'danger' => 'text-danger',
-        'neutral' => 'text-muted',
+        'neutral' => 'text-text-muted',
         'blue' => 'text-blue-500',
         'gray' => 'text-neutral-400',
         'red' => 'text-red-500',
@@ -145,7 +145,7 @@
         'indigo' => 'text-indigo-500',
         'purple' => 'text-purple-500',
         'pink' => 'text-pink-500',
-        default => 'text-muted'
+        default => 'text-text-muted'
     };
 
     if ($orientation === 'vertical') {

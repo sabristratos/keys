@@ -18,7 +18,7 @@
     }
 
     // Wrapper gets all visual styling for group selector targeting
-    $wrapperVisualClasses = 'relative bg-input border border-line rounded-md transition-colors duration-200 hover:border-neutral-300 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/20';
+    $wrapperVisualClasses = 'relative bg-input border border-border rounded-md transition-colors duration-200 hover:border-neutral-300 focus-within:border-brand focus-within:ring-1 focus-within:ring-brand/20';
 
     // Button is just transparent click overlay
     $buttonClasses = 'absolute inset-0 cursor-pointer';
@@ -51,11 +51,11 @@
     };
 
     if ($disabled) {
-        $stateClasses = 'opacity-50 cursor-not-allowed bg-elevation-1 text-muted';
+        $stateClasses = 'opacity-50 cursor-not-allowed bg-panel text-text-disabled';
     } elseif ($hasError) {
-        $stateClasses = 'border-danger focus-within:border-danger focus-within:ring-danger/20 text-primary';
+        $stateClasses = 'border-danger focus-within:border-danger focus-within:ring-danger/20 text-input-foreground';
     } else {
-        $stateClasses = 'text-primary';
+        $stateClasses = 'text-input-foreground';
     }
 
     $overlayClasses = trim("$sizeClasses $paddingClasses");
@@ -114,7 +114,7 @@
                 @if($multiple)
                     @php
                         $selectedValues = $getSelectedValues();
-                        $maxInputs = 15;
+                        $maxInputs = 100;
                     @endphp
 
                     @for($i = 0; $i < $maxInputs; $i++)
@@ -147,6 +147,180 @@
 
             <div wire:ignore>
                 <x-keys::popover
+                    :id="'select-dropdown-' . $id"
+                    placement="bottom-start"
+                    :manual="false"
+                >
+                    <x-slot name="trigger">
+                        <div class="relative">
+
+                            <button
+                                type="button"
+                                id="{{ $id }}"
+                                popovertarget="select-dropdown-{{ $id }}"
+                                class="{{ $buttonClasses }}"
+                                data-select-trigger
+                                @if($disabled) disabled @endif
+                                @if($ariaLabel) aria-label="{{ $ariaLabel }}" @endif
+                                @if($ariaDescribedby) aria-describedby="{{ $ariaDescribedby }}" @endif
+                            >
+
+                                <span class="sr-only" data-select-value>
+                                    @if($multiple)
+                                        {{ $placeholder ?? 'Select options...' }}
+                                    @else
+                                        @if($value)
+                                            {{ $value }}
+                                        @else
+                                            {{ $placeholder ?? 'Select option...' }}
+                                        @endif
+                                    @endif
+                                </span>
+                            </button>
+
+
+                            <div class="relative flex items-center justify-between pointer-events-none {{ $overlayClasses }}">
+
+                                <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                                    @if($multiple)
+
+                                        <div class="flex flex-wrap gap-1 pointer-events-auto" data-select-chips>
+                                            <span class="text-text-muted select-placeholder pointer-events-none hidden" data-select-placeholder>
+                                                {{ $placeholder ?? 'Select options...' }}
+                                            </span>
+                                        </div>
+                                    @else
+
+                                        <div class="flex items-center gap-2.5 select-value truncate pointer-events-none text-input-foreground" data-select-display>
+                                            @if($value)
+                                                {{ $value }}
+                                            @else
+                                                <span class="text-text-muted">{{ $placeholder ?? 'Select option...' }}</span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
+
+
+                                <div class="flex items-center gap-2.5">
+                                    @if($clearable && !$disabled)
+                                        <x-keys::button
+                                            type="button"
+                                            variant="ghost"
+                                            size="xs"
+                                            class="opacity-0 pointer-events-auto transition-opacity duration-150"
+                                            data-select-clear
+                                            icon="heroicon-o-x-mark"
+                                            aria-label="Clear selection"
+                                        />
+                                    @endif
+
+
+                                    <div class="text-text-muted pointer-events-none">
+                                        <x-keys::icon
+                                            name="heroicon-o-chevron-down"
+                                            size="{{ $iconSize }}"
+                                            class="select-arrow transition-transform duration-200"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </x-slot>
+
+
+                    @if($searchable)
+                        <div class="mb-2 {{ $dropdownWidthClasses }}">
+                            <x-keys::input
+                                type="text"
+                                placeholder="Search options..."
+                                size="sm"
+                                icon-left="heroicon-o-magnifying-glass"
+                                data-select-search="true"
+                            />
+                        </div>
+                    @endif
+
+                    <div class="max-h-60 overflow-y-auto overflow-x-hidden {{ $dropdownWidthClasses }}"
+                         data-select-options
+                         role="listbox"
+                         aria-labelledby="{{ $id }}"
+                         aria-multiselectable="{{ $multiple ? 'true' : 'false' }}">
+                        {{ $slot }}
+                    </div>
+
+                    <div class="px-3 py-2 text-sm text-text-muted text-left hidden {{ $dropdownWidthClasses }}" data-select-no-results>
+                        No options found
+                    </div>
+                </x-keys::popover>
+            </div>
+        </div>
+
+        @if($showErrors && !is_null($errors))
+            <x-keys::error :messages="$errors" />
+        @endif
+    </div>
+@else
+    <div {{ $attributes->only('class') }} {{ $selectAttributes }}>
+
+        @if($isLivewireEnabled ?? false)
+            @if($multiple)
+                <input
+                    type="hidden"
+                    name="{{ $name }}"
+                    class="select-stable-input select-livewire-input"
+                    data-livewire-input="true"
+                    data-livewire-multiple="true"
+                    {{ $wireOnlyAttributes ?? collect() }}
+                >
+            @else
+                <input
+                    type="hidden"
+                    name="{{ $name }}"
+                    class="select-stable-input select-livewire-input"
+                    data-livewire-input="true"
+                    data-livewire-multiple="false"
+                    {{ $wireOnlyAttributes ?? collect() }}
+                >
+            @endif
+        @else
+            @if($multiple)
+                @php
+                    $selectedValues = $getSelectedValues();
+                    $maxInputs = 100;
+                @endphp
+
+                @for($i = 0; $i < $maxInputs; $i++)
+                    @php
+                        $currentValue = $selectedValues[$i] ?? '';
+                        $isActive = $i < count($selectedValues);
+                        $isFirst = $i === 0;
+                    @endphp
+
+                    <input
+                        type="hidden"
+                        name="{{ $name }}[]"
+                        value="{{ $currentValue }}"
+                        class="select-stable-input select-pool-input"
+                        data-pool-index="{{ $i }}"
+                        data-pool-active="{{ $isActive ? 'true' : 'false' }}"
+                        style="{{ $isActive ? '' : 'display: none;' }}"
+                    >
+                @endfor
+            @else
+                <input
+                    type="hidden"
+                    name="{{ $name }}"
+                    value="{{ $value ?? '' }}"
+                    class="select-stable-input select-single-input"
+                    data-single-input="true"
+                >
+            @endif
+        @endif
+
+
+        <div wire:ignore>
+            <x-keys::popover
                 :id="'select-dropdown-' . $id"
                 placement="bottom-start"
                 :manual="false"
@@ -185,20 +359,17 @@
                                 @if($multiple)
 
                                     <div class="flex flex-wrap gap-1 pointer-events-auto" data-select-chips>
-
+                                        <span class="text-text-muted select-placeholder pointer-events-none hidden" data-select-placeholder>
+                                            {{ $placeholder ?? 'Select options...' }}
+                                        </span>
                                     </div>
-
-
-                                    <span class="text-muted select-placeholder pointer-events-none hidden" data-select-placeholder>
-                                        {{ $placeholder ?? 'Select options...' }}
-                                    </span>
                                 @else
 
-                                    <div class="flex items-center gap-2.5 select-value truncate pointer-events-none text-primary" data-select-display>
+                                    <div class="flex items-center gap-2.5 select-value truncate pointer-events-none text-input-foreground" data-select-display>
                                         @if($value)
                                             {{ $value }}
                                         @else
-                                            <span class="text-muted">{{ $placeholder ?? 'Select option...' }}</span>
+                                            <span class="text-text-muted">{{ $placeholder ?? 'Select option...' }}</span>
                                         @endif
                                     </div>
                                 @endif
@@ -219,7 +390,7 @@
                                 @endif
 
 
-                                <div class="text-muted pointer-events-none">
+                                <div class="text-text-muted pointer-events-none">
                                     <x-keys::icon
                                         name="heroicon-o-chevron-down"
                                         size="{{ $iconSize }}"
@@ -252,187 +423,10 @@
                     {{ $slot }}
                 </div>
 
-                <div class="px-3 py-2 text-sm text-muted text-left hidden {{ $dropdownWidthClasses }}" data-select-no-results>
+                <div class="px-3 py-2 text-sm text-text-muted text-left hidden {{ $dropdownWidthClasses }}" data-select-no-results>
                     No options found
                 </div>
             </x-keys::popover>
-            </div>
-        </div>
-
-        @if($showErrors && !is_null($errors))
-            <x-keys::error :messages="$errors" />
-        @endif
-    </div>
-@else
-    <div {{ $attributes->only('class') }} {{ $selectAttributes }}>
-
-        @if($isLivewireEnabled ?? false)
-            @if($multiple)
-                <input
-                    type="hidden"
-                    name="{{ $name }}"
-                    class="select-stable-input select-livewire-input"
-                    data-livewire-input="true"
-                    data-livewire-multiple="true"
-                    {{ $wireOnlyAttributes ?? collect() }}
-                >
-            @else
-                <input
-                    type="hidden"
-                    name="{{ $name }}"
-                    class="select-stable-input select-livewire-input"
-                    data-livewire-input="true"
-                    data-livewire-multiple="false"
-                    {{ $wireOnlyAttributes ?? collect() }}
-                >
-            @endif
-        @else
-            @if($multiple)
-                @php
-                    $selectedValues = $getSelectedValues();
-                    $maxInputs = 15;
-                @endphp
-
-                @for($i = 0; $i < $maxInputs; $i++)
-                    @php
-                        $currentValue = $selectedValues[$i] ?? '';
-                        $isActive = $i < count($selectedValues);
-                        $isFirst = $i === 0;
-                    @endphp
-
-                    <input
-                        type="hidden"
-                        name="{{ $name }}[]"
-                        value="{{ $currentValue }}"
-                        class="select-stable-input select-pool-input"
-                        data-pool-index="{{ $i }}"
-                        data-pool-active="{{ $isActive ? 'true' : 'false' }}"
-                        style="{{ $isActive ? '' : 'display: none;' }}"
-                    >
-                @endfor
-            @else
-                <input
-                    type="hidden"
-                    name="{{ $name }}"
-                    value="{{ $value ?? '' }}"
-                    class="select-stable-input select-single-input"
-                    data-single-input="true"
-                >
-            @endif
-        @endif
-
-
-        <div wire:ignore>
-            <x-keys::popover
-            :id="'select-dropdown-' . $id"
-            placement="bottom-start"
-            :manual="false"
-        >
-            <x-slot name="trigger">
-                <div class="relative">
-
-                    <button
-                        type="button"
-                        id="{{ $id }}"
-                        popovertarget="select-dropdown-{{ $id }}"
-                        class="{{ $buttonClasses }}"
-                        data-select-trigger
-                        @if($disabled) disabled @endif
-                        @if($ariaLabel) aria-label="{{ $ariaLabel }}" @endif
-                        @if($ariaDescribedby) aria-describedby="{{ $ariaDescribedby }}" @endif
-                    >
-
-                        <span class="sr-only" data-select-value>
-                            @if($multiple)
-                                {{ $placeholder ?? 'Select options...' }}
-                            @else
-                                @if($value)
-                                    {{ $value }}
-                                @else
-                                    {{ $placeholder ?? 'Select option...' }}
-                                @endif
-                            @endif
-                        </span>
-                    </button>
-
-
-                    <div class="relative flex items-center justify-between pointer-events-none {{ $overlayClasses }}">
-
-                        <div class="flex items-center gap-2 flex-1 min-w-0">
-                            @if($multiple)
-
-                                <div class="flex flex-wrap gap-1 pointer-events-auto" data-select-chips>
-
-                                </div>
-
-
-                                <span class="text-muted select-placeholder pointer-events-none hidden" data-select-placeholder>
-                                    {{ $placeholder ?? 'Select options...' }}
-                                </span>
-                            @else
-
-                                <div class="flex items-center gap-2 select-value truncate pointer-events-none text-primary" data-select-display>
-                                    @if($value)
-                                        {{ $value }}
-                                    @else
-                                        <span class="text-muted">{{ $placeholder ?? 'Select option...' }}</span>
-                                    @endif
-                                </div>
-                            @endif
-                        </div>
-
-
-                        <div class="flex items-center gap-2">
-                            @if($clearable && !$disabled)
-                                <x-keys::button
-                                    type="button"
-                                    variant="ghost"
-                                    size="xs"
-                                    class="opacity-0 pointer-events-auto transition-opacity duration-150"
-                                    data-select-clear
-                                    icon="heroicon-o-x-mark"
-                                    aria-label="Clear selection"
-                                />
-                            @endif
-
-
-                            <div class="text-muted pointer-events-none">
-                                <x-keys::icon
-                                    name="heroicon-o-chevron-down"
-                                    size="{{ $iconSize }}"
-                                    class="select-arrow transition-transform duration-200"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </x-slot>
-
-
-            @if($searchable)
-                <div class="mb-2 {{ $dropdownWidthClasses }}">
-                    <x-keys::input
-                        type="text"
-                        placeholder="Search options..."
-                        size="sm"
-                        icon-left="heroicon-o-magnifying-glass"
-                        data-select-search="true"
-                    />
-                </div>
-            @endif
-
-            <div class="max-h-48 overflow-y-auto overflow-x-hidden {{ $dropdownWidthClasses }}"
-                 data-select-options
-                 role="listbox"
-                 aria-labelledby="{{ $id }}"
-                 aria-multiselectable="{{ $multiple ? 'true' : 'false' }}">
-                {{ $slot }}
-            </div>
-
-            <div class="px-3 py-2 text-sm text-muted text-left hidden {{ $dropdownWidthClasses }}" data-select-no-results>
-                No options found
-            </div>
-        </x-keys::popover>
         </div>
     </div>
 @endif

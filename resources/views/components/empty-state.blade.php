@@ -9,12 +9,12 @@
 
     $iconClasses = 'mx-auto mb-4';
     $iconClasses .= match ($variant) {
-        'brand' => ' text-accent',
+        'brand' => ' text-brand',
         'success' => ' text-success',
         'warning' => ' text-warning',
         'danger' => ' text-danger',
         'info' => ' text-info',
-        default => ' text-muted'
+        default => ' text-text-muted'
     };
 
     $headingSize = match ($size) {

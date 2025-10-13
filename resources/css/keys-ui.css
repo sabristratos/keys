@@ -1,149 +1,216 @@
 @import "tailwindcss";
-@import "./quill-editor.css";
 @import "./toast.css";
 @import "./chart.css";
 @import "./popover.css";
 @import "./scrollbar.css";
+@import "./editor.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --color-accent-50: oklch(0.957 0.062 154.97);
-    --color-accent-100: oklch(0.926 0.116 155.05);
-    --color-accent-200: oklch(0.849 0.2 154.52);
-    --color-accent-300: oklch(0.79 0.185 154.69);
-    --color-accent-400: oklch(0.724 0.17 154.65);
-    --color-accent-500: oklch(0.629 0.148 154.7);
-    --color-accent-600: oklch(0.53 0.124 154.68);
-    --color-accent-700: oklch(0.429 0.101 154.45);
-    --color-accent-800: oklch(0.328 0.077 154.48);
-    --color-accent-900: oklch(0.234 0.055 155.3);
-    --color-accent-950: oklch(0.184 0.044 153.93);
+    /* ============================================
+       PALETTE TOKENS (Amber/Red/Yellow/Lime/Sky)
+       ============================================ */
+    --color-brand-50: var(--color-amber-50);
+    --color-brand-100: var(--color-amber-100);
+    --color-brand-200: var(--color-amber-200);
+    --color-brand-300: var(--color-amber-300);
+    --color-brand-400: var(--color-amber-400);
+    --color-brand-500: var(--color-amber-500);
+    --color-brand-600: var(--color-amber-600);
+    --color-brand-700: var(--color-amber-700);
+    --color-brand-800: var(--color-amber-800);
+    --color-brand-900: var(--color-amber-900);
+    --color-brand-950: var(--color-amber-950);
 
-    --color-neutral-50: oklch(0.985 0.003 247.858);
-    --color-neutral-100: oklch(0.961 0.008 247.839);
-    --color-neutral-200: oklch(0.93 0.014 255.5);
-    --color-neutral-300: oklch(0.875 0.02 252.87);
-    --color-neutral-400: oklch(0.748 0.026 256.8);
-    --color-neutral-500: oklch(0.646 0.03 256.85);
-    --color-neutral-600: oklch(0.553 0.031 257.28);
-    --color-neutral-700: oklch(0.478 0.03 259.67);
-    --color-neutral-800: oklch(0.364 0.02 256.85);
-    --color-neutral-900: oklch(0.272 0.014 261.29);
-    --color-neutral-950: oklch(0.176 0.01 256.85);
+    --color-danger-50: var(--color-red-50);
+    --color-danger-100: var(--color-red-100);
+    --color-danger-200: var(--color-red-200);
+    --color-danger-300: var(--color-red-300);
+    --color-danger-400: var(--color-red-400);
+    --color-danger-500: var(--color-red-500);
+    --color-danger-600: var(--color-red-600);
+    --color-danger-700: var(--color-red-700);
+    --color-danger-800: var(--color-red-800);
+    --color-danger-900: var(--color-red-900);
+    --color-danger-950: var(--color-red-950);
 
-    --color-danger-50: oklch(0.971 0.013 17.38);
-    --color-danger-100: oklch(0.936 0.032 17.717);
-    --color-danger-200: oklch(0.885 0.062 18.334);
-    --color-danger-300: oklch(0.808 0.109 19.571);
-    --color-danger-400: oklch(0.704 0.156 22.216);
-    --color-danger-500: oklch(0.628 0.181 25.331);
-    --color-danger-600: oklch(0.569 0.186 27.325);
-    --color-danger-700: oklch(0.478 0.155 27.933);
-    --color-danger-800: oklch(0.4 0.124 27.14);
-    --color-danger-900: oklch(0.350 0.1 26.533);
-    --color-danger-950: oklch(0.192 0.054 26.533);
+    --color-warning-50: var(--color-yellow-50);
+    --color-warning-100: var(--color-yellow-100);
+    --color-warning-200: var(--color-yellow-200);
+    --color-warning-300: var(--color-yellow-300);
+    --color-warning-400: var(--color-yellow-400);
+    --color-warning-500: var(--color-yellow-500);
+    --color-warning-600: var(--color-yellow-600);
+    --color-warning-700: var(--color-yellow-700);
+    --color-warning-800: var(--color-yellow-800);
+    --color-warning-900: var(--color-yellow-900);
+    --color-warning-950: var(--color-yellow-950);
 
-    --color-warning-50: oklch(0.988 0.016 85.87);
-    --color-warning-100: oklch(0.969 0.043 85.87);
-    --color-warning-200: oklch(0.931 0.087 85.87);
-    --color-warning-300: oklch(0.88 0.138 85.87);
-    --color-warning-400: oklch(0.812 0.177 85.87);
-    --color-warning-500: oklch(0.749 0.184 85.87);
-    --color-warning-600: oklch(0.676 0.173 73.34);
-    --color-warning-700: oklch(0.565 0.144 67.69);
-    --color-warning-800: oklch(0.463 0.116 67.69);
-    --color-warning-900: oklch(0.385 0.094 67.69);
-    --color-warning-950: oklch(0.207 0.05 67.69);
+    --color-success-50: var(--color-lime-50);
+    --color-success-100: var(--color-lime-100);
+    --color-success-200: var(--color-lime-200);
+    --color-success-300: var(--color-lime-300);
+    --color-success-400: var(--color-lime-400);
+    --color-success-500: var(--color-lime-500);
+    --color-success-600: var(--color-lime-600);
+    --color-success-700: var(--color-lime-700);
+    --color-success-800: var(--color-lime-800);
+    --color-success-900: var(--color-lime-900);
+    --color-success-950: var(--color-lime-950);
 
-    --color-success-50: oklch(0.985 0.013 142.5);
-    --color-success-100: oklch(0.961 0.034 142.5);
-    --color-success-200: oklch(0.925 0.067 142.5);
-    --color-success-300: oklch(0.873 0.108 142.5);
-    --color-success-400: oklch(0.798 0.147 142.5);
-    --color-success-500: oklch(0.726 0.171 142.5);
-    --color-success-600: oklch(0.647 0.169 142.5);
-    --color-success-700: oklch(0.542 0.145 142.5);
-    --color-success-800: oklch(0.445 0.115 142.5);
-    --color-success-900: oklch(0.373 0.094 142.5);
-    --color-success-950: oklch(0.203 0.052 142.5);
+    --color-info-50: var(--color-sky-50);
+    --color-info-100: var(--color-sky-100);
+    --color-info-200: var(--color-sky-200);
+    --color-info-300: var(--color-sky-300);
+    --color-info-400: var(--color-sky-400);
+    --color-info-500: var(--color-sky-500);
+    --color-info-600: var(--color-sky-600);
+    --color-info-700: var(--color-sky-700);
+    --color-info-800: var(--color-sky-800);
+    --color-info-900: var(--color-sky-900);
+    --color-info-950: var(--color-sky-950);
 
-    --color-info-50: oklch(0.985 0.013 240.75);
-    --color-info-100: oklch(0.961 0.034 240.75);
-    --color-info-200: oklch(0.925 0.067 240.75);
-    --color-info-300: oklch(0.873 0.108 240.75);
-    --color-info-400: oklch(0.798 0.147 240.75);
-    --color-info-500: oklch(0.726 0.171 240.75);
-    --color-info-600: oklch(0.647 0.169 240.75);
-    --color-info-700: oklch(0.542 0.145 240.75);
-    --color-info-800: oklch(0.445 0.115 240.75);
-    --color-info-900: oklch(0.373 0.094 240.75);
-    --color-info-950: oklch(0.203 0.052 240.75);
+    /* ============================================
+       BASE LAYERS (Component-Oriented)
+       ============================================ */
 
-    --color-base: light-dark(var(--color-neutral-100), var(--color-neutral-950));
-    --color-elevation-1: light-dark(var(--color-neutral-50), var(--color-neutral-900));
-    --color-input: light-dark(white, var(--color-neutral-800));
-    --color-overlay: light-dark(white, var(--color-neutral-900));
+    /* Body/Page Background */
+    --color-body: light-dark(var(--color-neutral-100), var(--color-neutral-950));
+    --color-body-foreground: light-dark(var(--color-neutral-900), var(--color-neutral-50));
+
+    /* Cards & Raised Surfaces */
+    --color-card: light-dark(white, var(--color-neutral-900));
+    --color-card-foreground: light-dark(var(--color-neutral-900), var(--color-neutral-50));
+
+    /* Panels (Sidebars, Sections) */
+    --color-panel: light-dark(var(--color-neutral-50), var(--color-neutral-800));
+    --color-panel-foreground: light-dark(var(--color-neutral-900), var(--color-neutral-50));
+
+    /* Form Inputs */
+    --color-input: light-dark(var(--color-neutral-50), var(--color-neutral-800));
+    --color-input-foreground: light-dark(var(--color-neutral-900), var(--color-neutral-50));
+
+    /* Floating Elements (Dropdowns, Tooltips) */
+    --color-popover: light-dark(white, var(--color-neutral-800));
+    --color-popover-foreground: light-dark(var(--color-neutral-900), var(--color-neutral-50));
+
+    /* Modals & Dialogs */
+    --color-dialog: light-dark(white, var(--color-neutral-900));
+    --color-dialog-foreground: light-dark(var(--color-neutral-900), var(--color-neutral-50));
+
+    /* Inverted Sections */
     --color-inverted: light-dark(var(--color-neutral-900), var(--color-neutral-50));
+    --color-inverted-foreground: light-dark(var(--color-neutral-50), var(--color-neutral-900));
+
+    /* Overlay (for segmented controls and layered backgrounds) */
+    --color-overlay: light-dark(var(--color-neutral-200), var(--color-neutral-800));
+
+    /* ============================================
+       TYPOGRAPHY HIERARCHY
+       ============================================ */
 
     --color-heading: light-dark(var(--color-neutral-950), var(--color-neutral-50));
-    --color-primary: light-dark(var(--color-neutral-800), var(--color-neutral-100));
-    --color-secondary: light-dark(var(--color-neutral-700), var(--color-neutral-200));
-    --color-muted: light-dark(var(--color-neutral-600), var(--color-neutral-400));
-    --color-disabled: light-dark(var(--color-neutral-400), var(--color-neutral-600));
+    --color-text: light-dark(var(--color-neutral-800), var(--color-neutral-100));
+    --color-text-muted: light-dark(var(--color-neutral-600), var(--color-neutral-400));
+    --color-text-subtle: light-dark(var(--color-neutral-500), var(--color-neutral-500));
+    --color-text-disabled: light-dark(var(--color-neutral-400), var(--color-neutral-600));
 
-    --color-line: light-dark(var(--color-neutral-300), var(--color-neutral-800));
-    --color-line-subtle: light-dark(var(--color-neutral-400), var(--color-neutral-700));
-    --color-line-strong: light-dark(var(--color-neutral-500), var(--color-neutral-600));
+    /* ============================================
+       BORDERS
+       ============================================ */
+
+    --color-border: light-dark(var(--color-neutral-300), var(--color-neutral-700));
+    --color-border-subtle: light-dark(var(--color-neutral-200), var(--color-neutral-800));
+    --color-border-strong: light-dark(var(--color-neutral-400), var(--color-neutral-600));
+
+    /* ============================================
+       INTERACTIVE STATES
+       ============================================ */
 
     --color-hover: light-dark(var(--color-neutral-200), var(--color-neutral-700));
     --color-active: light-dark(var(--color-neutral-300), var(--color-neutral-600));
     --color-selected: light-dark(var(--color-neutral-100), var(--color-neutral-800));
-    --color-focus: var(--color-accent-500);
+    --color-focus: var(--color-brand-500);
 
-    --color-accent: light-dark(var(--color-accent-500), var(--color-accent-600));
-    --color-accent-contrast: white;
-    --color-accent-hover: light-dark(var(--color-accent-600), var(--color-accent-500));
-    --color-accent-active: light-dark(var(--color-accent-700), var(--color-accent-400));
-    --color-accent-subtle: light-dark(var(--color-accent-100), var(--color-accent-900));
-    --color-accent-subtle-hover: light-dark(var(--color-accent-200), var(--color-accent-800));
-    --color-accent-subtle-active: light-dark(var(--color-accent-300), var(--color-accent-700));
+    /* ============================================
+       BRAND COLOR (Primary)
+       ============================================ */
 
+    --color-brand: light-dark(var(--color-brand-500), var(--color-brand-600));
+    --color-brand-foreground: white;
+    --color-brand-hover: light-dark(var(--color-brand-600), var(--color-brand-500));
+    --color-brand-active: light-dark(var(--color-brand-700), var(--color-brand-400));
+    --color-brand-subtle: light-dark(var(--color-brand-100), var(--color-brand-900));
+    --color-brand-subtle-hover: light-dark(var(--color-brand-200), var(--color-brand-800));
+    --color-brand-subtle-active: light-dark(var(--color-brand-300), var(--color-brand-700));
+
+    /* ============================================
+       CONTEXTUAL COLORS
+       ============================================ */
+
+    /* Success */
     --color-success: light-dark(var(--color-success-500), var(--color-success-600));
-    --color-success-contrast: white;
+    --color-success-foreground: white;
     --color-success-hover: light-dark(var(--color-success-600), var(--color-success-500));
     --color-success-active: light-dark(var(--color-success-700), var(--color-success-400));
     --color-success-subtle: light-dark(var(--color-success-100), var(--color-success-900));
     --color-success-subtle-hover: light-dark(var(--color-success-200), var(--color-success-800));
     --color-success-subtle-active: light-dark(var(--color-success-300), var(--color-success-700));
 
+    /* Warning */
     --color-warning: light-dark(var(--color-warning-600), var(--color-warning-600));
-    --color-warning-contrast: light-dark(var(--color-neutral-900), white);
-    --color-warning-hover: light-dark(var(--color-warning-600), var(--color-warning-500));
-    --color-warning-active: light-dark(var(--color-warning-700), var(--color-warning-400));
+    --color-warning-foreground: white;
+    --color-warning-hover: light-dark(var(--color-warning-700), var(--color-warning-500));
+    --color-warning-active: light-dark(var(--color-warning-800), var(--color-warning-400));
     --color-warning-subtle: light-dark(var(--color-warning-100), var(--color-warning-900));
     --color-warning-subtle-hover: light-dark(var(--color-warning-200), var(--color-warning-800));
     --color-warning-subtle-active: light-dark(var(--color-warning-300), var(--color-warning-700));
 
+    /* Danger */
     --color-danger: light-dark(var(--color-danger-500), var(--color-danger-600));
-    --color-danger-contrast: white;
+    --color-danger-foreground: white;
     --color-danger-hover: light-dark(var(--color-danger-600), var(--color-danger-500));
     --color-danger-active: light-dark(var(--color-danger-700), var(--color-danger-400));
     --color-danger-subtle: light-dark(var(--color-danger-100), var(--color-danger-900));
     --color-danger-subtle-hover: light-dark(var(--color-danger-200), var(--color-danger-800));
     --color-danger-subtle-active: light-dark(var(--color-danger-300), var(--color-danger-700));
 
+    /* Info */
     --color-info: light-dark(var(--color-info-500), var(--color-info-600));
-    --color-info-contrast: white;
+    --color-info-foreground: white;
     --color-info-hover: light-dark(var(--color-info-600), var(--color-info-500));
     --color-info-active: light-dark(var(--color-info-700), var(--color-info-400));
     --color-info-subtle: light-dark(var(--color-info-100), var(--color-info-900));
     --color-info-subtle-hover: light-dark(var(--color-info-200), var(--color-info-800));
     --color-info-subtle-active: light-dark(var(--color-info-300), var(--color-info-700));
 
-    --color-neutral: light-dark(var(--color-neutral-50), var(--color-neutral-900));
-    --color-neutral-hover: light-dark(var(--color-neutral-200), var(--color-neutral-700));
-    --color-neutral-active: light-dark(var(--color-neutral-300), var(--color-neutral-600));
+    /* Neutral Accent (Secondary brand color) */
+    --color-accent: light-dark(var(--color-neutral-100), var(--color-neutral-600));
+    --color-accent-foreground: light-dark(var(--color-neutral-800), white);
+    --color-accent-hover: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    --color-accent-active: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+
+    /* ============================================
+       COMPONENT-SPECIFIC FAMILIES
+       ============================================ */
+
+    /* Sidebar */
+    --color-sidebar: light-dark(var(--color-neutral-50), var(--color-neutral-900));
+    --color-sidebar-foreground: var(--color-text);
+    --color-sidebar-border: var(--color-border);
+    --color-sidebar-hover: var(--color-hover);
+
+    /* Charts */
+    --color-chart-1: var(--color-brand);
+    --color-chart-2: var(--color-info);
+    --color-chart-3: var(--color-success);
+    --color-chart-4: var(--color-warning);
+    --color-chart-5: var(--color-danger);
+
+    /* Code Blocks */
+    --color-code: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+    --color-code-foreground: light-dark(var(--color-danger-600), var(--color-danger-400));
 
     --radius-base: 0.5rem;
     --radius-sm: calc(var(--radius-base) * 0.25);
@@ -214,4 +281,5 @@
 
 :root {
     color-scheme: light dark;
+    interpolate-size: allow-keywords;
 }

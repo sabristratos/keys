@@ -48,58 +48,58 @@
     // Color classes by variant
     $colorClasses = match ($variant) {
         'filled' => match ($color) {
-            'brand' => 'bg-accent text-white',
-            'success' => 'bg-success text-white',
-            'warning' => 'bg-warning text-white',
-            'danger' => 'bg-danger text-white',
-            'info' => 'bg-info text-white',
-            'neutral' => 'bg-muted text-white',
-            default => 'bg-info text-white'
+            'brand' => 'bg-brand text-brand-foreground',
+            'success' => 'bg-success text-success-foreground',
+            'warning' => 'bg-warning text-warning-foreground',
+            'danger' => 'bg-danger text-danger-foreground',
+            'info' => 'bg-info text-info-foreground',
+            'neutral' => 'bg-accent text-accent-foreground',
+            default => 'bg-accent text-accent-foreground'
         },
         'outlined' => match ($color) {
-            'brand' => 'bg-accent-subtle border border-accent text-accent',
+            'brand' => 'bg-brand-subtle border border-brand text-brand',
             'success' => 'bg-success-subtle border border-success text-success',
             'warning' => 'bg-warning-subtle border border-warning text-warning',
             'danger' => 'bg-danger-subtle border border-danger text-danger',
             'info' => 'bg-info-subtle border border-info text-info',
-            'neutral' => 'bg-elevation-1 border border-line text-muted',
+            'neutral' => 'bg-card border border-border text-text-muted',
             default => 'bg-info-subtle border border-info text-info'
         },
-        'subtle' => 'text-primary',
+        'subtle' => 'text-text',
         default => 'bg-info text-white'
     };
 
     // Hover classes (only for dismissible filled/outlined badges)
     $hoverClasses = ($dismissible && $variant === 'filled')
         ? match ($color) {
-            'brand' => 'hover:bg-accent-hover',
+            'brand' => 'hover:bg-brand-hover',
             'success' => 'hover:bg-success-hover',
             'warning' => 'hover:bg-warning-hover',
             'danger' => 'hover:bg-danger-hover',
             'info' => 'hover:bg-info-hover',
             'neutral' => 'hover:bg-hover',
-            default => 'hover:bg-info-hover'
+            default => 'hover:bg-hover'
         }
         : (($dismissible && $variant === 'outlined')
             ? match ($color) {
-                'brand' => 'hover:bg-accent-100',
-                'success' => 'hover:bg-success-100',
-                'warning' => 'hover:bg-warning-100',
-                'danger' => 'hover:bg-danger-100',
-                'info' => 'hover:bg-info-100',
-                'neutral' => 'hover:bg-neutral-hover',
-                default => 'hover:bg-info-100'
+                'brand' => 'hover:bg-brand-subtle/80',
+                'success' => 'hover:bg-success-subtle/80',
+                'warning' => 'hover:bg-warning-subtle/80',
+                'danger' => 'hover:bg-danger-subtle/80',
+                'info' => 'hover:bg-info-subtle/80',
+                'neutral' => 'hover:bg-hover',
+                default => 'hover:bg-info-subtle/80'
             }
             : '');
 
     // Dot color for subtle variant
     $dotColorClasses = match ($color) {
-        'brand' => 'text-accent',
+        'brand' => 'text-brand',
         'success' => 'text-success',
         'warning' => 'text-warning',
         'danger' => 'text-danger',
         'info' => 'text-info',
-        'neutral' => 'text-muted',
+        'neutral' => 'text-text-muted',
         default => 'text-info'
     };
 

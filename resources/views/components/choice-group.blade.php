@@ -8,7 +8,7 @@
         'lg' => 'text-lg',
         default => 'text-base'
     };
-    $legendColorClasses = $disabled ? 'text-neutral-500 dark:text-neutral-400' : 'text-primary';
+    $legendColorClasses = $disabled ? 'text-neutral-500 dark:text-neutral-400' : 'text-text';
     $legendClasses = trim('font-medium mb-2 ' . $legendSizeClasses . ' ' . $legendColorClasses);
 
     $descriptionSizeClasses = match ($size) {
@@ -17,7 +17,7 @@
         'lg' => 'text-sm',
         default => 'text-sm'
     };
-    $descriptionClasses = trim('text-muted mb-3 ' . $descriptionSizeClasses);
+    $descriptionClasses = trim('text-text-muted mb-3 ' . $descriptionSizeClasses);
 
     $choicesClasses = match ($layout) {
         'stacked' => 'space-y-3',

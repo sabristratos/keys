@@ -44,7 +44,7 @@
     } elseif ($hasError()) {
         $handleStateClasses = 'bg-white ring-danger shadow-sm hover:shadow-md focus-visible:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-danger focus-visible:outline-offset-2 cursor-grab active:cursor-grabbing';
     } else {
-        $handleStateClasses = 'bg-white ring-accent shadow-sm hover:shadow-md focus-visible:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 cursor-grab active:cursor-grabbing';
+        $handleStateClasses = 'bg-white ring-brand shadow-sm hover:shadow-md focus-visible:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 cursor-grab active:cursor-grabbing';
     }
     $handleClasses = "$handleBaseClasses $handleStateClasses $touchTargetClasses";
 
@@ -57,7 +57,7 @@
         'xl' => 'h-4',
         default => 'h-2'
     };
-    $fillStateClasses = $hasError() ? 'bg-danger' : 'bg-accent';
+    $fillStateClasses = $hasError() ? 'bg-danger' : 'bg-brand';
     $fillClasses = "$fillBaseClasses $fillHeightClasses $fillStateClasses";
 @endphp
 
@@ -199,7 +199,7 @@
         </div>
 
         @if($hint)
-            <p class="text-xs text-muted">{{ $hint }}</p>
+            <p class="text-xs text-text-muted">{{ $hint }}</p>
         @endif
 
         @if($showErrors && $hasError())
@@ -363,12 +363,12 @@
             transform: translateX(-50%) translateY(-4px);
             margin-bottom: 8px;
             padding: 6px 10px;
-            background: var(--color-elevation-1);
-            color: var(--color-primary);
+            background: var(--color-card);
+            color: var(--color-text);
             font-size: 12px;
             font-weight: 500;
             border-radius: 6px;
-            border: 1px solid var(--color-line);
+            border: 1px solid var(--color-border);
             white-space: nowrap;
             opacity: 0;
             transition: all 250ms cubic-bezier(0.4, 0.0, 0.2, 1);
@@ -410,7 +410,7 @@
             left: 0;
             width: 2px;
             height: 100%;
-            background: var(--color-line);
+            background: var(--color-border);
             transform: translateX(-50%);
         }
 
@@ -421,7 +421,7 @@
             transform: translateX(-50%);
             margin-top: 8px;
             font-size: 11px;
-            color: var(--color-muted);
+            color: var(--color-text-muted);
             white-space: nowrap;
             pointer-events: none;
         }

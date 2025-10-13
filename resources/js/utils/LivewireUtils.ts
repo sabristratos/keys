@@ -54,12 +54,24 @@ export class LivewireUtils {
 
     /**
      * @description Extracts the `wire:model` property name from a component's element.
-     * It checks for `data-wire-model` and other related attributes.
+     * It checks for `data-wire-model`, `data-livewire-property`, and the actual `wire:model` attribute.
      * @param {HTMLElement} element The component's HTML element.
      * @returns {string | null} The name of the `wire:model` property, or null if not found.
      */
     public static getWireModelProperty(element: HTMLElement): string | null {
-        return element.dataset.wireModel || element.dataset.livewireProperty || null;
+        // Check data attributes first (used by select component)
+        const dataWireModel = element.dataset.wireModel || element.dataset.livewireProperty;
+        if (dataWireModel) {
+            return dataWireModel;
+        }
+
+        // Check for actual wire:model attribute (used by file input)
+        const wireModelAttr = element.getAttribute('wire:model');
+        if (wireModelAttr) {
+            return wireModelAttr;
+        }
+
+        return null;
     }
 
     /**

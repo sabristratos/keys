@@ -1,24 +1,24 @@
 
 @php
 
-    $baseClasses = 'max-w-sm w-fit h-fit rounded-lg shadow-lg text-primary z-[9999] p-0 overflow-visible opacity-100';
+    $baseClasses = 'max-w-sm w-fit h-fit rounded-lg shadow-lg text-text z-[9999] p-0 overflow-visible opacity-100';
 
     $variantClasses = match ($variant) {
         'success' => 'border border-success bg-success-subtle',
         'warning' => 'border border-warning bg-warning-subtle',
         'danger' => 'border border-danger bg-danger-subtle',
         'info' => 'border border-info bg-info-subtle',
-        'neutral' => 'border border-line bg-elevation-1',
+        'neutral' => 'border border-border bg-card',
         default => 'border border-info bg-info-subtle'
     };
 
     $iconWrapperClasses = match ($variant) {
-        'success' => 'bg-success text-white',
-        'warning' => 'bg-warning text-black',
-        'danger' => 'bg-danger text-white',
-        'info' => 'bg-info text-white',
-        'neutral' => 'bg-muted text-white',
-        default => 'bg-info text-white'
+        'success' => 'bg-success text-success-foreground',
+        'warning' => 'bg-warning text-warning-foreground',
+        'danger' => 'bg-danger text-danger-foreground',
+        'info' => 'bg-info text-info-foreground',
+        'neutral' => 'bg-accent text-accent-foreground',
+        default => 'bg-info text-info-foreground'
     };
 
     $ariaLive = in_array($variant, ['danger', 'warning']) ? 'assertive' : 'polite';

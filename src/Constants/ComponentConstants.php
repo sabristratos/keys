@@ -98,14 +98,20 @@ class ComponentConstants
 
     /**
      * Form control variants (Checkbox, Radio)
-     * Standard, bordered, colored, card
+     * Standard, bordered, colored, card, segmented, pills, buttons
      */
-    public const FORM_CONTROL_VARIANTS = ['standard', 'bordered', 'colored', 'card'];
+    public const FORM_CONTROL_VARIANTS = ['standard', 'bordered', 'colored', 'card', 'segmented', 'pills', 'buttons'];
 
     /**
      * Alert/Toast/EmptyState variants (contextual colors as variants)
      */
     public const CONTEXTUAL_VARIANTS = ['brand', 'success', 'warning', 'danger', 'neutral', 'info'];
+
+    /**
+     * Group layouts (Radio.Group, Checkbox.Group)
+     * Stacked, inline, grid
+     */
+    public const GROUP_LAYOUTS = ['stacked', 'inline', 'grid'];
 
     /**
      * Icon variants
@@ -203,6 +209,21 @@ class ComponentConstants
     public const TOOLTIP_PLACEMENTS = [
         'top', 'bottom', 'left', 'right'
     ];
+
+    /**
+     * File upload variants
+     */
+    public const UPLOAD_VARIANTS = ['default', 'image-fill'];
+
+    /**
+     * Aspect ratios for image-fill variant
+     */
+    public const ASPECT_RATIOS = ['auto', 'square', 'video', 'wide', 'portrait'];
+
+    /**
+     * Object fit modes for images
+     */
+    public const OBJECT_FIT = ['cover', 'contain'];
 
     /**
      * Helper method to validate a value against a constant array

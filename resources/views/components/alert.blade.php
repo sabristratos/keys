@@ -7,8 +7,8 @@
         'success' => 'border-success bg-success-subtle',
         'warning' => 'border-warning bg-warning-subtle',
         'danger' => 'border-danger bg-danger-subtle',
-        'neutral' => 'border-line bg-elevation-1',
-        'brand' => 'border-accent bg-accent-subtle',
+        'neutral' => 'border-border bg-card',
+        'brand' => 'border-brand bg-brand-subtle',
         default => 'border-info bg-info-subtle'
     };
 
@@ -24,8 +24,8 @@
         'success' => 'text-success',
         'warning' => 'text-warning',
         'danger' => 'text-danger',
-        'neutral' => 'text-muted',
-        'brand' => 'text-accent',
+        'neutral' => 'text-text-muted',
+        'brand' => 'text-brand',
         default => 'text-info'
     };
 

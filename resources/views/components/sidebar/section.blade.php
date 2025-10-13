@@ -1,3 +1,13 @@
+@once
+<style>
+/* Sidebar Section - Custom CSS that can't be expressed as Tailwind utilities */
+
+/* Remove webkit details marker (pseudo-element can't be styled with Tailwind) */
+details[data-keys-sidebar-section] summary::-webkit-details-marker {
+    display: none;
+}
+</style>
+@endonce
 
 @php
     $paddingClasses = match ($variant) {
@@ -6,18 +16,23 @@
     };
 
     $headingClasses = 'px-4 py-2';
+
+    // Modern ::details-content animation using Tailwind arbitrary selectors
+    $animationClasses = $animated
+        ? '[&::details-content]:[block-size:0] [&::details-content]:opacity-0 [&::details-content]:overflow-hidden [&::details-content]:transition-all [&::details-content]:transition-discrete [&::details-content]:duration-300 [&::details-content]:ease-out [&:open::details-content]:[block-size:auto] [&:open::details-content]:opacity-100 motion-reduce:[&::details-content]:transition-none'
+        : '';
 @endphp
 
 @if($collapsible)
     {{-- Collapsible Section using details/summary --}}
     <details
         id="{{ $id }}"
-        class="group {{ $paddingClasses }}"
+        class="group {{ $paddingClasses }} {{ $animationClasses }}"
         {{ $collapsed ? '' : 'open' }}
         {{ $attributes->merge($dataAttributes) }}
     >
         @if($heading)
-            <summary class="{{ $headingClasses }} flex items-center justify-between cursor-pointer list-none select-none transition-colors duration-150 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 lg:[.sidebar-collapsed_&]:hidden">
+            <summary class="{{ $headingClasses }} flex items-center justify-between cursor-pointer list-none select-none transition-colors duration-150 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 lg:[.sidebar-collapsed_&]:hidden">
                 <x-keys::text element="span" size="xs" weight="semibold" color="muted" uppercase class="tracking-wider">{{ $heading }}</x-keys::text>
 
                 @if($icon && $collapsible)

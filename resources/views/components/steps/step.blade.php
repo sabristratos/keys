@@ -67,9 +67,9 @@
         if ($isComplete) {
             $indicatorClasses = "flex items-center justify-center rounded-full bg-success text-white {$indicatorSize}";
         } elseif ($isCurrent) {
-            $indicatorClasses = "flex items-center justify-center rounded-full bg-accent ring-2 ring-accent ring-offset-base ring-offset-2 text-white {$indicatorSize}";
+            $indicatorClasses = "flex items-center justify-center rounded-full bg-brand ring-2 ring-brand ring-offset-body ring-offset-2 text-white {$indicatorSize}";
         } else {
-            $indicatorClasses = "flex items-center justify-center rounded-full bg-elevation-1 ring-1 ring-inset ring-line text-muted {$indicatorSize}";
+            $indicatorClasses = "flex items-center justify-center rounded-full bg-card ring-1 ring-inset ring-border text-text-muted {$indicatorSize}";
         }
     } elseif ($parentVariant === 'icon') {
         $iconBoxSize = match ($parentSize) {
@@ -79,19 +79,19 @@
             default => 'size-12'
         };
         if ($isComplete) {
-            $indicatorClasses = "relative flex shrink-0 items-center justify-center *:data-icon:size-6 bg-elevation-1 shadow-xs-skeumorphic ring-1 ring-inset ring-success {$iconBoxSize} rounded-[10px] text-success";
+            $indicatorClasses = "relative flex shrink-0 items-center justify-center *:data-icon:size-6 bg-card shadow-xs-skeumorphic ring-1 ring-inset ring-success {$iconBoxSize} rounded-[10px] text-success";
         } elseif ($isCurrent) {
-            $indicatorClasses = "relative flex shrink-0 items-center justify-center *:data-icon:size-6 bg-elevation-1 shadow-xs-skeumorphic ring-1 ring-inset ring-accent {$iconBoxSize} rounded-[10px] text-accent";
+            $indicatorClasses = "relative flex shrink-0 items-center justify-center *:data-icon:size-6 bg-card shadow-xs-skeumorphic ring-1 ring-inset ring-brand {$iconBoxSize} rounded-[10px] text-brand";
         } else {
-            $indicatorClasses = "relative flex shrink-0 items-center justify-center *:data-icon:size-6 bg-elevation-1 shadow-xs-skeumorphic ring-1 ring-inset ring-line {$iconBoxSize} rounded-[10px] text-muted";
+            $indicatorClasses = "relative flex shrink-0 items-center justify-center *:data-icon:size-6 bg-card shadow-xs-skeumorphic ring-1 ring-inset ring-border {$iconBoxSize} rounded-[10px] text-text-muted";
         }
     } elseif ($parentVariant === 'dots') {
         if ($isComplete) {
             $indicatorClasses = "flex items-center justify-center rounded-full bg-success {$indicatorSize}";
         } elseif ($isCurrent) {
-            $indicatorClasses = "flex items-center justify-center rounded-full bg-accent ring-2 ring-accent ring-offset-base ring-offset-2 {$indicatorSize}";
+            $indicatorClasses = "flex items-center justify-center rounded-full bg-brand ring-2 ring-brand ring-offset-body ring-offset-2 {$indicatorSize}";
         } else {
-            $indicatorClasses = "flex items-center justify-center rounded-full bg-line {$indicatorSize}";
+            $indicatorClasses = "flex items-center justify-center rounded-full bg-border {$indicatorSize}";
         }
     }
 
@@ -102,7 +102,7 @@
     } else {
 
         $showConnector = !$isLastStep;
-        $connectorClasses .= $isComplete ? ' border-l-2 border-success' : ' border-l-2 border-line';
+        $connectorClasses .= $isComplete ? ' border-l-2 border-success' : ' border-l-2 border-border';
     }
 
     $contentPaddingClasses = $isLastStep ? '' : 'not-group-last:pb-6';
@@ -168,7 +168,7 @@
                     <div class="relative flex h-full w-full justify-center self-center overflow-hidden {{ $opacityClasses }} my-1 md:hidden">
                         <svg class="absolute" width="3">
                             <line x1="1.2" y1="1.2" x2="1.2" y2="100%"
-                                  class="{{ $isComplete ? 'stroke-success' : 'stroke-line' }}"
+                                  class="{{ $isComplete ? 'stroke-success' : 'stroke-border' }}"
                                   stroke="currentColor"
                                   stroke-width="2.4"
                                   stroke-dasharray="{{ $isComplete ? '0' : '0,6' }}"
@@ -184,7 +184,7 @@
 
                 <svg class="absolute top-1/2 left-[53%] z-0 h-[2.5px] w-full flex-1 -translate-y-1/2 hidden md:block">
                     <line x1="1.2" y1="1.2" x2="100%" y2="1.2"
-                          class="{{ $isComplete ? 'stroke-success' : 'stroke-line' }}"
+                          class="{{ $isComplete ? 'stroke-success' : 'stroke-border' }}"
                           stroke="currentColor"
                           stroke-width="2.4"
                           stroke-dasharray="{{ $isComplete ? '0' : '0,6' }}"
@@ -241,7 +241,7 @@
                     <div class="relative flex h-full w-full justify-center self-center overflow-hidden {{ $opacityClasses }} my-1">
                         <svg class="absolute" width="3">
                             <line x1="1.2" y1="1.2" x2="1.2" y2="100%"
-                                  class="{{ $isComplete ? 'stroke-success' : 'stroke-line' }}"
+                                  class="{{ $isComplete ? 'stroke-success' : 'stroke-border' }}"
                                   stroke="currentColor"
                                   stroke-width="2.4"
                                   stroke-dasharray="{{ $isComplete ? '0' : '0,6' }}"
@@ -250,7 +250,7 @@
                         </svg>
                     </div>
                 @else
-                    
+
                     <span class="{{ $connectorClasses }}"></span>
                 @endif
             @endif

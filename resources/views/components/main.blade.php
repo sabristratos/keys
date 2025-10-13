@@ -6,15 +6,23 @@
         'lg' => 'p-6 sm:p-8 lg:p-10',
         default => 'p-4 sm:p-6 lg:p-8',
     };
+
+    // Base wrapper classes
+    $baseWrapperClasses = 'flex-1 flex flex-col m-4 ml-0 min-w-0 overflow-hidden bg-card';
+
+    // Merge with custom wrapper class if provided
+    $wrapperClasses = $wrapperClass
+        ? $baseWrapperClasses . ' ' . $wrapperClass
+        : $baseWrapperClasses;
 @endphp
 
-<div class="flex-1 flex flex-col mt-2 min-w-0 overflow-hidden bg-elevation-1">
+<div class="{{ $wrapperClasses }}">
     {{-- Mobile Header with Logo and Sidebar Toggle (no border) --}}
     @if($showMobileToggle)
-        <header class="flex-shrink-0 bg-elevation-1 lg:hidden">
+        <header class="flex-shrink-0 bg-card lg:hidden">
             <div class="flex items-center justify-between p-4">
                 {{-- Logo (consistent with sidebar) --}}
-                <div class="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+                <div class="w-10 h-10 bg-brand rounded-lg flex items-center justify-center">
                     <x-keys::icon name="heroicon-o-squares-2x2" size="sm" class="text-white" />
                 </div>
 
@@ -39,7 +47,7 @@
     @endisset
 
     {{-- Scrollable Main Content Area --}}
-    <main class="flex-1 overflow-y-auto overflow-x-hidden bg-base rounded-t-xl border-t border-l border-r border-line">
+    <main class="flex-1 overflow-y-auto overflow-x-hidden bg-body rounded-xl border border-border">
         <div class="{{ $paddingClasses }}">
             {{ $slot }}
         </div>
@@ -47,7 +55,7 @@
 
     {{-- Optional Footer Slot --}}
     @isset($footer)
-        <footer class="flex-shrink-0 bg-elevation-1 border-t border-line">
+        <footer class="flex-shrink-0 bg-card border-t border-border">
             {{ $footer }}
         </footer>
     @endisset

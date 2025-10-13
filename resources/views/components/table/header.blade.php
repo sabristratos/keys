@@ -12,7 +12,7 @@
         'start' => 'text-left',
         'center' => 'text-center',
         'end' => 'text-right',
-        default => 'text-left'
+        default => ''
     };
 
     $headerInteractionClasses = '';

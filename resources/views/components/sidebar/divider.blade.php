@@ -7,7 +7,7 @@
         default => 'my-4'
     };
 
-    $labelClasses = 'px-4 text-xs font-semibold text-muted uppercase tracking-wider mb-2';
+    $labelClasses = 'px-4 text-xs font-semibold text-text-muted uppercase tracking-wider mb-2';
 @endphp
 
 <div class="{{ $spacingClasses }}" {{ $attributes->merge($dataAttributes) }}>
@@ -15,8 +15,8 @@
         <div class="{{ $labelClasses }} lg:[.sidebar-collapsed_&]:hidden">
             {{ $label }}
         </div>
-        <div class="border-t border-line mx-4 hidden lg:[.sidebar-collapsed_&]:block"></div>
+        <div class="border-t border-border mx-4 hidden lg:[.sidebar-collapsed_&]:block"></div>
     @else
-        <div class="border-t border-line mx-4"></div>
+        <div class="border-t border-border mx-4"></div>
     @endif
 </div>

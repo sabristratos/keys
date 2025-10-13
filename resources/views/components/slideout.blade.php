@@ -1,6 +1,6 @@
 @php
 
-    $dialogClasses = 'fixed m-0 p-0 bg-elevation-1 shadow-xl overflow-y-auto';
+    $dialogClasses = 'fixed m-0 p-0 bg-dialog shadow-xl overflow-y-auto';
     if ($animate) {
         $dialogClasses .= ' transition-transform transition-discrete duration-300 ease-out';
     }
@@ -13,9 +13,9 @@
     };
 
     $positionClasses = match ($position) {
-        'left' => 'mr-auto border-r border-line min-h-dvh max-h-dvh' . ($animate ? ' starting:-translate-x-full' : ''),
-        'right' => 'ml-auto border-l border-line min-h-dvh max-h-dvh' . ($animate ? ' starting:translate-x-full' : ''),
-        default => 'ml-auto border-l border-line min-h-dvh max-h-dvh' . ($animate ? ' starting:translate-x-full' : '')
+        'left' => 'mr-auto border-r border-border min-h-dvh max-h-dvh -translate-x-full open:translate-x-0' . ($animate ? ' starting:open:-translate-x-full' : ''),
+        'right' => 'ml-auto border-l border-border min-h-dvh max-h-dvh translate-x-full open:translate-x-0' . ($animate ? ' starting:open:translate-x-full' : ''),
+        default => 'ml-auto border-l border-border min-h-dvh max-h-dvh translate-x-full open:translate-x-0' . ($animate ? ' starting:open:translate-x-full' : '')
     };
 
     if ($width) {
@@ -34,7 +34,7 @@
 
     $allDialogClasses = "$dialogClasses $positionClasses $sizeClasses $backdropClasses";
 
-    $headerClasses = 'flex items-center justify-between py-6 border-b border-line';
+    $headerClasses = 'flex items-center justify-between py-6 border-b border-border';
     if ($scrollable) {
         $headerClasses .= ' flex-shrink-0';
     }
@@ -44,7 +44,7 @@
         $bodyClasses .= ' flex-1 overflow-y-auto';
     }
 
-    $footerClasses = 'flex items-center justify-end gap-3 py-6 border-t border-line';
+    $footerClasses = 'flex items-center justify-end gap-3 py-6 border-t border-border';
     if ($scrollable) {
         $footerClasses .= ' flex-shrink-0';
     }
@@ -160,36 +160,3 @@
         </script>
     @endif
 </dialog>
-
-@once
-<style>
-/* Enable smooth transitions for discrete properties (display, overlay) */
-@supports (transition-behavior: allow-discrete) {
-    dialog[data-keys-slideout="true"] {
-        transition: translate 0.3s ease-out,
-                    display 0.3s allow-discrete,
-                    overlay 0.3s allow-discrete;
-    }
-}
-
-/* Exit state - dialog slides back when closing */
-dialog[data-keys-slideout="true"][data-position="right"]:not([open]) {
-    translate: 100% 0;
-}
-
-dialog[data-keys-slideout="true"][data-position="left"]:not([open]) {
-    translate: -100% 0;
-}
-
-/* Entry state using @starting-style for smooth slide-in */
-@starting-style {
-    dialog[data-keys-slideout="true"][data-position="right"][open] {
-        translate: 100% 0;
-    }
-
-    dialog[data-keys-slideout="true"][data-position="left"][open] {
-        translate: -100% 0;
-    }
-}
-</style>
-@endonce

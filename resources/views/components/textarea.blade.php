@@ -2,7 +2,7 @@
     $textareaAttributes = $attributes->whereStartsWith('wire:');
     $wrapperAttributes = $attributes->whereDoesntStartWith('wire:');
 
-    $baseClasses = 'block w-full bg-input border border-line rounded-md transition-colors duration-200 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 placeholder:text-muted';
+    $baseClasses = 'block w-full bg-input border border-border rounded-md transition-colors duration-200 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 placeholder:text-text-muted';
 
     $sizeClasses = match ($size) {
         'xs' => 'px-2.5 py-1 text-xs',
@@ -22,11 +22,11 @@
     };
 
     if ($disabled) {
-        $stateClasses = 'opacity-50 cursor-not-allowed bg-elevation-1 text-muted';
+        $stateClasses = 'opacity-50 cursor-not-allowed bg-panel text-text-disabled';
     } elseif ($hasError()) {
-        $stateClasses = 'border-danger focus:border-danger focus:ring-danger/20 text-primary';
+        $stateClasses = 'border-danger focus:border-danger focus:ring-danger/20 text-input-foreground';
     } else {
-        $stateClasses = 'text-primary';
+        $stateClasses = 'text-input-foreground';
     }
 
     $leftPadding = '';
@@ -119,7 +119,7 @@
             {{ $label }}
         </x-keys::label>
 
-        <div class="relative mt-1 focus-within:[&_[data-icon]]:text-accent">
+        <div class="relative mt-1 focus-within:[&_[data-icon]]:text-brand">
             @if($iconLeft)
                 <div class="{{ $iconPositionClasses }} {{ $iconOffsets['left'] }}" data-icon>
                     <x-keys::icon name="{{ $iconLeft }}" size="{{ $iconSize }}" />
@@ -167,12 +167,12 @@
         </div>
 
         @if($hint)
-            <x-keys::text size="xs" color="muted" class="mt-1">{{ $hint }}</x-keys::text>
+            <x-keys::text size="xs" color="text-muted" class="mt-1">{{ $hint }}</x-keys::text>
         @endif
 
         @if($showCharacterCount)
             <div class="mt-1 flex justify-end">
-                <x-keys::text size="xs" color="muted"
+                <x-keys::text size="xs" color="text-muted"
                      data-character-count
                      data-max-length="{{ $maxLength }}"
                      data-target-id="{{ $id }}">
@@ -190,7 +190,7 @@
         @endif
     </div>
 @else
-    <div class="relative focus-within:[&_[data-icon]]:text-accent" {{ $wrapperAttributes->only('class') }}>
+    <div class="relative focus-within:[&_[data-icon]]:text-brand" {{ $wrapperAttributes->only('class') }}>
         @if($iconLeft)
             <div class="{{ $iconPositionClasses }} {{ $iconOffsets['left'] }}" data-icon>
                 <x-keys::icon name="{{ $iconLeft }}" size="{{ $iconSize }}" />
@@ -239,7 +239,7 @@
 
     @if($showCharacterCount)
         <div class="mt-1 flex justify-end">
-            <x-keys::text size="xs" color="muted"
+            <x-keys::text size="xs" color="text-muted"
                  data-character-count
                  data-max-length="{{ $maxLength }}"
                  data-target-id="{{ $id }}">

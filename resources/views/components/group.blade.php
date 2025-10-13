@@ -29,8 +29,8 @@
                 '[&>*:focus-within]:z-10',
 
                 // Selected state styling
-                '[&>*[data-selected="true"]]:bg-accent',
-                '[&>*[data-selected="true"]]:text-accent-contrast',
+                '[&>*[data-selected="true"]]:bg-brand',
+                '[&>*[data-selected="true"]]:text-brand-contrast',
                 '[&>*[data-selected="true"]]:relative',
                 '[&>*[data-selected="true"]]:z-10',
             ]);
@@ -58,8 +58,8 @@
                 '[&>*:focus-within]:z-10',
 
                 // Selected state styling
-                '[&>*[data-selected="true"]]:bg-accent',
-                '[&>*[data-selected="true"]]:text-accent-contrast',
+                '[&>*[data-selected="true"]]:bg-brand',
+                '[&>*[data-selected="true"]]:text-brand-contrast',
                 '[&>*[data-selected="true"]]:relative',
                 '[&>*[data-selected="true"]]:z-10',
             ]);

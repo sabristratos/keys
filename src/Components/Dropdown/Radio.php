@@ -20,7 +20,7 @@ class Radio extends Component
         public string $color = 'brand',
         public ?string $wireModel = null,
         public string|array|Collection|null $errors = null,
-        public bool $keepOpen = true
+        public bool $keepOpen = false
     ) {
         $this->id = $this->id ?? ($this->name ? $this->name.'-'.$this->value.'-'.uniqid() : 'dropdown-radio-'.uniqid());
 
@@ -38,6 +38,7 @@ class Radio extends Component
     {
         return [
             'data-keys-dropdown-radio' => 'true',
+            'data-menu-radio' => 'true',
             'data-keep-open' => $this->keepOpen ? 'true' : 'false',
             'data-color' => $this->color,
             'data-name' => $this->name,
@@ -45,7 +46,7 @@ class Radio extends Component
             'data-disabled' => $this->disabled ? 'true' : 'false',
             'data-checked' => $this->checked ? 'true' : 'false',
             'data-has-icon' => $this->hasIcon() ? 'true' : 'false',
-            'data-has-error' => $this->hasError() ? 'true' : 'false'
+            'data-has-error' => $this->hasErrors() ? 'true' : 'false'
         ];
     }
 

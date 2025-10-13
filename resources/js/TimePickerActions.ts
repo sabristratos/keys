@@ -662,7 +662,7 @@ export class TimePickerActions extends BaseActionClass<TimePickerState> {
                 display.innerHTML = formattedTime;
             } else {
                 const placeholder = timepicker.dataset.placeholder || 'Select time...';
-                display.innerHTML = `<span class="text-muted timepicker-placeholder">${placeholder}</span>`;
+                display.innerHTML = `<span class="text-text-muted timepicker-placeholder">${placeholder}</span>`;
             }
         }
 
@@ -710,7 +710,7 @@ export class TimePickerActions extends BaseActionClass<TimePickerState> {
                 display.innerHTML = value;
             } else {
                 const placeholder = timepicker.dataset.placeholder || 'Select time...';
-                display.innerHTML = `<span class="text-muted timepicker-placeholder">${placeholder}</span>`;
+                display.innerHTML = `<span class="text-text-muted timepicker-placeholder">${placeholder}</span>`;
             }
         }
 
@@ -841,7 +841,7 @@ export class TimePickerActions extends BaseActionClass<TimePickerState> {
             const button = document.createElement('button');
             button.type = 'button';
             button.dataset.timepickerHour = hour.toString();
-            button.className = 'w-full px-3 py-2 text-sm text-primary text-left hover:bg-hover focus-visible:bg-accent focus-visible:text-accent-foreground [&.selected]:bg-accent [&.selected]:text-accent-foreground transition-colors';
+            button.className = 'w-full px-3 py-2 text-sm text-text text-left hover:bg-hover focus-visible:bg-brand focus-visible:text-white [&.selected]:bg-brand [&.selected]:text-white transition-colors';
             button.textContent = hour.toString().padStart(2, '0');
             hourContainer.appendChild(button);
         });

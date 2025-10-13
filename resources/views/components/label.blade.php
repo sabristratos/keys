@@ -25,7 +25,7 @@
             <x-keys::icon
                 name="{{ $icon }}"
                 size="{{ $iconSize }}"
-                class="text-primary"
+                class="text-text"
                 data-icon
             />
         @endif
@@ -55,7 +55,7 @@
             @endif
 
             @if($optional && !$required)
-                <span class="text-neutral ml-0.5 text-xs">{{ __('keys-ui::keys-ui.labels.optional') }}</span>
+                <span class="text-text-muted ml-0.5 text-xs">{{ __('keys-ui::keys-ui.labels.optional') }}</span>
             @endif
         @endif
     </span>

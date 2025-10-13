@@ -1,3 +1,18 @@
+/**
+ * Toast Component - Essential CSS (Cannot be converted to Tailwind)
+ *
+ * This CSS file MUST remain because:
+ * 1. Dynamic stacking system - JavaScript sets --stack-offset per toast
+ * 2. Position calculations use calc(var(--toast-inset) + var(--toast-stack-offset))
+ * 3. Multiple toast positioning (6 variants: top/bottom + left/center/right)
+ * 4. Complex transform combinations for center positions (translateX + translateY)
+ *
+ * Tailwind cannot replicate:
+ * - CSS custom properties set dynamically by JavaScript
+ * - calc() with dynamic variables
+ * - Popover API :popover-open pseudo-class with complex attribute selectors
+ */
+
 [data-keys-toast] {
   --toast-inset: 1.5rem;
   --toast-stack-offset: var(--stack-offset, 0px);

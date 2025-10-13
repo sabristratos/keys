@@ -32,7 +32,8 @@ class Calendar extends Component
         public mixed $startDate = null,
         public mixed $endDate = null,
         public int $monthsToShow = 1,
-        public bool|array $quickSelectors = false
+        public bool|array $quickSelectors = false,
+        public bool $fullWidth = false
     ) {
         $this->initializeBasicProperties();
         $this->initializeDateValues();

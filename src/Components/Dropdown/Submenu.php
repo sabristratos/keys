@@ -69,7 +69,7 @@ class Submenu extends Component
     public function getDataAttributes(): array
     {
         return [
-            'data-keys-dropdown-submenu' => 'true',
+            'data-submenu' => 'true',
             'data-position' => $this->position,
             'data-align' => $this->align,
             'data-offset' => $this->offset,

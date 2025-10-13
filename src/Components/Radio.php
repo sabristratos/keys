@@ -34,7 +34,8 @@ class Radio extends Component
         public string $actionVariant = 'ghost',
         public string $actionSize = 'xs',
         public bool $hasError = false,
-        public bool $showInput = true
+        public bool $showInput = true,
+        public bool $indicator = true
     ) {
 
         $this->id = $this->id ?? ($this->name ? $this->name.'-'.$this->value : 'radio-'.uniqid());
@@ -62,9 +63,23 @@ class Radio extends Component
     public function iconSize(): string
     {
         return match ($this->size) {
+            'xs' => 'xs',
             'sm' => 'sm',
             'md' => 'md',
             'lg' => 'lg',
+            'xl' => 'xl',
+            default => 'md'
+        };
+    }
+
+    public function labelSize(): string
+    {
+        return match ($this->size) {
+            'xs' => 'xs',
+            'sm' => 'sm',
+            'md' => 'md',
+            'lg' => 'lg',
+            'xl' => 'xl',
             default => 'md'
         };
     }
@@ -77,6 +92,25 @@ class Radio extends Component
     public function hasContent(): bool
     {
         return $this->label || $this->title || $this->description;
+    }
+
+    public function getAriaAttributes(): array
+    {
+        $attributes = [];
+
+        if ($this->required) {
+            $attributes['aria-required'] = 'true';
+        }
+
+        if ($this->hasError()) {
+            $attributes['aria-invalid'] = 'true';
+        }
+
+        if ($this->description) {
+            $attributes['aria-describedby'] = $this->id . '-desc';
+        }
+
+        return $attributes;
     }
 
     public function getDataAttributes(): array
@@ -126,9 +160,13 @@ class Radio extends Component
             $attributes['data-actions-count'] = count($this->actions);
         }
 
-        
+
         if (! $this->showInput) {
             $attributes['data-input-hidden'] = 'true';
+        }
+
+        if (! $this->indicator) {
+            $attributes['data-indicator-hidden'] = 'true';
         }
 
         return $attributes;
@@ -140,6 +178,8 @@ class Radio extends Component
             'computedActionSize' => $this->getComputedActionSize(),
             'computedActionData' => $this->getComputedActionData(),
             'dataAttributes' => $this->getDataAttributes(),
+            'ariaAttributes' => $this->getAriaAttributes(),
+            'labelSize' => $this->labelSize(),
         ]);
     }
 }

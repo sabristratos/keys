@@ -12,8 +12,8 @@
         'success' => ' text-success',
         'warning' => ' text-warning',
         'danger' => ' text-danger',
-        'brand' => ' text-accent',
-        default => ' text-muted'
+        'brand' => ' text-brand',
+        default => ' text-text-muted'
     };
 
     $headingSize = match ($size) {
@@ -32,7 +32,7 @@
 @endphp
 
 <tr {{ $attributes->merge($dataAttributes) }}>
-    <td colspan="100" class="px-6 py-4 bg-elevation-1 text-center border-t border-line">
+    <td colspan="100" class="px-6 py-4 bg-card text-center border-t border-border">
         <div class="{{ $emptyContainerClasses }}">
             @if($icon)
                 <x-keys::icon

@@ -14,7 +14,7 @@
 
     $colorClasses = match ($color) {
         'dark' => 'bg-neutral-900 text-white border border-neutral-700 dark:bg-neutral-800 dark:border-neutral-600',
-        'light' => 'bg-elevation-1 text-primary border border-line',
+        'light' => 'bg-popover text-popover-foreground border border-border',
         default => 'bg-neutral-900 text-white border border-neutral-700 dark:bg-neutral-800 dark:border-neutral-600'
     };
 

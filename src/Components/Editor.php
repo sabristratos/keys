@@ -5,179 +5,214 @@ namespace Keys\UI\Components;
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 use Keys\UI\Concerns\HandlesValidationErrors;
+use Keys\UI\Concerns\HasActions;
 
+/**
+ * Editor Component
+ *
+ * A rich text editor component powered by Quill.js with icon support, actions, validation, and advanced features.
+ * Supports custom toolbar configuration, themes, and seamless form integration.
+ */
 class Editor extends Component
 {
     use HandlesValidationErrors;
+    use HasActions;
 
+    /**
+     * Create a new Editor component instance.
+     *
+     * @param  string|null  $name  Form field name
+     * @param  string|null  $id  Editor ID (auto-generated if not provided)
+     * @param  string|null  $value  Editor content value
+     * @param  string|null  $placeholder  Placeholder text
+     * @param  string  $size  Size variant (xs, sm, md, lg)
+     * @param  bool  $disabled  Whether the editor is disabled
+     * @param  bool  $readonly  Whether the editor is readonly
+     * @param  bool  $required  Whether the editor is required
+     * @param  string  $theme  Quill theme (snow, bubble)
+     * @param  array  $toolbar  Toolbar configuration
+     * @param  string|null  $label  Label text for shorthand mode
+     * @param  bool  $optional  Whether to show optional indicator
+     * @param  string|array|Collection|null  $errors  Validation errors
+     * @param  bool  $showErrors  Whether to display validation errors
+     * @param  string|null  $hint  Hint text below editor
+     * @param  array  $actions  Custom actions array
+     * @param  bool  $clearable  Enable clear action
+     * @param  bool  $copyable  Enable copy action
+     * @param  string  $actionVariant  Action button variant
+     * @param  string  $actionSize  Action button size
+     * @param  bool  $hasError  Force error state
+     * @param  int|null  $minHeight  Minimum height in pixels
+     * @param  int|null  $maxHeight  Maximum height in pixels
+     */
     public function __construct(
         public ?string $name = null,
         public ?string $id = null,
         public ?string $value = null,
-        public string $placeholder = 'Start typing...',
-        public string $height = '200px',
-        public bool $disabled = false,
-        public array $toolbar = [],
+        public ?string $placeholder = null,
         public string $size = 'md',
-        public string $theme = 'snow',
-        public ?string $label = null,
+        public bool $disabled = false,
+        public bool $readonly = false,
         public bool $required = false,
-        public ?string $describedBy = null,
+        public string $theme = 'snow',
+        public array $toolbar = [],
+        public ?string $label = null,
+        public bool $optional = false,
         public string|array|Collection|null $errors = null,
         public bool $showErrors = true,
+        public ?string $hint = null,
+        public array $actions = [],
+        public bool $clearable = false,
+        public bool $copyable = false,
+        public string $actionVariant = 'ghost',
+        public string $actionSize = 'xs',
         public bool $hasError = false,
-        public bool $optional = false,
-        public bool $loading = false,
-        public string $loadingAnimation = 'spinner',
-        public string $loadingText = 'Loading...'
+        public ?int $minHeight = null,
+        public ?int $maxHeight = null
     ) {
-        
+        $this->id = $this->id ?? $this->name ?? 'editor-'.uniqid();
+
+        if (! $this->hasError && $this->hasErrors()) {
+            $this->hasError = true;
+        }
+
+        // Set default toolbar if not provided
         if (empty($this->toolbar)) {
-            $this->toolbar = [
-                ['bold', 'italic', 'underline'],
-                [['header' => [1, 2, false]]],
-                [['list' => 'ordered'], ['list' => 'bullet']],
-                ['link'],
-                ['clean']
+            $this->toolbar = $this->getDefaultToolbar();
+        }
+    }
+
+    /**
+     * Get default toolbar configuration.
+     */
+    protected function getDefaultToolbar(): array
+    {
+        return [
+            ['bold', 'italic', 'underline', 'strike'],
+            ['blockquote', 'code-block'],
+            [['list' => 'ordered'], ['list' => 'bullet']],
+            [['header' => [1, 2, 3, false]]],
+            ['link', 'image'],
+            ['clean'],
+        ];
+    }
+
+    /**
+     * Check if the component is using shorthand mode (with label).
+     */
+    public function isShorthand(): bool
+    {
+        return ! is_null($this->label);
+    }
+
+    /**
+     * Check if the editor has an error state.
+     */
+    public function hasError(): bool
+    {
+        return $this->hasError || $this->hasErrors();
+    }
+
+    /**
+     * Get auto-generated actions for Editor component.
+     * Generates actions based on clearable and copyable properties.
+     */
+    protected function getAutoGeneratedActions(): array
+    {
+        $autoActions = [];
+
+        if ($this->clearable) {
+            $autoActions[] = [
+                'action' => 'clear',
+                'icon' => 'heroicon-o-x-mark',
+                'label' => __('keys-ui::keys-ui.actions.clear_editor'),
             ];
         }
 
-        
-        if (!$this->id) {
-            $this->id = 'editor-' . uniqid();
+        if ($this->copyable) {
+            $autoActions[] = [
+                'action' => 'copy',
+                'icon' => 'heroicon-o-clipboard',
+                'label' => __('keys-ui::keys-ui.actions.copy_clipboard'),
+                'icon_success' => 'heroicon-o-check',
+                'label_success' => __('keys-ui::keys-ui.actions.copied'),
+            ];
         }
 
-        
-        if (!in_array($this->size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
-            $this->size = 'md';
-        }
-
-        
-        if (!in_array($this->theme, ['snow', 'bubble'])) {
-            $this->theme = 'snow';
-        }
-
-        
-        if (!in_array($this->loadingAnimation, ['spinner', 'dots', 'pulse'])) {
-            $this->loadingAnimation = 'spinner';
-        }
-
-        
-        if (!$this->hasError && $this->hasErrors()) {
-            $this->hasError = true;
-        }
+        return $autoActions;
     }
 
-    public function getQuillConfig(): array
-    {
-        $config = [
-            'theme' => $this->theme,
-            'placeholder' => $this->placeholder,
-            'modules' => $this->getQuillModules()
-        ];
-
-        
-        if ($this->disabled || $this->loading) {
-            $config['readOnly'] = true;
-        }
-
-        return $config;
-    }
-
-    public function getQuillModules(): array
-    {
-        return [
-            'toolbar' => $this->toolbar
-        ];
-    }
-
+    /**
+     * Generate comprehensive data attributes for CSS targeting and JavaScript functionality.
+     * Includes component identification, state, features, theme, and toolbar configuration.
+     */
     public function getDataAttributes(): array
     {
         $attributes = [
             'data-keys-editor' => 'true',
-            'data-quill-editor' => 'true',
-            'data-editor-id' => $this->id,
             'data-size' => $this->size,
             'data-theme' => $this->theme,
         ];
 
-        
         if ($this->disabled) {
             $attributes['data-disabled'] = 'true';
         }
 
-        if ($this->loading) {
-            $attributes['data-loading'] = 'true';
-            $attributes['data-loading-animation'] = $this->loadingAnimation;
-        }
-
-        if ($this->hasError()) {
-            $attributes['data-invalid'] = 'true';
+        if ($this->readonly) {
+            $attributes['data-readonly'] = 'true';
         }
 
         if ($this->required) {
             $attributes['data-required'] = 'true';
         }
 
+        if ($this->hasError()) {
+            $attributes['data-invalid'] = 'true';
+        }
+
+        if ($this->placeholder) {
+            $attributes['data-placeholder'] = $this->placeholder;
+        }
+
+        if ($this->hasActions()) {
+            $attributes['data-has-actions'] = 'true';
+            $attributes['data-actions-count'] = count($this->configuredActions());
+        }
+
+        if ($this->clearable) {
+            $attributes['data-clearable'] = 'true';
+        }
+
+        if ($this->copyable) {
+            $attributes['data-copyable'] = 'true';
+        }
+
+        if (! empty($this->value)) {
+            $attributes['data-has-value'] = 'true';
+        }
+
+        if ($this->minHeight) {
+            $attributes['data-min-height'] = $this->minHeight;
+        }
+
+        if ($this->maxHeight) {
+            $attributes['data-max-height'] = $this->maxHeight;
+        }
+
+        // Encode toolbar configuration as JSON
+        $attributes['data-toolbar'] = json_encode($this->toolbar);
+
         return $attributes;
     }
 
-    public function getAccessibilityAttributes(): array
-    {
-        $attributes = [
-            'role' => 'textbox',
-            'aria-multiline' => 'true',
-            'aria-label' => $this->label ?? ($this->name ? ucfirst(str_replace('_', ' ', $this->name)) : 'Rich text editor'),
-        ];
-
-        if ($this->required) {
-            $attributes['aria-required'] = 'true';
-        }
-
-        if ($this->disabled) {
-            $attributes['aria-disabled'] = 'true';
-        }
-
-        if ($this->describedBy) {
-            $attributes['aria-describedby'] = $this->describedBy;
-        }
-
-        return $attributes;
-    }
-
-    public function getToolbarAccessibilityAttributes(): array
-    {
-        return [
-            'role' => 'toolbar',
-            'aria-label' => 'Rich text editor toolbar',
-            'data-quill-toolbar' => 'true',
-        ];
-    }
-
-    public function getLiveRegionId(): string
-    {
-        return $this->id . '-live-region';
-    }
-
-    public function isShorthand(): bool
-    {
-        return !is_null($this->label);
-    }
-
-    public function hasError(): bool
-    {
-        return $this->hasError || $this->hasErrors();
-    }
-
-
+    /**
+     * Render the editor component view.
+     */
     public function render()
     {
         return view('keys::components.editor', [
-            'quillConfig' => $this->getQuillConfig(),
+            'computedActionData' => $this->getComputedActionData(),
             'dataAttributes' => $this->getDataAttributes(),
-            'accessibilityAttributes' => $this->getAccessibilityAttributes(),
-            'toolbarAccessibilityAttributes' => $this->getToolbarAccessibilityAttributes(),
-            'liveRegionId' => $this->getLiveRegionId(),
         ]);
     }
 }

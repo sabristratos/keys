@@ -6,7 +6,7 @@
     $baseClasses = 'keys-popover z-[2000] px-3 pb-3 -mx-3 border-0 bg-transparent text-inherit';
 
     // Content base classes
-    $contentBase = 'bg-overlay space-y-1 rounded-lg shadow-lg text-primary max-w-[90vw] w-max';
+    $contentBase = 'bg-popover border border-border text-popover-foreground space-y-1 rounded-lg shadow-lg max-w-[90vw] w-max';
 
     // Size-based classes
     $sizeClasses = match ($size) {
@@ -30,7 +30,7 @@
     $arrowBase = 'keys-popover__arrow absolute w-2 h-2 rotate-45 -z-10';
     $arrowVariant = match ($variant) {
         'tooltip' => 'bg-neutral-900 dark:bg-neutral-800 border-0',
-        default => 'bg-overlay border border-line'
+        default => 'bg-popover border border-border'
     };
     $arrowClasses = trim("$arrowBase $arrowVariant");
 @endphp

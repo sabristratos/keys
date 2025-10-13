@@ -24,9 +24,9 @@
 
     // Tab list variant styling
     $tabListVariant = match ($variant) {
-        'pills' => 'bg-base p-1 rounded-xl border border-line',
-        'underline' => 'border-b border-line',
-        default => 'border-b border-line'
+        'pills' => 'bg-body p-1 rounded-xl border border-border',
+        'underline' => 'border-b border-border',
+        default => 'border-b border-border'
     };
 
     // Stretch modifier
@@ -50,9 +50,9 @@
 
     // Slider positioning based on variant
     $sliderClasses = match ($variant) {
-        'pills' => 'inset-y-1 left-0 bg-overlay rounded-lg shadow-md',
-        'underline' => 'bottom-0 left-0 h-0.5 bg-accent',
-        default => 'bottom-0 left-0 h-0.5 bg-accent'
+        'pills' => 'inset-y-1 left-0 bg-brand rounded-lg shadow-md',
+        'underline' => 'bottom-0 left-0 h-0.5 rounded-lg bg-brand',
+        default => 'bottom-0 left-0 h-0.5 rounded-lg bg-brand'
     };
 @endphp
 
@@ -73,7 +73,13 @@
                     $isDefault = $defaultValue === $item['value'];
                     $tabClasses = 'relative z-10 flex items-center justify-center gap-2 font-medium leading-tight transition-colors duration-200 cursor-pointer rounded-lg';
                     $tabClasses .= " $tabSizeClasses";
-                    $tabClasses .= $isDefault ? ' text-primary font-semibold' : ' text-muted hover:text-primary';
+
+                    // Pills variant uses white text on active tab for contrast with brand background
+                    if ($variant === 'pills') {
+                        $tabClasses .= $isDefault ? ' text-brand-foreground font-semibold' : ' text-text-muted hover:text-text';
+                    } else {
+                        $tabClasses .= $isDefault ? ' text-text font-semibold' : ' text-text-muted hover:text-text';
+                    }
                 @endphp
 
                 <button

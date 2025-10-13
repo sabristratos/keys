@@ -12,6 +12,7 @@ use Illuminate\View\Component;
  * - Mobile sidebar toggle in header
  * - Proper scrolling and overflow handling
  * - Optional header/footer slots
+ * - Custom wrapper class support
  */
 class Main extends Component
 {
@@ -20,6 +21,7 @@ class Main extends Component
         public string $sidebarId = 'main-sidebar',
         public bool $showMobileToggle = true,
         public string $padding = 'md',
+        public ?string $wrapperClass = null,
     ) {
         if (!in_array($this->padding, ['none', 'sm', 'md', 'lg'])) {
             $this->padding = 'md';
@@ -28,6 +30,8 @@ class Main extends Component
 
     public function render()
     {
-        return view('keys::components.main');
+        return view('keys::components.main', [
+            'wrapperClass' => $this->wrapperClass,
+        ]);
     }
 }

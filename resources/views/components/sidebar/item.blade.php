@@ -3,22 +3,22 @@
     $baseClasses = 'flex items-center w-full gap-3 px-3 py-2 text-sm transition-all duration-150 rounded-md group relative';
 
     $stateClasses = $disabled
-        ? 'text-muted cursor-not-allowed opacity-50'
+        ? 'text-text-muted cursor-not-allowed opacity-50'
         : 'cursor-pointer';
 
     $activeClasses = $active && !$disabled
-        ? 'bg-accent/10 text-accent font-medium hover:bg-accent/15'
-        : (!$disabled ? 'text-muted hover:text-primary hover:bg-neutral-hover' : '');
+        ? 'bg-brand/10 text-brand font-medium hover:bg-brand/15'
+        : (!$disabled ? 'text-text-muted hover:text-text hover:bg-hover' : '');
 
     $iconClasses = 'flex-shrink-0 w-5 h-5';
     $contentClasses = 'flex-1 min-w-0 truncate';
 
     $badgeClasses = match ($badgeVariant) {
-        'brand' => 'bg-accent/10 text-accent',
+        'brand' => 'bg-brand/10 text-brand',
         'success' => 'bg-success/10 text-success',
         'warning' => 'bg-warning/10 text-warning',
         'danger' => 'bg-danger/10 text-danger',
-        default => 'bg-neutral-100 text-muted dark:bg-neutral-800'
+        default => 'bg-neutral-100 text-text-muted dark:bg-neutral-800'
     };
 @endphp
 

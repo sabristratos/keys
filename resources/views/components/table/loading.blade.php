@@ -16,13 +16,13 @@
 @endphp
 
 <tr {{ $attributes->merge($dataAttributes) }}>
-    <td colspan="{{ $colspan }}" class="px-6 py-4 bg-elevation-1 border-t border-line">
+    <td colspan="{{ $colspan }}" class="px-6 py-4 bg-card border-t border-border">
         <div class="{{ $loadingContainerClasses }}">
             <div class="flex flex-col items-center">
                 <x-keys::loading
                     animation="{{ $animation }}"
                     size="{{ $loadingIconSize }}"
-                    class="text-accent"
+                    class="text-brand"
                 />
 
                 @if($text)

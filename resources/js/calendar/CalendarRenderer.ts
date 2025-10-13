@@ -43,6 +43,7 @@ export class CalendarRenderer {
             const isInRange = state.isRange ? CalendarDateSelection.isDateInRange(dateString, state.startDate, state.endDate) : false;
             const isRangeStart = state.isRange ? CalendarDateSelection.isDateRangeStart(dateString, state.startDate) : false;
             const isRangeEnd = state.isRange ? CalendarDateSelection.isDateRangeEnd(dateString, state.endDate) : false;
+            const isInHoverRange = state.isRange ? CalendarDateSelection.isDateInHoverRange(dateString, state) : false;
 
             const day: CalendarDay = {
                 date: dateString,
@@ -53,7 +54,8 @@ export class CalendarRenderer {
                 isDisabled,
                 isInRange,
                 isRangeStart,
-                isRangeEnd
+                isRangeEnd,
+                isInHoverRange
             };
 
             currentWeek.push(day);
@@ -89,7 +91,7 @@ export class CalendarRenderer {
         const cellClasses = this.getCellClasses(calendar);
 
         const weekdaysHTML = state.weekdays.map(day =>
-            `<div class="${cellClasses} font-semibold text-muted text-center">${day}</div>`
+            `<div class="${cellClasses} font-semibold text-text-muted text-center text-xs">${day}</div>`
         ).join('');
 
         const daysHTML = weeks.map(week =>
@@ -105,6 +107,7 @@ export class CalendarRenderer {
                             class="${buttonClasses}"
                             data-date="${day.date}"
                             data-calendar-day-btn
+                            ${day.isToday ? 'data-is-today="true"' : ''}
                             ${day.isDisabled ? 'disabled' : ''}
                             ${rangeAttributes}
                             aria-label="${ariaLabel}"
@@ -145,13 +148,13 @@ export class CalendarRenderer {
             const year = monthDate.substring(0, 4);
 
             const monthHeaderHTML = `
-                <div class="calendar-month-header text-center font-semibold text-sm mb-2 text-muted">
+                <div class="calendar-month-header text-center font-semibold text-sm mb-2 text-text-muted">
                     ${monthName} ${year}
                 </div>
             `;
 
             const weekdaysHTML = state.weekdays.map(day =>
-                `<div class="${cellClasses} font-semibold text-muted text-center text-xs">${day}</div>`
+                `<div class="${cellClasses} font-semibold text-text-muted text-center text-xs">${day}</div>`
             ).join('');
 
             const daysHTML = weeks.map(week =>
@@ -168,6 +171,7 @@ export class CalendarRenderer {
                                 data-date="${day.date}"
                                 data-calendar-day-btn
                                 data-month-index="${index}"
+                                ${day.isToday ? 'data-is-today="true"' : ''}
                                 ${day.isDisabled ? 'disabled' : ''}
                                 ${rangeAttributes}
                                 aria-label="${ariaLabel}"
@@ -213,7 +217,7 @@ export class CalendarRenderer {
     private static getDayButtonClasses(day: CalendarDay, calendar: HTMLElement, state: CalendarState): string {
         const size = calendar.dataset.size || 'sm';
 
-        const baseClasses = 'w-full h-full rounded-md border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1';
+        const baseClasses = 'w-full h-full rounded-md border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-1';
 
         const sizeClasses = {
             'sm': 'text-xs',
@@ -224,15 +228,15 @@ export class CalendarRenderer {
         let stateClasses = '';
 
         if (day.isDisabled) {
-            stateClasses = 'bg-elevation-1 text-muted border-transparent cursor-not-allowed opacity-40 hover:bg-elevation-1 hover:border-transparent';
+            stateClasses = 'bg-card text-text-muted border-transparent cursor-not-allowed opacity-40 hover:bg-card hover:border-transparent';
         } else if (day.isSelected && !state.isRange) {
-            stateClasses = 'bg-accent text-white border-accent-600 font-bold shadow-sm';
+            stateClasses = 'bg-brand text-white border-brand-600 font-bold shadow-sm';
         } else if (day.isToday) {
-            stateClasses = 'bg-neutral-50 text-accent border-accent font-semibold';
+            stateClasses = 'bg-neutral-50 text-brand border-brand font-semibold';
         } else if (!day.isCurrentMonth) {
-            stateClasses = 'text-muted border-transparent hover:bg-neutral-hover hover:border-line';
+            stateClasses = 'text-text-muted border-transparent hover:bg-neutral-hover hover:border-border';
         } else {
-            stateClasses = 'text-primary border-transparent hover:bg-neutral-hover hover:border-line';
+            stateClasses = 'text-text border-transparent hover:bg-neutral-hover hover:border-border';
         }
 
         return `${baseClasses} ${sizeClasses} ${stateClasses}`.trim();

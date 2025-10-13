@@ -19,16 +19,16 @@
     };
 
     $colorClasses = match ($color) {
-        'brand' => 'bg-accent',
+        'brand' => 'bg-brand',
         'success' => 'bg-success',
         'warning' => 'bg-warning',
         'danger' => 'bg-danger',
         'info' => 'bg-info',
         'neutral' => 'bg-neutral',
-        default => 'bg-accent'
+        default => 'bg-brand'
     };
 
-    $containerClasses = "progress-container relative overflow-hidden rounded-full bg-line {$heightClasses}";
+    $containerClasses = "progress-container relative overflow-hidden rounded-full bg-border {$heightClasses}";
 
     $barClasses = "progress-bar h-full rounded-full transition-all duration-300 ease-out {$colorClasses}";
 
@@ -52,13 +52,13 @@
     @if($label || $showValue || $showPercentage)
         <div class="progress-header flex items-center justify-between mb-2">
             @if($label)
-                <span class="progress-label font-medium text-primary {{ $textClasses }}">
+                <span class="progress-label font-medium text-text {{ $textClasses }}">
                     {{ $label }}
                 </span>
             @endif
 
             @if($showValue || $showPercentage)
-                <span class="progress-value text-muted {{ $textClasses }}">
+                <span class="progress-value text-text-muted {{ $textClasses }}">
                     {{ $displayValue }}
                 </span>
             @endif
@@ -78,6 +78,7 @@
         <div
             class="{{ $barClasses }}"
             style="width: {{ $percentage }}%"
+            data-progress-bar
             data-progress-value="{{ $value }}"
             data-progress-max="{{ $max }}"
             data-progress-percentage="{{ $percentage }}"
@@ -87,7 +88,7 @@
     
     @if($status)
         <div class="progress-status mt-1">
-            <span class="text-muted {{ $textClasses }}">
+            <span class="text-text-muted {{ $textClasses }}">
                 {{ $status }}
             </span>
         </div>

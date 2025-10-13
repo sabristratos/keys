@@ -21,59 +21,59 @@
     // Build color-specific variant classes
     $colorClasses = match ($color) {
         'primary' => match ($variant) {
-            'solid' => 'bg-accent shadow-xs text-accent-contrast hover:bg-accent-hover active:bg-accent-active',
-            'outlined' => 'bg-transparent text-accent border border-accent hover:bg-accent hover:text-accent-contrast',
-            'ghost' => 'bg-transparent text-accent hover:bg-accent/10 active:bg-accent/20',
-            'subtle' => 'bg-accent-subtle text-accent hover:bg-accent-subtle-hover active:bg-accent-subtle-active',
-            default => 'bg-accent shadow-xs text-accent-contrast hover:bg-accent-hover active:bg-accent-active',
+            'solid' => 'bg-brand shadow-xs text-brand-foreground hover:bg-brand-hover active:bg-brand-active',
+            'outlined' => 'bg-transparent text-brand border border-brand hover:bg-brand hover:text-brand-foreground',
+            'ghost' => 'bg-transparent text-brand hover:bg-brand/10 active:bg-brand/20',
+            'subtle' => 'bg-brand-subtle text-brand hover:bg-brand-subtle-hover active:bg-brand-subtle-active',
+            default => 'bg-brand shadow-xs text-brand-foreground hover:bg-brand-hover active:bg-brand-active',
         },
 
         'secondary' => match ($variant) {
-            'solid' => 'bg-neutral text-primary border border-line hover:bg-neutral-hover active:bg-neutral-active',
-            'outlined' => 'bg-transparent text-primary border border-line hover:bg-neutral active:bg-neutral-hover',
-            'ghost' => 'bg-transparent text-primary hover:bg-neutral active:bg-neutral-hover',
-            'subtle' => 'bg-neutral text-primary hover:bg-neutral-hover active:bg-neutral-active',
-            default => 'bg-neutral text-primary border border-line hover:bg-neutral-hover active:bg-neutral-active',
+            'solid' => 'bg-accent text-text border border-border hover:bg-accent-hover active:bg-accent-active',
+            'outlined' => 'bg-transparent text-text border border-border hover:bg-accent active:bg-accent-hover',
+            'ghost' => 'bg-transparent text-text hover:bg-accent active:bg-accent-hover',
+            'subtle' => 'bg-accent text-text hover:bg-accent-hover active:bg-accent-active',
+            default => 'bg-accent text-text border border-border hover:bg-accent-hover active:bg-accent-active',
         },
 
         'danger' => match ($variant) {
-            'solid' => 'bg-danger shadow-xs text-danger-contrast hover:bg-danger-hover active:bg-danger-active',
-            'outlined' => 'bg-transparent text-danger border border-danger hover:bg-danger hover:text-danger-contrast',
+            'solid' => 'bg-danger shadow-xs text-danger-foreground hover:bg-danger-hover active:bg-danger-active',
+            'outlined' => 'bg-transparent text-danger border border-danger hover:bg-danger hover:text-danger-foreground',
             'ghost' => 'bg-transparent text-danger hover:bg-danger/10 active:bg-danger/20',
             'subtle' => 'bg-danger-subtle text-danger hover:bg-danger-subtle-hover active:bg-danger-subtle-active',
-            default => 'bg-danger shadow-xs text-danger-contrast hover:bg-danger-hover active:bg-danger-active',
+            default => 'bg-danger shadow-xs text-danger-foreground hover:bg-danger-hover active:bg-danger-active',
         },
 
         'warning' => match ($variant) {
-            'solid' => 'bg-warning shadow-xs text-warning-contrast hover:bg-warning-hover active:bg-warning-active',
-            'outlined' => 'bg-transparent text-warning border border-warning hover:bg-warning hover:text-warning-contrast',
+            'solid' => 'bg-warning shadow-xs text-warning-foreground hover:bg-warning-hover active:bg-warning-active',
+            'outlined' => 'bg-transparent text-warning border border-warning hover:bg-warning hover:text-warning-foreground',
             'ghost' => 'bg-transparent text-warning hover:bg-warning/10 active:bg-warning/20',
             'subtle' => 'bg-warning-subtle text-warning hover:bg-warning-subtle-hover active:bg-warning-subtle-active',
-            default => 'bg-warning shadow-xs text-warning-contrast hover:bg-warning-hover active:bg-warning-active',
+            default => 'bg-warning shadow-xs text-warning-foreground hover:bg-warning-hover active:bg-warning-active',
         },
 
         'success' => match ($variant) {
-            'solid' => 'bg-success shadow-xs text-success-contrast hover:bg-success-hover active:bg-success-active',
-            'outlined' => 'bg-transparent text-success border border-success hover:bg-success hover:text-success-contrast',
+            'solid' => 'bg-success shadow-xs text-success-foreground hover:bg-success-hover active:bg-success-active',
+            'outlined' => 'bg-transparent text-success border border-success hover:bg-success hover:text-success-foreground',
             'ghost' => 'bg-transparent text-success hover:bg-success/10 active:bg-success/20',
             'subtle' => 'bg-success-subtle text-success hover:bg-success-subtle-hover active:bg-success-subtle-active',
-            default => 'bg-success shadow-xs text-success-contrast hover:bg-success-hover active:bg-success-active',
+            default => 'bg-success shadow-xs text-success-foreground hover:bg-success-hover active:bg-success-active',
         },
 
         'info' => match ($variant) {
-            'solid' => 'bg-info shadow-xs text-info-contrast hover:bg-info-hover active:bg-info-active',
-            'outlined' => 'bg-transparent text-info border border-info hover:bg-info hover:text-info-contrast',
+            'solid' => 'bg-info shadow-xs text-info-foreground hover:bg-info-hover active:bg-info-active',
+            'outlined' => 'bg-transparent text-info border border-info hover:bg-info hover:text-info-foreground',
             'ghost' => 'bg-transparent text-info hover:bg-info/10 active:bg-info/20',
             'subtle' => 'bg-info-subtle text-info hover:bg-info-subtle-hover active:bg-info-subtle-active',
-            default => 'bg-info shadow-xs text-info-contrast hover:bg-info-hover active:bg-info-active',
+            default => 'bg-info shadow-xs text-info-foreground hover:bg-info-hover active:bg-info-active',
         },
 
         default => match ($variant) {
-            'solid' => 'bg-accent shadow-xs text-accent-contrast hover:bg-accent-hover active:bg-accent-active',
-            'outlined' => 'bg-transparent text-accent border border-accent hover:bg-accent hover:text-accent-contrast',
-            'ghost' => 'bg-transparent text-accent hover:bg-accent/10 active:bg-accent/20',
-            'subtle' => 'bg-accent-subtle text-accent hover:bg-accent-subtle-hover active:bg-accent-subtle-active',
-            default => 'bg-accent shadow-xs text-accent-contrast hover:bg-accent-hover active:bg-accent-active',
+            'solid' => 'bg-brand shadow-xs text-brand-foreground hover:bg-brand-hover active:bg-brand-active',
+            'outlined' => 'bg-transparent text-brand border border-brand hover:bg-brand hover:text-brand-foreground',
+            'ghost' => 'bg-transparent text-brand hover:bg-brand/10 active:bg-brand/20',
+            'subtle' => 'bg-brand-subtle text-brand hover:bg-brand-subtle-hover active:bg-brand-subtle-active',
+            default => 'bg-brand shadow-xs text-brand-foreground hover:bg-brand-hover active:bg-brand-active',
         },
     };
 

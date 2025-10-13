@@ -3,8 +3,8 @@
     $baseClasses = 'flex items-center w-full px-3 py-2 mx-0.5 my-0.5 text-sm text-left cursor-pointer transition-colors duration-150 rounded-md';
 
     $stateClasses = match (true) {
-        $disabled => 'text-muted cursor-not-allowed bg-elevation-1 opacity-50',
-        default => 'text-primary hover:bg-hover focus-visible:bg-hover aria-[selected=true]:bg-accent/10 dark:aria-[selected=true]:bg-accent/20'
+        $disabled => 'text-text-muted cursor-not-allowed bg-card opacity-50',
+        default => 'text-text hover:bg-hover focus-visible:bg-hover aria-[selected=true]:bg-brand/10 dark:aria-[selected=true]:bg-brand/20'
     };
 
     $optionAttributes = $attributes
@@ -16,6 +16,11 @@
             'class' => trim("$baseClasses $stateClasses"),
         ])
         ->merge($dataAttributes);
+
+    // Add data-selected for JavaScript to detect initial selection
+    if ($selected) {
+        $optionAttributes = $optionAttributes->merge(['data-selected' => 'true']);
+    }
 
     if ($disabled) {
         $optionAttributes = $optionAttributes->merge(['aria-disabled' => 'true']);
@@ -39,14 +44,14 @@
                 </div>
             @endif
             @if($hasDescription())
-                <div class="block text-xs text-muted mt-0.5 truncate">
+                <div class="block text-xs text-text-muted mt-0.5 truncate">
                     {{ $description }}
                 </div>
             @endif
         @endif
     </div>
 
-    <div class="flex-shrink-0 ml-2 text-accent transition-opacity duration-150 opacity-0 aria-[selected=true]:opacity-100">
+    <div class="flex-shrink-0 ml-2 text-brand transition-opacity duration-150 opacity-0 aria-[selected=true]:opacity-100">
         <x-keys::icon name="heroicon-o-check" size="sm" />
     </div>
 </div>

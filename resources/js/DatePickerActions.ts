@@ -92,8 +92,31 @@ export class DatePickerActions extends BaseActionClass<DatePickerState> {
 
     private setupCalendarEventListeners(datePicker: HTMLElement): void {
         const calendar = DOMUtils.querySelector('[data-keys-calendar="true"]', datePicker);
-        if (!calendar) return;
 
+        if (!calendar) {
+            // Calendar not rendered yet (common with Livewire) - wait for it
+            const observer = new MutationObserver(() => {
+                const cal = DOMUtils.querySelector('[data-keys-calendar="true"]', datePicker);
+                if (cal) {
+                    observer.disconnect();
+                    this.attachCalendarListeners(datePicker, cal);
+                }
+            });
+
+            observer.observe(datePicker, {
+                childList: true,
+                subtree: true
+            });
+
+            // Timeout fallback to prevent memory leaks
+            setTimeout(() => observer.disconnect(), 5000);
+            return;
+        }
+
+        this.attachCalendarListeners(datePicker, calendar);
+    }
+
+    private attachCalendarListeners(datePicker: HTMLElement, calendar: HTMLElement): void {
         calendar.addEventListener('calendar:dateSelected', (event: any) => {
             event.stopPropagation();
             const { selectedDate, formattedDate } = event.detail;
@@ -201,7 +224,7 @@ export class DatePickerActions extends BaseActionClass<DatePickerState> {
                 displayElement.innerHTML = value;
             } else {
                 const placeholder = datePicker.dataset.placeholder || 'Select date...';
-                displayElement.innerHTML = `<span class="text-muted date-picker-placeholder">${placeholder}</span>`;
+                displayElement.innerHTML = `<span class="text-text-muted date-picker-placeholder">${placeholder}</span>`;
             }
         }
     }
@@ -217,15 +240,11 @@ export class DatePickerActions extends BaseActionClass<DatePickerState> {
 
             hiddenInput.dispatchEvent(inputEvent);
             hiddenInput.dispatchEvent(changeEvent);
-
-            // Livewire integration
-            if ((window as any).Livewire && hiddenInput.hasAttribute('wire:model')) {
-                (window as any).Livewire.hook('message.processed', () => {});
-            }
         }
     }
 
     private closePopover(datePicker: HTMLElement): void {
+        const delay = parseInt(datePicker.dataset.closeDelay || '150');
         setTimeout(() => {
             const popover = DOMUtils.findClosest(datePicker, '[data-keys-popover]') ||
                            DOMUtils.querySelector('[data-keys-popover]', datePicker);
@@ -233,9 +252,10 @@ export class DatePickerActions extends BaseActionClass<DatePickerState> {
                 try {
                     (popover as any).hidePopover();
                 } catch (e) {
+                    // Ignore if already closed
                 }
             }
-        }, 150);
+        }, delay);
     }
 
     private handleManualInput(datePicker: HTMLElement, inputValue: string): void {

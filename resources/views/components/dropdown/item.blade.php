@@ -3,16 +3,16 @@
     $baseClasses = 'flex items-center w-full px-2 py-2 text-sm text-left transition-colors duration-150 rounded-md group relative';
 
     $stateClasses = $disabled
-        ? 'text-muted cursor-not-allowed opacity-50'
+        ? 'text-text-muted cursor-not-allowed opacity-50'
         : 'cursor-pointer';
 
     $variantClasses = $disabled ? '' : match ($variant) {
         'danger' => 'text-danger hover:bg-danger-subtle',
         'success' => 'text-success hover:bg-success-subtle',
         'warning' => 'text-warning hover:bg-warning-subtle',
-        'brand' => 'text-accent hover:bg-accent-subtle',
+        'brand' => 'text-brand hover:bg-brand-subtle',
         'info' => 'text-info hover:bg-info-subtle',
-        default => 'text-primary hover:bg-neutral-hover'
+        default => 'text-text hover:bg-hover'
     };
 
     $iconClasses = 'flex-shrink-0 mr-3';

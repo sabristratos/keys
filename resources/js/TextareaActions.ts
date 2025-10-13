@@ -142,7 +142,7 @@ export class TextareaActions extends BaseActionClass {
     ): void {
         if (!maxLength) return;
 
-        countDisplay.classList.remove('text-muted', 'text-warning', 'text-danger');
+        countDisplay.classList.remove('text-text-muted', 'text-warning', 'text-danger');
         textarea.classList.remove('border-warning', 'border-danger', 'focus:border-warning', 'focus:border-danger', 'focus:ring-warning', 'focus:ring-danger');
 
         const percentage = (currentLength / maxLength) * 100;
@@ -154,7 +154,7 @@ export class TextareaActions extends BaseActionClass {
             countDisplay.classList.add('text-warning');
             textarea.classList.add('border-warning', 'focus:border-warning', 'focus:ring-warning');
         } else {
-            countDisplay.classList.add('text-muted');
+            countDisplay.classList.add('text-text-muted');
         }
     }
 

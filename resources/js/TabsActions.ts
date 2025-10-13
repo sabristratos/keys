@@ -31,14 +31,26 @@ export function initializeTabs(): void {
             // Update slider position
             updateSlider(activeTab);
 
+            // Check variant for proper text color handling
+            const variant = container.getAttribute('data-variant') || 'default';
+            const isPills = variant === 'pills';
+
             // Update tab states and ARIA attributes
             tabs.forEach((tab) => {
                 const isActive = tab === activeTab;
 
-                // Toggle text colors
-                tab.classList.toggle('text-primary', isActive);
+                // Toggle text colors based on variant
+                if (isPills) {
+                    // Pills variant: white text on active (brand background)
+                    tab.classList.toggle('text-brand-foreground', isActive);
+                    tab.classList.toggle('text-text', false); // Remove if present
+                } else {
+                    // Underline/default: dark text on active
+                    tab.classList.toggle('text-text', isActive);
+                    tab.classList.toggle('text-brand-foreground', false); // Remove if present
+                }
                 tab.classList.toggle('font-semibold', isActive);
-                tab.classList.toggle('text-muted', !isActive);
+                tab.classList.toggle('text-text-muted', !isActive);
 
                 // Update ARIA attributes
                 tab.setAttribute('aria-selected', String(isActive));
@@ -70,6 +82,7 @@ export function initializeTabs(): void {
         function updateSlider(activeTab: HTMLElement): void {
             if (!slider) return;
 
+            // @ts-ignore
             const containerRect = tabsList.getBoundingClientRect();
             const tabRect = activeTab.getBoundingClientRect();
 
@@ -83,9 +96,9 @@ export function initializeTabs(): void {
             slider.style.width = `${tabRect.width}px`;
             slider.style.left = `${left}px`;
 
-            // For pills variant, CSS handles vertical positioning (inset-y-1)
-            // For underline variant, we need to set position dynamically
-            if (!isPillsVariant) {
+            // For pills variant, set full height to cover button
+            // For underline variant, CSS handles height (h-0.5) and position (bottom-0)
+            if (isPillsVariant) {
                 const top = tabRect.top - containerRect.top;
                 slider.style.height = `${tabRect.height}px`;
                 slider.style.top = `${top}px`;

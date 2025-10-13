@@ -1,0 +1,252 @@
+@import "quill/dist/quill.snow.css";
+
+@layer components {
+    /* Editor Container Styles */
+    [data-keys-editor] {
+        @apply relative;
+    }
+
+    /* Quill Editor Customization */
+    .ql-container {
+        @apply !border-none;
+        font-family: inherit !important;
+        font-size: inherit !important;
+    }
+
+    .ql-editor {
+        @apply min-h-[150px] p-3 text-text bg-transparent;
+    }
+
+    .ql-editor.ql-blank::before {
+        @apply text-text-muted not-italic;
+        left: 0.75rem !important;
+    }
+
+    /* Toolbar Styles */
+    .ql-toolbar.ql-snow {
+        @apply !border-none !border-b border-border px-3 py-2 bg-transparent;
+    }
+
+    .ql-toolbar .ql-stroke {
+        stroke: var(--color-text);
+    }
+
+    .ql-toolbar .ql-fill {
+        fill: var(--color-text);
+    }
+
+    /* Toolbar Buttons - Secondary Icon-Only Button Style */
+    .ql-snow.ql-toolbar button,
+    .ql-snow .ql-toolbar button {
+        @apply !bg-transparent !border !border-transparent !h-max !rounded-md !p-1.5 !text-text transition-colors duration-150;
+    }
+
+    .ql-snow.ql-toolbar button:hover,
+    .ql-snow .ql-toolbar button:hover {
+        @apply !bg-accent !border-border;
+    }
+
+    .ql-snow.ql-toolbar button:focus,
+    .ql-snow .ql-toolbar button:focus {
+        @apply !bg-accent !border-border !outline-none;
+    }
+
+    .ql-snow.ql-toolbar button.ql-active,
+    .ql-snow .ql-toolbar button.ql-active {
+        @apply !bg-brand-subtle !border-brand !text-brand;
+    }
+
+    .ql-snow.ql-toolbar button:hover .ql-stroke,
+    .ql-snow.ql-toolbar button:focus .ql-stroke,
+    .ql-snow .ql-toolbar button:hover .ql-stroke,
+    .ql-snow .ql-toolbar button:focus .ql-stroke {
+        stroke: var(--color-text);
+    }
+
+    .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+    .ql-snow .ql-toolbar button.ql-active .ql-stroke {
+        stroke: var(--color-brand) !important;
+    }
+
+    .ql-snow.ql-toolbar button:hover .ql-fill,
+    .ql-snow.ql-toolbar button:focus .ql-fill,
+    .ql-snow .ql-toolbar button:hover .ql-fill,
+    .ql-snow .ql-toolbar button:focus .ql-fill {
+        fill: var(--color-text);
+    }
+
+    .ql-snow.ql-toolbar button.ql-active .ql-fill,
+    .ql-snow .ql-toolbar button.ql-active .ql-fill {
+        fill: var(--color-brand) !important;
+    }
+
+    /* Dropdown Picker Label - Button Style */
+    .ql-snow .ql-picker-label,
+    .ql-toolbar.ql-snow .ql-picker-label {
+        @apply !bg-transparent !border !border-transparent !rounded-md !px-2 !text-text transition-colors duration-150;
+    }
+
+    .ql-snow .ql-picker-label:hover,
+    .ql-toolbar.ql-snow .ql-picker-label:hover {
+        @apply !bg-accent !border-border;
+    }
+
+    .ql-snow .ql-picker-label.ql-active,
+    .ql-toolbar.ql-snow .ql-picker-label.ql-active {
+        @apply !bg-brand-subtle !border-brand !text-brand;
+    }
+
+    .ql-snow .ql-picker-label .ql-stroke,
+    .ql-toolbar.ql-snow .ql-picker-label .ql-stroke {
+        stroke: var(--color-text);
+    }
+
+    .ql-snow .ql-picker-label.ql-active .ql-stroke,
+    .ql-toolbar.ql-snow .ql-picker-label.ql-active .ql-stroke {
+        stroke: var(--color-brand) !important;
+    }
+
+    .ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow.ql-toolbar button:hover .ql-fill, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke {
+        @apply !stroke-brand;
+    }
+
+    /* Dropdown Options - Popover Style */
+    .ql-snow .ql-picker-options,
+    .ql-picker-options {
+        @apply !bg-popover !border !border-border !rounded-md !shadow-lg !p-1 !z-50;
+    }
+
+    /* Dropdown Items - Menu Item Style */
+    .ql-snow .ql-picker-options .ql-picker-item,
+    .ql-picker-item {
+        @apply !text-text !px-3 !py-2 !rounded !cursor-pointer transition-colors duration-150;
+    }
+
+    .ql-snow .ql-picker-options .ql-picker-item:hover,
+    .ql-picker-item:hover {
+        @apply !bg-hover !text-text;
+    }
+
+    .ql-snow .ql-picker-options .ql-picker-item.ql-selected,
+    .ql-picker-item.ql-selected {
+        @apply !bg-brand-subtle !text-brand;
+    }
+
+    /* Focus States */
+    .ql-container.ql-snow {
+        @apply border-none;
+    }
+
+    /* Disabled State */
+    [data-keys-editor][data-disabled="true"] .ql-toolbar,
+    [data-keys-editor][data-disabled="true"] .ql-container {
+        @apply opacity-50 pointer-events-none;
+    }
+
+    /* Readonly State */
+    [data-keys-editor][data-readonly="true"] .ql-toolbar {
+        @apply hidden;
+    }
+
+    [data-keys-editor][data-readonly="true"] .ql-editor {
+        @apply pt-3;
+    }
+
+    /* Error State */
+    [data-keys-editor][data-invalid="true"] {
+        @apply border-danger;
+    }
+
+    /* Size Variants */
+    [data-keys-editor][data-size="xs"] .ql-editor {
+        @apply min-h-[100px] p-2 text-xs;
+    }
+
+    [data-keys-editor][data-size="sm"] .ql-editor {
+        @apply min-h-[120px] p-2.5 text-sm;
+    }
+
+    [data-keys-editor][data-size="md"] .ql-editor {
+        @apply min-h-[150px] p-3 text-sm;
+    }
+
+    [data-keys-editor][data-size="lg"] .ql-editor {
+        @apply min-h-[200px] p-3.5 text-base;
+    }
+
+    [data-keys-editor][data-size="xl"] .ql-editor {
+        @apply min-h-[250px] p-4 text-lg;
+    }
+
+    /* Content Styling */
+    .ql-editor h1,
+    .ql-editor h2,
+    .ql-editor h3 {
+        @apply text-heading font-semibold mt-4 mb-2;
+    }
+
+    .ql-editor h1 {
+        @apply text-[2em];
+    }
+
+    .ql-editor h2 {
+        @apply text-[1.5em];
+    }
+
+    .ql-editor h3 {
+        @apply text-[1.25em];
+    }
+
+    .ql-editor p {
+        @apply mb-4;
+    }
+
+    .ql-editor a {
+        @apply text-brand underline;
+    }
+
+    .ql-editor blockquote {
+        @apply border-l-4 border-border pl-4 ml-0 text-text-muted;
+    }
+
+    .ql-editor code,
+    .ql-editor pre {
+        @apply bg-code text-code-foreground rounded px-1 py-0.5 font-mono;
+    }
+
+    .ql-editor pre {
+        @apply p-3 overflow-x-auto;
+    }
+
+    .ql-editor ul,
+    .ql-editor ol {
+        @apply pl-6;
+    }
+
+    .ql-editor li {
+        @apply mb-1;
+    }
+
+    /* Image Styling */
+    .ql-editor img {
+        @apply max-w-full h-auto rounded border border-border my-4;
+    }
+
+    /* Bubble Theme Styles */
+    .ql-bubble .ql-toolbar {
+        @apply bg-popover border border-border rounded-md shadow-md;
+    }
+
+    .ql-bubble .ql-tooltip {
+        @apply bg-popover border border-border rounded-md shadow-md text-text;
+    }
+
+    .ql-bubble .ql-tooltip-arrow {
+        border-bottom-color: var(--color-border);
+    }
+
+    /* Selection Color */
+    .ql-editor ::selection {
+        @apply bg-brand-subtle;
+    }
+}

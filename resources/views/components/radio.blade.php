@@ -2,126 +2,72 @@
     $radioAttributes = $attributes->whereStartsWith('wire:model');
     $wrapperAttributes = $attributes->whereDoesntStartWith('wire:model');
 
-    // Custom radio circle size
-    $circleSizeClasses = match ($size) {
-        'sm' => 'w-4 h-4',
-        'md' => 'w-5 h-5',
-        'lg' => 'w-6 h-6',
-        default => 'w-5 h-5'
+    // Touch target padding for small sizes (minimum 44x44px)
+    $touchPadding = match ($size) {
+        'xs' => 'p-3',
+        'sm' => 'p-2',
+        default => ''
     };
 
-    // Inner dot size
-    $dotSizeClasses = match ($size) {
-        'sm' => 'w-2 h-2',
-        'md' => 'w-2.5 h-2.5',
-        'lg' => 'w-3 h-3',
-        default => 'w-2.5 h-2.5'
+    // Card padding scales with size
+    $cardPadding = match ($size) {
+        'xs' => 'p-2',
+        'sm' => 'p-3',
+        'md' => 'p-4',
+        'lg' => 'p-5',
+        'xl' => 'p-6',
+        default => 'p-4'
     };
 
-    // Base radio circle styling - custom visual element
-    if ($disabled) {
-        $radioCircleClasses = 'border-2 border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-700/30 rounded-full flex items-center justify-center cursor-not-allowed shadow-xs';
-        $dotClasses = 'bg-neutral-400 dark:bg-neutral-600 rounded-full';
-    } elseif ($hasError()) {
-        $radioCircleClasses = 'border-2 rounded-full flex items-center justify-center transition-all duration-300 border-danger group-hover:border-danger group-has-[:focus-visible]:ring-2 group-has-[:focus-visible]:ring-offset-2 group-has-[:focus-visible]:ring-danger dark:group-has-[:focus-visible]:ring-offset-neutral-900 shadow-xs';
-        $dotClasses = 'bg-danger rounded-full transform scale-0 transition-transform duration-200 ease-out group-has-[:checked]:scale-100';
-        $radioCircleClasses .= ' group-has-[:checked]:border-danger';
-    } else {
-        // Color-based solid backgrounds and states
-        $gradientClasses = match ($color) {
-            'brand' => 'group-has-[:checked]:border-accent',
-            'success' => 'group-has-[:checked]:border-green-600',
-            'warning' => 'group-has-[:checked]:border-amber-600',
-            'danger' => 'group-has-[:checked]:border-red-600',
-            'neutral' => 'group-has-[:checked]:border-neutral-500',
-            default => 'group-has-[:checked]:border-accent'
-        };
-
-        $dotBackground = match ($color) {
-            'brand' => 'bg-accent',
-            'success' => 'bg-green-500',
-            'warning' => 'bg-amber-500',
-            'danger' => 'bg-red-500',
-            'neutral' => 'bg-neutral-500 dark:bg-neutral-600',
-            default => 'bg-accent'
-        };
-
-        $hoverColor = match ($color) {
-            'brand' => 'group-hover:border-accent',
-            'success' => 'group-hover:border-green-500',
-            'warning' => 'group-hover:border-amber-500',
-            'danger' => 'group-hover:border-red-500',
-            'neutral' => 'group-hover:border-neutral-400',
-            default => 'group-hover:border-accent'
-        };
-
-        $focusRing = match ($color) {
-            'brand' => 'group-has-[:focus-visible]:ring-accent',
-            'success' => 'group-has-[:focus-visible]:ring-green-500',
-            'warning' => 'group-has-[:focus-visible]:ring-amber-500',
-            'danger' => 'group-has-[:focus-visible]:ring-red-500',
-            'neutral' => 'group-has-[:focus-visible]:ring-neutral-500',
-            default => 'group-has-[:focus-visible]:ring-accent'
-        };
-
-        $radioCircleClasses = "border-2 border-neutral-400 dark:border-neutral-500 rounded-full flex items-center justify-center transition-all duration-300 {$hoverColor} {$gradientClasses} group-has-[:focus-visible]:ring-2 group-has-[:focus-visible]:ring-offset-2 {$focusRing} dark:group-has-[:focus-visible]:ring-offset-neutral-900 shadow-xs";
-        $dotClasses = "{$dotBackground} rounded-full transform scale-0 transition-transform duration-200 ease-out group-has-[:checked]:scale-100";
-    }
-
-    $gap = ($variant === 'card' && !$showInput) ? 'gap-0' : 'gap-3';
+    $gap = ($variant === 'card' && !$indicator) ? 'gap-0' : 'gap-3';
 
     $wrapperBaseClasses = match ($variant) {
-        'standard' => "group flex items-center {$gap} cursor-pointer",
-        'bordered' => "group flex items-center {$gap} p-4 border border-line rounded-lg hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors duration-200 cursor-pointer",
-        'colored' => "group flex items-center {$gap} p-4 border-2 rounded-lg transition-colors duration-200 cursor-pointer",
-        'card' => "group flex items-center {$gap} p-4 border border-line rounded-lg hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors duration-200 cursor-pointer",
-        default => "group flex items-center {$gap} cursor-pointer"
+        'standard' => "group flex items-center {$gap} {$touchPadding} cursor-pointer transition-transform active:scale-[0.99]",
+        'bordered' => "group flex items-center {$gap} {$cardPadding} border border-border rounded-lg hover:has-[:not(:checked)]:border-border-strong hover:has-[:not(:checked)]:bg-hover transition-all duration-200 cursor-pointer active:scale-[0.99]",
+        'colored' => "group flex items-center {$gap} {$cardPadding} border-2 rounded-lg transition-all duration-200 cursor-pointer active:scale-[0.99]",
+        'card' => "group flex items-center {$gap} {$cardPadding} border border-border rounded-lg hover:has-[:not(:checked)]:border-border-strong hover:has-[:not(:checked)]:bg-hover transition-all duration-200 cursor-pointer active:scale-[0.99]",
+        default => "group flex items-center {$gap} {$touchPadding} cursor-pointer transition-transform active:scale-[0.99]"
     };
 
     if ($disabled) {
         $wrapperBaseClasses = str_replace('cursor-pointer', 'cursor-not-allowed', $wrapperBaseClasses);
+        $wrapperBaseClasses = str_replace('active:scale-[0.99]', '', $wrapperBaseClasses);
+        $wrapperBaseClasses .= ' opacity-50 grayscale-[0.3]';
     }
 
     if ($variant === 'colored') {
         $borderColor = match ($color) {
-            'brand' => 'border-line has-[:checked]:border-accent has-[:checked]:bg-accent-subtle',
-            'success' => 'border-line has-[:checked]:border-green-500 has-[:checked]:bg-green-50 dark:has-[:checked]:bg-green-950/30',
-            'warning' => 'border-line has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-950/30',
-            'danger' => 'border-line has-[:checked]:border-red-500 has-[:checked]:bg-red-50 dark:has-[:checked]:bg-red-950/30',
-            'neutral' => 'border-line has-[:checked]:border-neutral-400 has-[:checked]:bg-neutral-100 dark:has-[:checked]:bg-neutral-800',
-            default => 'border-line has-[:checked]:border-accent has-[:checked]:bg-accent-subtle'
+            'brand' => 'border-border has-[:checked]:border-brand has-[:checked]:bg-brand-subtle',
+            'success' => 'border-border has-[:checked]:border-success has-[:checked]:bg-success-subtle',
+            'warning' => 'border-border has-[:checked]:border-warning has-[:checked]:bg-warning-subtle',
+            'danger' => 'border-border has-[:checked]:border-danger has-[:checked]:bg-danger-subtle',
+            'neutral' => 'border-border has-[:checked]:border-accent has-[:checked]:bg-accent/10',
+            default => 'border-border has-[:checked]:border-brand has-[:checked]:bg-brand-subtle'
         };
         $wrapperBaseClasses .= ' ' . $borderColor;
     }
 
     if ($variant === 'card') {
         $bgColor = match ($color) {
-            'brand' => 'has-[:checked]:bg-accent-subtle has-[:checked]:border-accent',
-            'success' => 'has-[:checked]:bg-green-50 has-[:checked]:border-green-500 dark:has-[:checked]:bg-green-950/30',
-            'warning' => 'has-[:checked]:bg-amber-50 has-[:checked]:border-amber-500 dark:has-[:checked]:bg-amber-950/30',
-            'danger' => 'has-[:checked]:bg-red-50 has-[:checked]:border-red-500 dark:has-[:checked]:bg-red-950/30',
-            'neutral' => 'has-[:checked]:bg-neutral-100 has-[:checked]:border-neutral-400 dark:has-[:checked]:bg-neutral-800',
-            default => 'has-[:checked]:bg-accent-subtle has-[:checked]:border-accent'
+            'brand' => 'has-[:checked]:bg-brand-subtle has-[:checked]:border-brand',
+            'success' => 'has-[:checked]:bg-success-subtle has-[:checked]:border-success',
+            'warning' => 'has-[:checked]:bg-warning-subtle has-[:checked]:border-warning',
+            'danger' => 'has-[:checked]:bg-danger-subtle has-[:checked]:border-danger',
+            'neutral' => 'has-[:checked]:bg-accent/10 has-[:checked]:border-accent',
+            default => 'has-[:checked]:bg-brand-subtle has-[:checked]:border-brand'
         };
         $wrapperBaseClasses .= ' ' . $bgColor;
     }
 
     if ($hasError() && in_array($variant, ['bordered', 'colored', 'card'])) {
-        $wrapperBaseClasses .= ' border-danger';
+        $wrapperBaseClasses .= ' border-danger animate-shake';
     }
-
-    $labelSize = match ($size) {
-        'sm' => 'sm',
-        'md' => 'sm',
-        'lg' => 'md',
-        default => 'sm'
-    };
 
     $labelColor = $disabled ? 'muted' : 'text';
     $labelWeight = $variant === 'card' ? 'medium' : 'normal';
 @endphp
 
-<label for="{{ $id }}" {{ $wrapperAttributes->merge(['class' => $wrapperBaseClasses])->merge($dataAttributes) }}>
+<label for="{{ $id }}" {{ $wrapperAttributes->merge(['class' => $wrapperBaseClasses])->merge($dataAttributes) }} data-keys-group-target>
     {{-- Hidden native radio input --}}
     <input
         type="radio"
@@ -132,24 +78,30 @@
         {{ $disabled ? 'disabled' : '' }}
         {{ $required ? 'required' : '' }}
         class="absolute opacity-0 w-0 h-0"
+        @foreach($ariaAttributes as $key => $val)
+            {{ $key }}="{{ $val }}"
+        @endforeach
         {{ $radioAttributes }}
     />
 
-    @if($showInput)
-        {{-- Custom visual radio with animated dot --}}
-        <div class="{{ $circleSizeClasses }} {{ $radioCircleClasses }} shrink-0">
-            <div class="{{ $dotSizeClasses }} {{ $dotClasses }}"></div>
-        </div>
+    @if($indicator)
+        {{-- Custom visual radio using shared indicator partial --}}
+        @include('keys::partials.radio-indicator', [
+            'size' => $size,
+            'color' => $color,
+            'disabled' => $disabled,
+            'hasError' => $hasError()
+        ])
     @endif
 
     @if($hasContent())
         <div class="flex-1 min-w-0">
-            <div class="flex items-start justify-between">
+            <div class="flex items-start justify-between gap-2">
                 <div class="flex-1 min-w-0">
                     @if($isCard())
-                        
+
                         @if($icon)
-                            <div class="flex items-center gap-2 mb-1 text-muted">
+                            <div class="flex items-center gap-2 mb-1 text-text-muted">
                                 <x-keys::icon :name="$icon" :size="$iconSize()" class="shrink-0" />
                                 @if($title)
                                     <x-keys::text element="span" :size="$labelSize" :color="$labelColor" :weight="$labelWeight">
@@ -170,10 +122,10 @@
                         @endif
 
                         @if($description)
-                            <x-keys::text size="sm" color="muted">{{ $description }}</x-keys::text>
+                            <x-keys::text id="{{ $id }}-desc" size="sm" color="muted">{{ $description }}</x-keys::text>
                         @endif
                     @else
-                        
+
                         @if($label)
                             <x-keys::text element="span" :size="$labelSize" :color="$labelColor" :weight="$labelWeight">
                                 {{ $label }}
@@ -183,10 +135,17 @@
                             </x-keys::text>
                         @endif
                         @if($description)
-                            <x-keys::text size="sm" color="muted" class="mt-1">{{ $description }}</x-keys::text>
+                            <x-keys::text id="{{ $id }}-desc" size="sm" color="muted" class="mt-1">{{ $description }}</x-keys::text>
                         @endif
                     @endif
                 </div>
+
+                {{-- Error icon for card variant --}}
+                @if($hasError() && $isCard())
+                    <div class="shrink-0 animate-bounce">
+                        <x-keys::icon name="heroicon-o-exclamation-circle" size="sm" class="text-danger" />
+                    </div>
+                @endif
 
                 @if($hasActions())
                     <div class="flex items-center gap-1 ml-2">

@@ -1,5 +1,5 @@
 @php
-    $wrapperClasses = 'relative flex items-center gap-2.5 bg-input border border-line transition-colors duration-200 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/20';
+    $wrapperClasses = 'relative flex items-center gap-2.5 bg-input border border-border transition-colors duration-200 focus-within:border-brand focus-within:ring-1 focus-within:ring-brand/20';
 
     $wrapperSizeClasses = match ($size) {
         'xs' => 'px-2 rounded-sm',
@@ -11,7 +11,7 @@
     };
 
     if ($disabled) {
-        $wrapperStateClasses = 'opacity-50 cursor-not-allowed bg-elevation-1';
+        $wrapperStateClasses = 'opacity-50 cursor-not-allowed bg-panel';
     } elseif ($hasError()) {
         $wrapperStateClasses = 'border-danger focus-within:border-danger focus-within:ring-danger/20';
     } else {
@@ -27,7 +27,7 @@
             'class' => trim("$wrapperClasses $wrapperSizeClasses $wrapperStateClasses$shorthandSpacing"),
         ], $dataAttributes));
 
-    $inputClasses = 'flex-1 bg-transparent border-0 outline-none focus:outline-none placeholder:text-muted';
+    $inputClasses = 'flex-1 bg-transparent border-0 outline-none focus:outline-none placeholder:text-text-muted';
 
     $inputTextClasses = match ($size) {
         'xs' => 'text-xs py-1',
@@ -38,7 +38,7 @@
         default => 'text-sm py-2'
     };
 
-    $inputColorClasses = $disabled ? 'text-muted' : 'text-primary';
+    $inputColorClasses = $disabled ? 'text-text-disabled' : 'text-input-foreground';
 
     $wireAndAlpineAttributes = $attributes->filter(fn($value, $key) => str_starts_with($key, 'wire:') || str_starts_with($key, 'x-'))->getAttributes();
     $dataOnlyAttributes = $attributes->filter(fn($value, $key) => str_starts_with($key, 'data-'))->getAttributes();
@@ -88,7 +88,7 @@
 
         <div {{ $wrapperAttributes }}>
                 @if($iconLeft)
-                    <div class="flex items-center text-muted pointer-events-none">
+                    <div class="flex items-center text-text-muted pointer-events-none">
                         <x-keys::icon name="{{ $iconLeft }}" size="{{ $iconSize }}" data-icon />
                     </div>
                 @endif
@@ -125,14 +125,14 @@
                         @endforeach
                     </div>
                 @elseif($iconRight)
-                    <div class="flex items-center text-muted pointer-events-none">
+                    <div class="flex items-center text-text-muted pointer-events-none">
                         <x-keys::icon name="{{ $iconRight }}" size="{{ $iconSize }}" data-icon />
                     </div>
                 @endif
         </div>
 
         @if($hint)
-            <x-keys::text size="xs" color="muted" class="mt-1">{{ $hint }}</x-keys::text>
+            <x-keys::text size="xs" color="text-muted" class="mt-1">{{ $hint }}</x-keys::text>
         @endif
 
         @if($showErrors && !is_null($errors))
@@ -142,7 +142,7 @@
 @else
     <div {{ $wrapperAttributes }} data-keys-group-target>
         @if($iconLeft)
-            <div class="flex items-center text-muted pointer-events-none">
+            <div class="flex items-center text-text-muted pointer-events-none">
                 <x-keys::icon name="{{ $iconLeft }}" size="{{ $iconSize }}" data-icon />
             </div>
         @endif
@@ -179,7 +179,7 @@
                 @endforeach
             </div>
         @elseif($iconRight)
-            <div class="flex items-center text-muted pointer-events-none">
+            <div class="flex items-center text-text-muted pointer-events-none">
                 <x-keys::icon name="{{ $iconRight }}" size="{{ $iconSize }}" data-icon />
             </div>
         @endif

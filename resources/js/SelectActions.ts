@@ -13,6 +13,7 @@
 import { BaseActionClass } from './utils/BaseActionClass';
 import { EventUtils } from './utils/EventUtils';
 import { DOMUtils } from './utils/DOMUtils';
+import LivewireUtils from './utils/LivewireUtils';
 
 interface SelectOption {
     element: HTMLElement;
@@ -105,14 +106,76 @@ export class SelectActions extends BaseActionClass<SelectState> {
         this.updateOptionsSelectedState(selectElement);
         this.updateDisplay(selectElement);
         this.updateStableInputs(selectElement);
+
+        // Setup autofocus for searchable selects
+        if (selectElement.dataset.searchable === 'true') {
+            this.setupSearchAutofocus(selectElement);
+        }
+
+        // Listen for custom reset event from Livewire component
+        window.addEventListener('keys-ui-reset', () => {
+            const component = LivewireIntegration.getLivewireComponent(selectElement);
+            const wireModelProperty = LivewireIntegration.getWireModelProperty(selectElement);
+
+            // Only reset this component if it belongs to the Livewire component that dispatched the event
+            if (component && wireModelProperty) {
+                // Read the current value from Livewire (after reset)
+                const livewireValue = component[wireModelProperty];
+                const isMultiple = selectElement.dataset.multiple === 'true';
+
+                // Update select to match Livewire's value
+                if (isMultiple) {
+                    this.setSelectedValues(selectElement, Array.isArray(livewireValue) ? livewireValue : []);
+                } else {
+                    this.setSelectedValues(selectElement, livewireValue ? [livewireValue] : []);
+                }
+            }
+        });
+    }
+
+    /**
+     * Setup autofocus for search input when searchable select opens
+     * Also handles clearing search when dropdown closes
+     */
+    private setupSearchAutofocus(selectElement: HTMLElement): void {
+        const trigger = selectElement.querySelector('button[data-select-trigger]') as HTMLElement;
+        if (!trigger || !trigger.id) {
+            return;
+        }
+
+        const popoverId = `select-dropdown-${trigger.id}`;
+        const popover = document.getElementById(popoverId) as HTMLElement;
+
+        if (!popover) {
+            return;
+        }
+
+        popover.addEventListener('toggle', (event: any) => {
+            const searchInput = popover.querySelector('input[data-select-search]') as HTMLInputElement;
+
+            if (event.newState === 'open') {
+                if (searchInput) {
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            if (!DOMUtils.isHidden(searchInput)) {
+                                searchInput.focus();
+                            }
+                        }, 50);
+                    });
+                }
+            } else if (event.newState === 'closed') {
+                // Clear search input when dropdown closes
+                if (searchInput) {
+                    searchInput.value = '';
+                    this.handleSearch(selectElement, '');
+                }
+            }
+        });
     }
 
     private readInitialValues(selectElement: HTMLElement, isMultiple: boolean): string[] {
-        if (LivewireIntegration.isLivewireEnabled(selectElement)) {
-            return [];
-        }
-
         // First, try to read from selected option elements (server-side rendering)
+        // This works for both Livewire and non-Livewire modes
         const allOptions = this.getAllOptions(selectElement);
         const selectedOptions = allOptions.filter(opt =>
             opt.element.hasAttribute('selected') ||
@@ -123,13 +186,18 @@ export class SelectActions extends BaseActionClass<SelectState> {
             return selectedOptions.map(opt => opt.value);
         }
 
-        // Fall back to reading from hidden inputs (client-side state)
+        // For Livewire mode, if no options are marked selected, return empty
+        if (LivewireIntegration.isLivewireEnabled(selectElement)) {
+            return [];
+        }
+
+        // Fall back to reading from hidden inputs (non-Livewire client-side state)
         if (isMultiple) {
             const poolInputs = DOMUtils.querySelectorAll('.select-pool-input', selectElement) as unknown as NodeListOf<HTMLInputElement>;
             const values: string[] = [];
 
             poolInputs.forEach(input => {
-                if (input.dataset.poolActive === 'true' && input.value) {
+                if (input.dataset.poolActive === 'true' && input.value !== undefined) {
                     values.push(input.value);
                 }
             });
@@ -137,7 +205,7 @@ export class SelectActions extends BaseActionClass<SelectState> {
             return values;
         } else {
             const singleInput = DOMUtils.querySelector('.select-single-input', selectElement) as HTMLInputElement;
-            return singleInput && singleInput.value ? [singleInput.value] : [];
+            return (singleInput && singleInput.value !== undefined) ? [singleInput.value] : [];
         }
     }
 
@@ -175,46 +243,6 @@ export class SelectActions extends BaseActionClass<SelectState> {
                 this.handleSearch(select, (searchInput as HTMLInputElement).value);
             }
         });
-
-        EventUtils.addEventListener(document, 'toggle', (event) => {
-            const popover = event.target as HTMLElement;
-            if (popover.dataset.keysPopover === 'true' && popover.id.startsWith('select-dropdown-')) {
-                const popoverEvent = event as any;
-                const selectId = popover.id.replace('select-dropdown-', '');
-                const select = DOMUtils.querySelector(`[data-select="true"] button[id="${selectId}"]`)?.closest('[data-select="true"]') as HTMLElement;
-
-                if (popoverEvent.newState === 'open') {
-                    this.handlePopoverOpened(popover, select);
-                } else if (popoverEvent.newState === 'closed') {
-                    this.handlePopoverClosed(popover, select);
-                }
-            }
-        });
-    }
-
-    private handlePopoverOpened(popover: HTMLElement, select: HTMLElement | null): void {
-        if (!select) return;
-
-        if (select.dataset.searchable === 'true') {
-            const searchInput = DOMUtils.querySelector('input[data-select-search]', popover) as HTMLInputElement;
-            if (searchInput) {
-                setTimeout(() => {
-                    searchInput.focus();
-                }, 0);
-            }
-        }
-
-    }
-
-    private handlePopoverClosed(popover: HTMLElement, select: HTMLElement | null): void {
-        if (select) {
-            const searchInput = DOMUtils.querySelector('input[data-select-search]', popover) as HTMLInputElement;
-            if (searchInput) {
-                searchInput.value = '';
-                this.handleSearch(select, '');
-            }
-        }
-
     }
 
     private selectOption(select: HTMLElement, option: HTMLElement): void {
@@ -236,9 +264,29 @@ export class SelectActions extends BaseActionClass<SelectState> {
             }
         } else {
             state.selectedValues = [optionValue];
-            const popover = DOMUtils.querySelector(`#select-dropdown-${select.querySelector('button')?.id}`) as HTMLElement;
-            if (popover && popover.hidePopover) {
-                popover.hidePopover();
+
+            // Close dropdown with robust error handling
+            const button = select.querySelector('button[data-select-trigger]');
+            if (button && button.id) {
+                const popoverId = `select-dropdown-${button.id}`;
+                const popover = document.getElementById(popoverId) as HTMLElement;
+
+                if (popover) {
+                    try {
+                        if (typeof popover.hidePopover === 'function') {
+                            popover.hidePopover();
+                        } else {
+                            // Fallback for browsers without Popover API support
+                            popover.style.display = 'none';
+                            popover.removeAttribute('open');
+                        }
+                    } catch (error) {
+                        console.warn('Failed to close select dropdown:', error);
+                        // Force close as fallback
+                        popover.style.display = 'none';
+                        popover.removeAttribute('open');
+                    }
+                }
             }
         }
 
@@ -430,16 +478,12 @@ export class SelectActions extends BaseActionClass<SelectState> {
     }
 
     private createChipElement(select: HTMLElement, container: HTMLElement, value: string): void {
-        this.createChipElementFallback(select, container, value);
-    }
-
-    private createChipElementFallback(select: HTMLElement, container: HTMLElement, value: string): void {
         const option = this.findOptionByValue(select, value);
         const displayLabel = option ? option.displayLabel : value;
         const richContent = option ? option.htmlContent : displayLabel;
 
         const chip = document.createElement('span');
-        chip.className = 'inline-flex items-center font-medium px-2 py-0.5 text-xs rounded-full bg-elevation-1 text-primary border border-line gap-1.5';
+        chip.className = 'inline-flex items-center font-medium px-2 py-0.5 text-xs rounded-full bg-card text-text border border-border gap-1.5';
         chip.setAttribute('data-select-chip', 'true');
         chip.setAttribute('data-chip-value', value);
 
@@ -463,9 +507,9 @@ export class SelectActions extends BaseActionClass<SelectState> {
         const valueDisplay = DOMUtils.querySelector('.select-value', select) as HTMLElement;
         if (!valueDisplay) return;
 
-        if (state.selectedValues.length === 0) {
+        if (state.selectedValues.length === 0 || state.selectedValues[0] === '') {
             const placeholderText = select.dataset.placeholder || 'Select option...';
-            valueDisplay.innerHTML = `<span class="text-muted select-placeholder">${placeholderText}</span>`;
+            valueDisplay.innerHTML = `<span class="text-text-muted select-placeholder">${placeholderText}</span>`;
         } else {
             const selectedValue = state.selectedValues[0];
             const option = this.findOptionByValue(select, selectedValue);
@@ -561,7 +605,7 @@ export class SelectActions extends BaseActionClass<SelectState> {
 
             return {
                 element: optionEl,
-                value: optionEl.dataset.value || '',
+                value: optionEl.dataset.value ?? '',
                 label: optionEl.textContent?.trim() || '',
                 displayLabel: displayLabel,
                 searchableText: optionEl.dataset.searchableText || displayLabel.toLowerCase(),

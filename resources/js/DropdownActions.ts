@@ -148,7 +148,9 @@ export class DropdownActions extends BaseActionClass<DropdownState> {
             if (element.matches('[data-submenu-trigger]')) {
                 event.preventDefault();
                 event.stopPropagation();
-                const submenu = DOMUtils.findClosest(element, '[data-submenu="true"]');
+                // Get submenu by ID from popovertarget attribute (submenu is a sibling, not ancestor)
+                const popoverId = element.getAttribute('popovertarget');
+                const submenu = popoverId ? document.getElementById(popoverId) as HTMLElement : null;
                 if (submenu && !this.isDisabled(submenu)) {
                     this.toggleSubmenu(submenu);
                 }
@@ -354,7 +356,11 @@ export class DropdownActions extends BaseActionClass<DropdownState> {
 
         // Use native popover API - the toggle event listener will handle state updates
         if ((dropdown as any).showPopover) {
-            (dropdown as any).showPopover();
+            try {
+                (dropdown as any).showPopover();
+            } catch (error) {
+                // Silent catch - popover may already be open or API not supported
+            }
         }
     }
 
@@ -404,7 +410,11 @@ export class DropdownActions extends BaseActionClass<DropdownState> {
 
         // Use native popover API - the toggle event listener will handle state updates
         if ((dropdown as any).hidePopover) {
-            (dropdown as any).hidePopover();
+            try {
+                (dropdown as any).hidePopover();
+            } catch (error) {
+                // Silent catch - popover may already be closed or API not supported
+            }
         }
     }
 

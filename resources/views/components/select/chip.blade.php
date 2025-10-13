@@ -7,7 +7,7 @@
     };
 
     $colorClasses = match ($color) {
-        'brand' => 'bg-accent text-white',
+        'brand' => 'bg-brand text-white',
         'success' => 'bg-success text-white',
         'warning' => 'bg-warning text-white',
         'danger' => 'bg-danger text-white',

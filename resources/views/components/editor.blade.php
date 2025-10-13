@@ -1,191 +1,169 @@
 @php
+    $wrapperAttributes = $attributes->whereDoesntStartWith('wire:');
+    $wireAttributes = $attributes->whereStartsWith('wire:');
 
-    $containerId = $id . '-container';
-    $editorId = $id . '-editor';
-    $hiddenInputId = $id . '-input';
+    $baseClasses = 'block w-full bg-input border border-border rounded-md transition-colors duration-200';
 
-    $editorWrapperAttributes = $attributes->whereDoesntStartWith('wire:');
-    $editorAttributes = $attributes->whereStartsWith('wire:');
-    $isLivewireEnabled = $editorAttributes->isNotEmpty();
-
-    $editorBaseClasses = 'quill-editor has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent has-[:focus-visible]:ring-offset-2 transition-all duration-200 overflow-hidden';
-
-    $editorSizeClasses = match ($size) {
-        'xs' => 'rounded-sm',
-        'sm' => 'rounded-md',
-        'md' => 'rounded-md',
-        'lg' => 'rounded-lg',
-        'xl' => 'rounded-lg',
-        default => 'rounded-md'
+    $sizeClasses = match ($size) {
+        'xs' => 'text-xs',
+        'sm' => 'text-sm',
+        'md' => 'text-sm',
+        'lg' => 'text-base',
+        'xl' => 'text-lg',
+        default => 'text-sm'
     };
 
-    $editorStateClasses = '';
-    if ($disabled || $loading) {
-        $editorStateClasses .= ' quill-editor-disabled cursor-not-allowed opacity-50';
-    }
-    if ($loading) {
-        $editorStateClasses .= ' quill-editor-loading relative';
-    }
-    if ($hasError) {
-        $editorStateClasses .= ' quill-editor-error';
+    if ($disabled) {
+        $stateClasses = 'opacity-50 cursor-not-allowed bg-panel';
+    } elseif ($hasError()) {
+        $stateClasses = 'border-danger focus-within:border-danger focus-within:ring-1 focus-within:ring-danger/20';
+    } else {
+        $stateClasses = 'focus-within:border-brand focus-within:ring-1 focus-within:ring-brand/20';
     }
 
-    $editorClasses = trim("$editorBaseClasses quill-editor-{$size} $editorSizeClasses $editorStateClasses");
+    $editorClasses = trim("$baseClasses $sizeClasses $stateClasses");
 
-    $containerClasses = "quill-container quill-container-{$size} border border-line bg-elevation-1";
+    $computedActionSize = match ($actionSize) {
+        'xs' => 'xs',
+        'sm' => 'sm',
+        'md' => 'md',
+        default => 'xs'
+    };
 
-    $editorContainerAttributes = $editorAttributes->merge([
-        'class' => $editorClasses
-    ])->merge($dataAttributes);
+    $actionContainerClasses = 'absolute top-2 right-2 flex items-center gap-1 z-10';
 
-    if ($isLivewireEnabled) {
-        $editorContainerAttributes = $editorContainerAttributes->merge([
-            'data-livewire-enabled' => 'true',
-            'data-livewire-mode' => 'true',
-        ]);
-    }
+    $minHeightStyle = $minHeight ? "min-height: {$minHeight}px;" : '';
+    $maxHeightStyle = $maxHeight ? "max-height: {$maxHeight}px; overflow-y: auto;" : '';
+    $heightStyles = trim($minHeightStyle . ' ' . $maxHeightStyle);
 
-    $editorAccessibilityAttrs = '';
-    foreach ($accessibilityAttributes as $attr => $value) {
-        $editorAccessibilityAttrs .= ' ' . $attr . '="' . e($value) . '"';
-    }
-
-    if ($hasError) {
-        $editorAccessibilityAttrs .= ' aria-invalid="true"';
-        if ($errors && $showErrors) {
-            $editorAccessibilityAttrs .= ' aria-describedby="' . $hiddenInputId . '-error"';
-        }
+    // Build data attributes string
+    $attributesString = '';
+    foreach ($dataAttributes as $key => $attrValue) {
+        $escapedValue = htmlspecialchars($attrValue, ENT_QUOTES, 'UTF-8');
+        $attributesString .= " {$key}=\"{$escapedValue}\"";
     }
 @endphp
 
 @if($isShorthand())
-    <div {{ $editorWrapperAttributes->only('class') }}>
+    <div {{ $wrapperAttributes->only('class') }}>
         <x-keys::label :for="$id" :required="$required" :optional="$optional">
             {{ $label }}
         </x-keys::label>
 
-        <div class="mt-1">
-            
-            <div {{ $editorContainerAttributes }} @if($isLivewireEnabled) wire:ignore @endif>
-                
+        <div class="relative mt-1">
+            <div class="{{ $editorClasses }}" style="{{ $heightStyles }}">
+                {{-- Quill Editor Container --}}
                 <div
-                    id="{{ $liveRegionId }}"
-                    aria-live="polite"
-                    aria-atomic="true"
+                    id="{{ $id }}-editor"
+                    data-editor-container
+                    {!! $attributesString !!}
+                ></div>
+
+                {{-- Hidden textarea for form submission and wire:model support --}}
+                <textarea
+                    {{ $wireAttributes }}
+                    name="{{ $name }}"
+                    id="{{ $id }}"
                     class="sr-only"
-                    data-quill-live-region="true"
-                ></div>
-
-                
-                <div
-                    class="{{ $containerClasses }}"
-                    id="{{ $editorId }}"
-                    data-quill-container="true"
-                    style="min-height: {{ $height }}"
-                    data-quill-config="{{ json_encode($quillConfig) }}"
-                    data-quill-value="{{ json_encode($value) }}"
-                    @if($isLivewireEnabled)
-                        {{ $editorAttributes }}
-                        @php
-                            $wireModelName = $editorAttributes->whereStartsWith('wire:model')->first();
-                        @endphp
-                        @if($wireModelName)
-                            data-wire-model="{{ $wireModelName }}"
-                            data-livewire-property="{{ $wireModelName }}"
-                        @endif
-                    @else
-                        data-editor-sync-target="{{ $hiddenInputId }}"
-                    @endif
-                    {!! $editorAccessibilityAttrs !!}
-                    tabindex="0"
-                ></div>
-
-                
-                @if($loading)
-                    <div class="loading-container">
-                        <div class="flex items-center space-x-2 text-muted">
-                            <x-keys::loading :animation="$loadingAnimation" :size="$size" />
-                            <span class="text-sm">{{ $loadingText }}</span>
-                        </div>
-                    </div>
-                @endif
+                    @if($disabled) disabled @endif
+                    @if($readonly) readonly @endif
+                    @if($required) required @endif
+                    data-editor-input
+                >{{ $value }}</textarea>
             </div>
 
-            
-            @if($name && !$isLivewireEnabled)
-                <input
-                    type="hidden"
-                    id="{{ $hiddenInputId }}"
-                    name="{{ $name }}"
-                    value="{{ $value }}"
-                    data-quill-input="true"
-                    @if($required) required @endif
-                />
+            @if($hasActions())
+                <div class="{{ $actionContainerClasses }}">
+                    @foreach($computedActionData as $action)
+                        <div
+                            data-action="{{ $action['data_action'] }}"
+                            data-icon-default="{{ $action['data_icon_default'] }}"
+                            @if(isset($action['data_url'])) data-url="{{ $action['data_url'] }}" @endif
+                            @if(isset($action['data_icon_toggle'])) data-icon-toggle="{{ $action['data_icon_toggle'] }}" @endif
+                            @if(isset($action['data_icon_success'])) data-icon-success="{{ $action['data_icon_success'] }}" @endif
+                            @if(isset($action['data_label_toggle'])) data-label-toggle="{{ $action['data_label_toggle'] }}" @endif
+                            @if(isset($action['data_label_success'])) data-label-success="{{ $action['data_label_success'] }}" @endif
+                        >
+                            <x-keys::button
+                                variant="{{ $actionVariant }}"
+                                size="{{ $computedActionSize }}"
+                                type="button"
+                                icon="{{ $action['icon'] }}"
+                                icon-toggle="{{ $action['icon_toggle'] }}"
+                                icon-success="{{ $action['icon_success'] }}"
+                                label-toggle="{{ $action['label_toggle'] }}"
+                                label-success="{{ $action['label_success'] }}"
+                                data-action="{{ $action['data_action'] }}"
+                                data-url="{{ $action['data_url'] }}"
+                            >
+                                <span class="sr-only">{{ $action['label'] }}</span>
+                            </x-keys::button>
+                        </div>
+                    @endforeach
+                </div>
             @endif
         </div>
+
+        @if($hint)
+            <x-keys::text size="xs" color="text-muted" class="mt-1">{{ $hint }}</x-keys::text>
+        @endif
 
         @if($showErrors && !is_null($errors))
             <x-keys::error :messages="$errors" />
         @endif
     </div>
 @else
-    <div {{ $editorWrapperAttributes->only('class') }}>
-        
-        <div {{ $editorContainerAttributes }} @if($isLivewireEnabled) wire:ignore @endif>
-            
+    <div class="relative" {{ $wrapperAttributes->only('class') }}>
+        <div class="{{ $editorClasses }}" style="{{ $heightStyles }}">
+            {{-- Quill Editor Container --}}
             <div
-                id="{{ $liveRegionId }}"
-                aria-live="polite"
-                aria-atomic="true"
+                id="{{ $id }}-editor"
+                data-editor-container
+                {!! $attributesString !!}
+            ></div>
+
+            {{-- Hidden textarea for form submission and wire:model support --}}
+            <textarea
+                {{ $wireAttributes }}
+                name="{{ $name }}"
+                id="{{ $id }}"
                 class="sr-only"
-                data-quill-live-region="true"
-            ></div>
-
-            
-            <div
-                class="{{ $containerClasses }}"
-                id="{{ $editorId }}"
-                data-quill-container="true"
-                style="min-height: {{ $height }}"
-                data-quill-config="{{ json_encode($quillConfig) }}"
-                data-quill-value="{{ json_encode($value) }}"
-                @if($isLivewireEnabled)
-                    {{ $editorAttributes }}
-                    @php
-                        $wireModelName = $editorAttributes->whereStartsWith('wire:model')->first();
-                    @endphp
-                    @if($wireModelName)
-                        data-wire-model="{{ $wireModelName }}"
-                        data-livewire-property="{{ $wireModelName }}"
-                    @endif
-                @else
-                    data-editor-sync-target="{{ $hiddenInputId }}"
-                @endif
-                {!! $editorAccessibilityAttrs !!}
-                tabindex="0"
-            ></div>
-
-            
-            @if($loading)
-                <div class="loading-container">
-                    <div class="flex items-center space-x-2 text-muted">
-                        <x-keys::loading :animation="$loadingAnimation" :size="$size" />
-                        <span class="text-sm">{{ $loadingText }}</span>
-                    </div>
-                </div>
-            @endif
+                @if($disabled) disabled @endif
+                @if($readonly) readonly @endif
+                @if($required) required @endif
+                data-editor-input
+            >{{ $value }}</textarea>
         </div>
 
-        
-        @if($name && !$isLivewireEnabled)
-            <input
-                type="hidden"
-                id="{{ $hiddenInputId }}"
-                name="{{ $name }}"
-                value="{{ $value }}"
-                data-quill-input="true"
-                @if($required) required @endif
-            />
+        @if($hasActions())
+            <div class="{{ $actionContainerClasses }}">
+                @foreach($computedActionData as $action)
+                    <div
+                        data-action="{{ $action['data_action'] }}"
+                        data-icon-default="{{ $action['data_icon_default'] }}"
+                        @if(isset($action['data_url'])) data-url="{{ $action['data_url'] }}" @endif
+                        @if(isset($action['data_icon_toggle'])) data-icon-toggle="{{ $action['data_icon_toggle'] }}" @endif
+                        @if(isset($action['data_icon_success'])) data-icon-success="{{ $action['data_icon_success'] }}" @endif
+                        @if(isset($action['data_label_toggle'])) data-label-toggle="{{ $action['data_label_toggle'] }}" @endif
+                        @if(isset($action['data_label_success'])) data-label-success="{{ $action['data_label_success'] }}" @endif
+                    >
+                        <x-keys::button
+                            variant="{{ $actionVariant }}"
+                            size="{{ $computedActionSize }}"
+                            type="button"
+                            icon="{{ $action['icon'] }}"
+                            icon-toggle="{{ $action['icon_toggle'] }}"
+                            icon-success="{{ $action['icon_success'] }}"
+                            label-toggle="{{ $action['label_toggle'] }}"
+                            label-success="{{ $action['label_success'] }}"
+                            data-action="{{ $action['data_action'] }}"
+                            data-url="{{ $action['data_url'] }}"
+                        >
+                            <span class="sr-only">{{ $action['label'] }}</span>
+                        </x-keys::button>
+                    </div>
+                @endforeach
+            </div>
         @endif
     </div>
 @endif

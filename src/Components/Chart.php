@@ -140,13 +140,14 @@ class Chart extends Component
         $this->processedData = array_map(function($item, $index) {
             $xValue = $item[$this->xField] ?? $index;
             $yValue = (float) ($item[$this->yField] ?? 0);
+            $indexInt = is_numeric($index) ? (int)$index : 0;
 
             return [
                 'x' => $xValue,
                 'y' => $yValue,
                 'xOriginal' => $xValue,
                 'yOriginal' => $yValue,
-                'color' => $this->colors[$index % count($this->colors)],
+                'color' => $this->colors[$indexInt % count($this->colors)],
                 'index' => $index,
                 'originalData' => $item
             ];
@@ -177,11 +178,12 @@ class Chart extends Component
                 ];
             }, $this->data, array_keys($this->data));
 
+            $seriesIndexInt = is_numeric($seriesIndex) ? (int)$seriesIndex : 0;
             $this->processedSeries[] = [
                 'name' => $seriesName,
                 'field' => $seriesField,
                 'data' => $seriesData,
-                'color' => $this->colors[$seriesIndex % count($this->colors)],
+                'color' => $this->colors[$seriesIndexInt % count($this->colors)],
                 'seriesIndex' => $seriesIndex
             ];
         }

@@ -39,12 +39,13 @@ class Checkbox extends Component
     {
         return [
             'data-keys-dropdown-checkbox' => 'true',
+            'data-menu-checkbox' => 'true',
             'data-keep-open' => $this->keepOpen ? 'true' : 'false',
             'data-color' => $this->color,
             'data-disabled' => $this->disabled ? 'true' : 'false',
             'data-checked' => $this->checked ? 'true' : 'false',
             'data-has-icon' => $this->hasIcon() ? 'true' : 'false',
-            'data-has-error' => $this->hasError() ? 'true' : 'false'
+            'data-has-error' => $this->hasErrors() ? 'true' : 'false'
         ];
     }
 

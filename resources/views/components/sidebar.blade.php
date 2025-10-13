@@ -10,10 +10,10 @@
     $baseClasses = 'flex flex-col h-screen transition-all duration-300 ease-in-out';
 
     $variantClasses = match ($variant) {
-        'bordered' => 'bg-elevation-1 border-r border-line',
-        'elevated' => 'bg-elevation-1 shadow-lg',
+        'bordered' => 'bg-sidebar border-r border-sidebar-border',
+        'elevated' => 'bg-sidebar shadow-lg',
         'transparent' => 'bg-transparent',
-        default => 'bg-elevation-1'
+        default => 'bg-sidebar'
     };
     if ($position === 'right') {
         $variantClasses = str_replace('border-r', 'border-l', $variantClasses);
@@ -57,9 +57,9 @@
 
                 @if($title)
                     <div class="flex-1 min-w-0 lg:[.sidebar-collapsed_&]:hidden" data-sidebar-branding>
-                        <h2 class="font-bold text-lg text-primary truncate">{{ $title }}</h2>
+                        <h2 class="font-bold text-lg text-sidebar-foreground truncate">{{ $title }}</h2>
                         @if($subtitle)
-                            <p class="text-xs text-muted truncate">{{ $subtitle }}</p>
+                            <p class="text-xs text-text-muted truncate">{{ $subtitle }}</p>
                         @endif
                     </div>
                 @endif
@@ -88,7 +88,7 @@
     </div>
 
     @isset($footer)
-        <div class="flex-shrink-0 border-t border-line lg:[.sidebar-collapsed_&]:hidden" data-sidebar-footer>
+        <div class="flex-shrink-0 border-t border-sidebar-border lg:[.sidebar-collapsed_&]:hidden" data-sidebar-footer>
             {{ $footer }}
         </div>
     @endisset

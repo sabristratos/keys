@@ -12,6 +12,7 @@ class Section extends Component
         public bool $collapsible = true,
         public bool $collapsed = false,
         public string $variant = 'default',
+        public bool $animated = true,
         public ?string $id = null,
     ) {
         $this->id = $this->id ?? 'sidebar-section-' . uniqid();
@@ -30,6 +31,10 @@ class Section extends Component
 
         if ($this->collapsible) {
             $attributes['data-collapsible'] = 'true';
+        }
+
+        if ($this->animated) {
+            $attributes['data-animated'] = 'true';
         }
 
         if (!empty($this->heading)) {

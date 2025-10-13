@@ -34,7 +34,7 @@
         default => 'w-8 h-8'
     };
 
-    $textInputClasses = 'flex-1 bg-transparent border-0 outline-none focus:outline-none placeholder:text-muted font-mono';
+    $textInputClasses = 'flex-1 bg-transparent border-0 outline-none focus:outline-none placeholder:text-text-muted font-mono';
 
     $textInputSize = match ($size) {
         'xs' => 'text-xs py-1',
@@ -52,7 +52,7 @@
         default => 'px-3'
     };
 
-    $textInputColorClasses = $disabled ? 'text-muted' : 'text-primary';
+    $textInputColorClasses = $disabled ? 'text-text-muted' : 'text-text';
 
     $leftPadding = match ($size) {
         'xs' => 'pl-2',
@@ -119,7 +119,7 @@
         </div>
 
         @if($hint)
-            <p class="mt-1 text-xs text-muted">{{ $hint }}</p>
+            <p class="mt-1 text-xs text-text-muted">{{ $hint }}</p>
         @endif
 
         @if($showErrors && !is_null($errors))

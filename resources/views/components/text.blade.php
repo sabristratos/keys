@@ -13,14 +13,14 @@
     // Color classes using design tokens
     $colorClasses = match ($color) {
         'heading' => 'text-heading',
-        'text' => 'text-primary',
-        'muted' => 'text-muted',
-        'brand' => 'text-accent',
+        'text' => 'text-text',
+        'muted' => 'text-text-muted',
+        'brand' => 'text-brand',
         'success' => 'text-success',
         'warning' => 'text-warning',
         'danger' => 'text-danger',
         'info' => 'text-info',
-        default => 'text-primary'
+        default => 'text-text'
     };
 
     // Weight classes

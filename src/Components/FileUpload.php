@@ -5,6 +5,7 @@ namespace Keys\UI\Components;
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 use Keys\UI\Concerns\HandlesValidationErrors;
+use Keys\UI\Constants\ComponentConstants;
 
 /**
  * FileUpload Component
@@ -32,11 +33,24 @@ class FileUpload extends Component
         public ?string $placeholder = null,
         public string $previewStyle = 'transform',
         public bool $multiple = false,
-        public ?int $maxFiles = null
+        public ?int $maxFiles = null,
+        public string $variant = 'default',
+        public string $aspectRatio = 'auto',
+        public string $objectFit = 'cover'
     ) {
 
         $this->id = $this->id ?? $this->name ?? 'file-upload-' . uniqid();
 
+        // Validate props using ComponentConstants
+        $this->variant = ComponentConstants::validate($this->variant, ComponentConstants::UPLOAD_VARIANTS, 'default');
+        $this->aspectRatio = ComponentConstants::validate($this->aspectRatio, ComponentConstants::ASPECT_RATIOS, 'auto');
+        $this->objectFit = ComponentConstants::validate($this->objectFit, ComponentConstants::OBJECT_FIT, 'cover');
+
+        // For image-fill variant, force single file mode
+        if ($this->variant === 'image-fill') {
+            $this->multiple = false;
+            $this->maxFiles = 1;
+        }
 
         if ($this->placeholder === null) {
             $this->placeholder = $this->multiple
@@ -134,6 +148,9 @@ class FileUpload extends Component
             'data-livewire' => $this->isLivewireMode() ? 'true' : 'false',
             'data-preview-style' => $this->previewStyle,
             'data-multiple' => $this->multiple ? 'true' : 'false',
+            'data-variant' => $this->variant,
+            'data-aspect-ratio' => $this->aspectRatio,
+            'data-object-fit' => $this->objectFit,
         ];
 
         if ($this->disabled) {
@@ -142,10 +159,6 @@ class FileUpload extends Component
 
         if ($this->required) {
             $attributes['data-required'] = 'true';
-        }
-
-        if ($this->hasErrors()) {
-            $attributes['data-invalid'] = 'true';
         }
 
         if ($this->accept !== '*') {

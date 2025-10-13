@@ -179,7 +179,7 @@ export class BadgeActions extends BaseActionClass {
     private getColorClasses(variant: string, color: string): string {
         if (variant === 'subtle') {
             const subtleColors = {
-                'brand': 'text-accent',
+                'brand': 'text-brand',
                 'success': 'text-success',
                 'warning': 'text-warning',
                 'danger': 'text-danger',
@@ -194,7 +194,7 @@ export class BadgeActions extends BaseActionClass {
         }
 
         const colors = {
-            'brand': 'bg-accent/10 text-accent',
+            'brand': 'bg-brand/10 text-brand',
             'success': 'bg-success/10 text-success',
             'warning': 'bg-warning/10 text-warning',
             'danger': 'bg-danger/10 text-danger',

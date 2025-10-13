@@ -20,7 +20,7 @@
     $shorthandSpacing = ($isShorthand() && $label) ? ' mt-1' : '';
 
     // Wrapper gets all visual styling for group selector targeting
-    $wrapperVisualClasses = 'relative bg-input border border-line rounded-md transition-colors duration-200 hover:border-neutral-300 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/20';
+    $wrapperVisualClasses = 'relative bg-input border border-border rounded-md transition-colors duration-200 hover:border-neutral-300 focus-within:border-brand focus-within:ring-1 focus-within:ring-brand/20';
 
     // Button is just transparent click overlay
     $buttonClasses = 'absolute inset-0 cursor-pointer';
@@ -53,11 +53,11 @@
     };
 
     if ($disabled) {
-        $stateClasses = 'opacity-50 cursor-not-allowed bg-elevation-1 text-muted';
+        $stateClasses = 'opacity-50 cursor-not-allowed bg-card text-text-muted';
     } elseif ($hasError()) {
-        $stateClasses = 'border-danger focus-within:border-danger focus-within:ring-danger/20 text-primary';
+        $stateClasses = 'border-danger focus-within:border-danger focus-within:ring-danger/20 text-text';
     } else {
-        $stateClasses = 'text-primary';
+        $stateClasses = 'text-text';
     }
 
     $iconSize = match ($size) {
@@ -139,11 +139,11 @@
                     <div class="flex items-center gap-2.5 flex-1 min-w-0">
 
 
-                        <span class="timepicker-value truncate pointer-events-none text-primary" data-timepicker-display>
+                        <span class="timepicker-value truncate pointer-events-none text-text" data-timepicker-display>
                             @if($value)
                                 {{ $value }}
                             @else
-                                <span class="text-muted">{{ $placeholder ?: __('keys-ui::keys-ui.timepicker.placeholder') }}</span>
+                                <span class="text-text-muted">{{ $placeholder ?: __('keys-ui::keys-ui.timepicker.placeholder') }}</span>
                             @endif
                         </span>
                     </div>
@@ -165,7 +165,7 @@
                         @endif
 
 
-                        <div class="text-muted pointer-events-none">
+                        <div class="text-text-muted pointer-events-none">
                             <x-keys::icon
                                 name="heroicon-o-clock"
                                 size="{{ $iconSize }}"
@@ -181,8 +181,8 @@
         <div class="{{ $dropdownWidthClasses }}">
 
             @if($formatMode === 'flexible')
-                <div class="flex items-center justify-between px-4 py-3 mb-3 border-b border-line">
-                    <span class="text-sm font-medium text-primary">{{ __('keys-ui::keys-ui.timepicker.time_format') }}</span>
+                <div class="flex items-center justify-between px-4 py-3 mb-3 border-b border-border">
+                    <span class="text-sm font-medium text-text">{{ __('keys-ui::keys-ui.timepicker.time_format') }}</span>
                     <x-keys::group :attached="true">
                         <x-keys::button
                             size="xs"
@@ -208,7 +208,7 @@
 
             {{-- Quick Time Presets --}}
             <div class="mb-3">
-                <label class="text-xs font-medium text-muted mb-2 block">{{ __('keys-ui::keys-ui.timepicker.quick_select') }}</label>
+                <label class="text-xs font-medium text-text-muted mb-2 block">{{ __('keys-ui::keys-ui.timepicker.quick_select') }}</label>
                 <div class="flex flex-wrap gap-2">
                     @foreach($timePresets as $preset)
                         <x-keys::button
@@ -226,9 +226,9 @@
             <div class="{{ $gridClasses }}" data-timepicker-grid>
 
                 <div class="flex flex-col">
-                    <label class="text-xs font-medium text-muted mb-2">{{ $format === '12' ? __('keys-ui::keys-ui.timepicker.hour') : __('keys-ui::keys-ui.timepicker.hours') }}</label>
+                    <label class="text-xs font-medium text-text-muted mb-2">{{ $format === '12' ? __('keys-ui::keys-ui.timepicker.hour') : __('keys-ui::keys-ui.timepicker.hours') }}</label>
                     <div
-                        class="h-32 overflow-y-auto border border-line rounded bg-elevation-1 scrollbar-thin py-1"
+                        class="h-32 overflow-y-auto border border-border rounded bg-card scrollbar-thin py-1"
                         data-timepicker-hours
                         role="listbox"
                         aria-label="Select hour"
@@ -237,7 +237,7 @@
                             <button
                                 type="button"
                                 data-timepicker-hour="{{ $hour }}"
-                                class="w-full px-3 py-2 text-sm text-primary text-left hover:bg-hover focus-visible:bg-accent focus-visible:text-accent-foreground [&.selected]:bg-accent [&.selected]:text-white [&.selected]:font-medium transition-colors"
+                                class="w-full px-3 py-2 text-sm text-text text-left hover:bg-hover focus-visible:bg-brand focus-visible:text-brand-foreground [&.selected]:bg-brand [&.selected]:text-brand-foreground [&.selected]:font-medium transition-colors"
                                 role="option"
                                 aria-selected="false"
                             >
@@ -250,13 +250,13 @@
 
                 <div class="flex flex-col">
                     <div class="flex items-center justify-between mb-2">
-                        <label class="text-xs font-medium text-muted">{{ __('keys-ui::keys-ui.timepicker.minutes') }}</label>
+                        <label class="text-xs font-medium text-text-muted">{{ __('keys-ui::keys-ui.timepicker.minutes') }}</label>
                         @if($step > 1)
-                            <span class="text-xs text-muted">{{ $step }} min</span>
+                            <span class="text-xs text-text-muted">{{ $step }} min</span>
                         @endif
                     </div>
                     <div
-                        class="h-32 overflow-y-auto border border-line rounded bg-input scrollbar-thin py-1"
+                        class="h-32 overflow-y-auto border border-border rounded bg-input scrollbar-thin py-1"
                         role="listbox"
                         aria-label="Select minutes"
                     >
@@ -264,7 +264,7 @@
                             <button
                                 type="button"
                                 data-timepicker-minute="{{ $minute }}"
-                                class="w-full px-3 py-2 text-sm text-primary text-left hover:bg-hover focus-visible:bg-accent focus-visible:text-accent-foreground [&.selected]:bg-accent [&.selected]:text-white [&.selected]:font-medium transition-colors"
+                                class="w-full px-3 py-2 text-sm text-text text-left hover:bg-hover focus-visible:bg-brand focus-visible:text-brand-foreground [&.selected]:bg-brand [&.selected]:text-brand-foreground [&.selected]:font-medium transition-colors"
                                 role="option"
                                 aria-selected="false"
                             >
@@ -277,9 +277,9 @@
 
                 @if($showSeconds)
                     <div class="flex flex-col">
-                        <label class="text-xs font-medium text-muted mb-2">{{ __('keys-ui::keys-ui.timepicker.seconds') }}</label>
+                        <label class="text-xs font-medium text-text-muted mb-2">{{ __('keys-ui::keys-ui.timepicker.seconds') }}</label>
                         <div
-                            class="h-32 overflow-y-auto border border-line rounded bg-input scrollbar-thin py-1"
+                            class="h-32 overflow-y-auto border border-border rounded bg-input scrollbar-thin py-1"
                             role="listbox"
                             aria-label="Select seconds"
                         >
@@ -287,7 +287,7 @@
                                 <button
                                     type="button"
                                     data-timepicker-second="{{ $second }}"
-                                    class="w-full px-3 py-2 text-sm text-primary text-left hover:bg-hover focus-visible:bg-accent focus-visible:text-accent-foreground [&.selected]:bg-accent [&.selected]:text-white [&.selected]:font-medium transition-colors"
+                                    class="w-full px-3 py-2 text-sm text-text text-left hover:bg-hover focus-visible:bg-brand focus-visible:text-brand-foreground [&.selected]:bg-brand [&.selected]:text-brand-foreground [&.selected]:font-medium transition-colors"
                                     role="option"
                                     aria-selected="false"
                                 >
@@ -300,14 +300,14 @@
 
 
                 <div class="{{ $periodSectionClasses }}" data-timepicker-period-section>
-                    <label class="text-xs font-medium text-muted mb-2">{{ __('keys-ui::keys-ui.timepicker.period') }}</label>
+                    <label class="text-xs font-medium text-text-muted mb-2">{{ __('keys-ui::keys-ui.timepicker.period') }}</label>
                     <div class="space-y-1" role="radiogroup" aria-label="Select AM or PM">
                         @foreach($periodOptions as $period)
                             <x-keys::button
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                class="w-full justify-start [&.selected]:bg-accent [&.selected]:text-white [&.selected]:border-accent"
+                                class="w-full justify-start [&.selected]:bg-brand [&.selected]:text-brand-foreground [&.selected]:border-brand"
                                 data-timepicker-period="{{ $period }}"
                                 role="radio"
                                 aria-checked="false"
@@ -320,7 +320,7 @@
             </div>
 
 
-            <div class="flex items-center justify-between px-4 py-3 mt-3 border-t border-line">
+            <div class="flex items-center justify-between px-4 py-3 mt-3 border-t border-border">
                 <x-keys::button
                     variant="outline"
                     size="sm"

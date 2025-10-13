@@ -4,7 +4,7 @@
     $rowVariantClasses = '';
     if ($selected) {
         // These classes are now applied directly based on the $selected prop
-        $rowVariantClasses = 'bg-accent-subtle border-l-2 border-accent';
+        $rowVariantClasses = 'bg-brand-subtle border-l-2 border-brand';
     } else {
         $rowVariantClasses = match ($variant) {
             'danger' => 'bg-danger-subtle',
@@ -35,7 +35,7 @@
                     data-table-row-select="true"
                     :data-row-id="$rowId"
                     size="md"
-                    color="accent"
+                    color="brand"
                 />
             </td>
         @endif
@@ -53,7 +53,7 @@
                     data-table-row-select="true"
                     :data-row-id="$rowId"
                     size="md"
-                    color="accent"
+                    color="brand"
                 />
             </td>
         @endif

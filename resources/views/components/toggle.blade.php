@@ -33,7 +33,7 @@
     };
 
     $focusColor = match ($color) {
-        'brand' => 'peer-focus-visible:ring-accent/30',
+        'brand' => 'peer-focus-visible:ring-brand/30',
         'success' => 'peer-focus-visible:ring-success/30',
         'warning' => 'peer-focus-visible:ring-warning/30',
         'danger' => 'peer-focus-visible:ring-danger/30',
@@ -44,11 +44,11 @@
         'yellow' => 'peer-focus-visible:ring-yellow-300 dark:peer-focus-visible:ring-yellow-800',
         'teal' => 'peer-focus-visible:ring-teal-300 dark:peer-focus-visible:ring-teal-800',
         'orange' => 'peer-focus-visible:ring-orange-300 dark:peer-focus-visible:ring-orange-800',
-        default => 'peer-focus-visible:ring-accent/30'
+        default => 'peer-focus-visible:ring-brand/30'
     };
 
     $checkedColor = match ($color) {
-        'brand' => 'peer-checked:bg-accent',
+        'brand' => 'peer-checked:bg-brand',
         'success' => 'peer-checked:bg-success',
         'warning' => 'peer-checked:bg-warning',
         'danger' => 'peer-checked:bg-danger',
@@ -59,7 +59,7 @@
         'yellow' => 'peer-checked:bg-yellow-400',
         'teal' => 'peer-checked:bg-teal-600',
         'orange' => 'peer-checked:bg-orange-500',
-        default => 'peer-checked:bg-accent'
+        default => 'peer-checked:bg-brand'
     };
 
     $thumbSize = match ($size) {
@@ -118,7 +118,7 @@
 
     
     @if($hasContent())
-        <div class="flex-1 min-w-0 focus-within:[&_[data-icon]]:text-accent">
+        <div class="flex-1 min-w-0 focus-within:[&_[data-icon]]:text-brand">
             <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0">
                     @if($label)
