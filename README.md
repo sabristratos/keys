@@ -497,14 +497,20 @@ Keys::modal()->confirm()
 
 ### Toast Manager
 
+Toast notifications can be triggered from PHP (server-side), JavaScript (client-side), or Livewire events.
+
+#### PHP/Server-Side Usage
+
 ```php
 use Keys\UI\Facades\Keys;
 
 // Success toast
 Keys::toast()->success('Item saved successfully!');
+Keys::toast()->success('Profile updated.', 'Success'); // With title
 
 // Error toast
-Keys::toast()->error('An error occurred.', 'Error');
+Keys::toast()->error('An error occurred.');
+Keys::toast()->error('Failed to save.', 'Error'); // With title
 
 // Warning toast
 Keys::toast()->warning('Please review your changes.');
@@ -512,12 +518,107 @@ Keys::toast()->warning('Please review your changes.');
 // Info toast
 Keys::toast()->info('New update available.');
 
-// Custom toast
-Keys::toast()->show('custom', [
+// Custom variant with options
+Keys::toast()->show('success', [
     'message' => 'Custom message',
     'title' => 'Custom Title',
-    'duration' => 5000
+    'duration' => 3000,
+    'position' => 'bottom-right'
 ]);
+```
+
+#### JavaScript/Client-Side Usage
+
+```javascript
+// Success toast
+window.ToastActions.success('Item saved!');
+
+// Error toast
+window.ToastActions.error('Something went wrong!');
+
+// Warning toast
+window.ToastActions.warning('Be careful!');
+
+// Info toast
+window.ToastActions.info('FYI: Something happened');
+
+// With options
+window.ToastActions.success('Success!', {
+    position: 'bottom-right',
+    duration: 3000,
+    persistent: false
+});
+
+// Custom variant
+window.ToastActions.show('success', {
+    message: 'Your message',
+    title: 'Optional Title',
+    position: 'top-right',
+    duration: 5000
+});
+```
+
+#### Livewire Event Dispatching
+
+From your Livewire component:
+
+```php
+public function save()
+{
+    // ... save logic
+
+    $this->dispatch('showToast', [
+        'variant' => 'success',
+        'message' => 'Item saved successfully!',
+        'title' => 'Success',
+        'position' => 'top-right',
+        'duration' => 5000
+    ]);
+}
+```
+
+Or using Alpine.js in Blade templates:
+
+```blade
+<x-keys::button
+    @click="$dispatch('showToast', {
+        variant: 'success',
+        message: 'Action completed!'
+    })">
+    Show Toast
+</x-keys::button>
+```
+
+#### Toast Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `message` | string | required | Toast message content |
+| `title` | string | null | Optional toast title |
+| `variant` | string | `'info'` | Toast type: `info`, `success`, `warning`, `danger`, `neutral` |
+| `position` | string | `'top-right'` | Position: `top-left`, `top-center`, `top-right`, `bottom-left`, `bottom-center`, `bottom-right` |
+| `duration` | int | `5000` | Auto-dismiss duration in milliseconds (0 = no auto-dismiss) |
+| `persistent` | bool | `false` | If true, toast won't auto-dismiss |
+| `icon` | string | auto | Custom heroicon name |
+
+#### Dismissing Toasts
+
+```php
+// PHP
+Keys::toast()->dismiss('toast-id');
+Keys::toast()->dismissAll();
+```
+
+```javascript
+// JavaScript
+window.ToastActions.dismiss('toast-id');
+window.ToastActions.dismissAll();
+```
+
+```php
+// Livewire
+$this->dispatch('hideToast', ['id' => 'toast-id']); // Dismiss specific
+$this->dispatch('hideToast'); // Dismiss all
 ```
 
 ## Livewire Integration
@@ -555,6 +656,49 @@ Keys UI components work seamlessly with Livewire 3.
 />
 ```
 
+### Toast Notifications with Livewire
+
+Show toast notifications from Livewire components:
+
+```php
+// In your Livewire component
+public function save()
+{
+    // Validation and save logic...
+
+    // Show success toast
+    $this->dispatch('showToast', [
+        'variant' => 'success',
+        'message' => 'Changes saved successfully!',
+        'title' => 'Success'
+    ]);
+}
+
+public function delete()
+{
+    // Delete logic...
+
+    $this->dispatch('showToast', [
+        'variant' => 'danger',
+        'message' => 'Item deleted',
+        'duration' => 3000
+    ]);
+}
+```
+
+Or use the Keys facade directly in Livewire:
+
+```php
+use Keys\UI\Facades\Keys;
+
+public function save()
+{
+    // Save logic...
+
+    Keys::toast()->success('Saved successfully!', 'Success');
+}
+```
+
 ### Livewire Events
 
 ```blade
@@ -563,8 +707,21 @@ Keys UI components work seamlessly with Livewire 3.
     Edit User
 </x-keys::button>
 
+<!-- Dispatch toast event -->
+<x-keys::button
+    wire:click="$dispatch('showToast', {
+        variant: 'info',
+        message: 'Button clicked!'
+    })">
+    Show Toast
+</x-keys::button>
+
 <!-- Listen for events -->
 <div x-data @modal-closed.window="console.log('Modal closed')">
+    <!-- Content -->
+</div>
+
+<div x-data @toast:show.window="console.log('Toast shown:', $event.detail)">
     <!-- Content -->
 </div>
 ```
